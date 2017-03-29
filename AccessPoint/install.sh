@@ -12,7 +12,7 @@ sudo service dhcpd restart
 sudo ifdown wlan0; sudo ifup wlan0
 
 echo "Kopiranje konfiguracionih fajlova"
-sudo cp ./hostapd.conf /etc/hostapd.conf
+sudo cp ./hostapd.conf /etc/hostapd/hostapd.conf
 sudo cp ./hostapd /etc/default/hostapd
 sudo cp ./dnsmasq.conf /etc/dnsmasq.conf
 
