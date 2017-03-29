@@ -4,8 +4,10 @@ INSTALLED=$(cat ./installed)
 echo "Instalacija potrebnog softvera ( hostapd & dnsmasq )"
 sudo apt-get install hostapd dnsmasq -y
 
-echo 'Preusmjeravanje interfejsa'
-echo "denyinterfaces wlan0" | sudo tee /etc/dhcpd.conf -a
+if [ $INSTALLED = 0 ] ; then
+	echo 'Preusmjeravanje interfejsa'
+	echo "denyinterfaces wlan0" | sudo tee /etc/dhcpd.conf -a
+fi
 
 echo "Applying static IP for the access point and restarting the service"
 sudo cp ./interfaces /etc/network/interfaces
@@ -26,9 +28,10 @@ sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
 
-if [ $INSTALLED = 0]; then
+if [ $INSTALLED = 0 ] ; then
 	echo "Aktivacija povracaja IP adresa na reboot-u"
 	sudo sed -i -e '$i iptables-restore < /etc/iptables.ipv4.nat  \n' /etc/rc.local
+fi
 
 echo "Pokretanje servisa"
 sudo service hostapd start
