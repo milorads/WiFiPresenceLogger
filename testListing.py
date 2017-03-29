@@ -11,3 +11,22 @@ while 1:
     print re_out
     
     time.sleep(5)
+
+    #problems with scapy for python, trying python 3
+import sys
+from datetime import datetime
+try:
+    interface = input("enter iface")
+    ips = input("ip range")
+except KeyboardInterrupt:
+    print
+    'Requested shutdown'
+    sys.exit(1)
+try:
+    from scapy import srp,Ether,ARP,conf
+except ImportError:
+    del scapy
+    from scapy import all as scapy
+conf.verb = 0
+ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst = ips), timeout = 2, iface = interface, inter =0.1)
+# now read data and run this at interval
