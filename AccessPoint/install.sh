@@ -27,3 +27,7 @@ sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
 
 echo "Aktivacija povracaja IP adresa na reboot-u"
 sudo sed -i -e '$i iptables-restore < /etc/iptables.ipv4.nat  \n' /etc/rc.local
+
+echo "Pokretanje servisa"
+sudo service hostapd start
+sudo service dnsmasq start
