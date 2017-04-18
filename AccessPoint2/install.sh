@@ -19,3 +19,7 @@ sudo service hostapd stop
 
 sudo apt-get install dnsmasq
 
+sudo service dnsmasq start
+sudo service dnsmasq restart
+
+echo "172.26.1.1	eins" | sudo tee /etc/hosts
