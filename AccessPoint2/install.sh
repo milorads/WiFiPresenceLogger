@@ -2,8 +2,11 @@
 
 INSTALLED=$(cat ./installed)
 echo "Instalacija potrebnog softvera"
-echo "lighttpd"
+
+echo "update apt-get"
 sudo apt-get update
+
+echo "lighttpd"
 sudo apt-get install lighttpd
 
 sudo chown www-data:www-data /var/www
@@ -28,8 +31,10 @@ sudo service dnsmasq restart
 
 if [ $INSTALLED = 0 ] ; then
 	echo "changing hosts"
-	echo "172.26.1.1	eins" | sudo tee /etc/hosts
+	sudo sed -i -e '192.168.3.1	eins  \n' /etc/hosts
 fi
+
+echo '1' > ./installed
 
 echo "rebooting..."
 sudo reboot

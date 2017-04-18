@@ -19,7 +19,7 @@ allow-hotplug wlan0
 #    broadcast 172.24.1.255
 #    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 iface wlan0 inet static
-address 172.26.1.1
+address 192.168.3.1
 netmask 255.255.255.0
 
 allow-hotplug wlan1
