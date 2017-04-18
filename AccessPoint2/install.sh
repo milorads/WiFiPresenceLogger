@@ -11,4 +11,11 @@ sudo usermod -a -G www-data pi
 
 sudo apt-get install hostapd
 sudo cp ./interfaces /etc/network/interfaces
+sudo cp ./hostapd.conf /etc/hostapd/hostapd.conf
+sudo cp ./hostapd /etc/default/hostapd
+
+sudo service hostapd start
+sudo service hostapd stop
+
+sudo apt-get install dnsmasq
 
