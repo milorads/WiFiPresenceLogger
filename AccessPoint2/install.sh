@@ -24,6 +24,7 @@ sudo service hostapd stop
 
 echo "dnsmasq"
 sudo apt-get install dnsmasq
+sudo cp ./dnsmasq.conf /etc/dnsmasq.conf
 
 sudo service dnsmasq start
 sudo service dnsmasq restart
@@ -37,4 +38,4 @@ fi
 echo '1' > ./installed
 
 echo "rebooting..."
-sudo reboot
+#!sudo reboot
