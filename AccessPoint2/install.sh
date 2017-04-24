@@ -35,6 +35,9 @@ if [ $INSTALLED = 0 ] ; then
 	sudo sed -i -e '192.168.3.1	eins  \n' /etc/hosts
 fi
 
+sudo iptables -t nat -A PREROUTING -d 0/0 -p tcp --dport 80 -j DNAT --to-destination 192.168.3.1
+sudo iptables -t nat -A PREROUTING -d 0/0 -p tcp --dport 443 -j DNAT --to-destination 192.168.3.1
+
 echo '1' > ./installed
 
 echo "rebooting..."
