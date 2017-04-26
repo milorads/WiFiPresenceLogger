@@ -1,0 +1,31 @@
+sudo apt-get update
+sudo apt-get install hostapd
+sudo gedit /etc/hostapd/hostapd.conf
+
+interface=wlan0
+driver=nl80211
+ssid=PrijavaPrisustva
+hw_mode=g
+channel=11
+ieee80211n=1
+wmm_enabled=1
+ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_passphrase=raspberry
+rsn_pairwise=CCMP
+
+sudo gedit /etc/dhcp/dhcpd.conf
+--authoritative + 
+
+subnet 10.0.10.0 netmask 255.255.255.0 {
+	range 10.0.10.2 10.0.10.254
+	option domain-name ¨prijavaprisustva.rs¨;
+	option domain-name-servers 8.8.8.8,8.8.8.4.4;
+	option routers 10.0.10.1
+	interface wlan0
+}
+
