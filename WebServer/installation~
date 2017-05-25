@@ -23,3 +23,5 @@ node hello.js
 mkdir -> cd to it -> npm init
 npm install express --save
 npm install connect --save
+
+npm install sqlite3 --save

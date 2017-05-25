@@ -25,3 +25,10 @@ npm install express --save
 npm install connect --save
 
 npm install sqlite3 --save
+
+added tar gz for those preferring manual install, otherwise:
+sudo add-apt-repository -y ppa:linuxgndu/sqlitebrowser
+sudo apt-get update
+sudo apt-get install sqlitebrowser
+
+
