@@ -1,0 +1,21 @@
+cd /usr/local
+sudo tar xzvf ~/Documents/WiFiPresenceLogger/WebServer/node-v7.10.0-linux-armv6l.tar.gz
+
+Link encap:Ethernet  HWaddr ec:f4:bb:8d:f6:d7  
+          inet addr:172.22.10.123  Bcast:172.22.10.255  Mask:255.255.255.0
+          inet6 addr: fe80::eef4:bbff:fe8d:f6d7/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:142820 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:100129 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:163683544 (163.6 MB)  TX bytes:10883643 (10.8 MB)
+
+var http = require('http');
+http.createServer(function (request, response) {
+response.writeHead(200, {'Content-Type': 'text/plain'});
+response.end('Hello World!n');
+}).listen(8000,'192.168.0.22');
+
+console.log('Server running at http://192.168.0.22:8000/');
+
+node hello.js
