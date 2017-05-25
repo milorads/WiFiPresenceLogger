@@ -1,0 +1,4 @@
+cd /usr/local
+sudo tar xzvf ~/Documents/WiFiPresenceLogger/WebServer/node-v7.10.0-linux-armv6l.tar.gz
+sudo tar xzvf ~/Documents/WiFiPresenceLogger/WebServer/node-v7.10.0-linux-armv6l.tar.gz
+
