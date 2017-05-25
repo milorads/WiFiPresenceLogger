@@ -19,3 +19,7 @@ response.end('Hello World!n');
 console.log('Server running at http://192.168.0.22:8000/');
 
 node hello.js
+
+mkdir -> cd to it -> npm init
+npm install express --save
+npm install connect --save
