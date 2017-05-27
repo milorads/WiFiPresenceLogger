@@ -2,27 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/lib/binding/node-v11-linux-x64/node_sqlite3.node" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/lib/binding/node-v11-linux-x64/node_sqlite3.node" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../AccessPoint/connect.sh" afterPath="$PROJECT_DIR$/../../../AccessPoint/connect.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../AccessPoint/install.sh" afterPath="$PROJECT_DIR$/../../../AccessPoint/install.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../AccessPoint2/install.sh" afterPath="$PROJECT_DIR$/../../../AccessPoint2/install.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controlPanel.iml" afterPath="$PROJECT_DIR$/controlPanel.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/Controller.java" afterPath="$PROJECT_DIR$/src/sample/Controller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/sample.fxml" afterPath="$PROJECT_DIR$/src/sample/sample.fxml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/express/node_modules/send/node_modules/.bin/mime" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/express/node_modules/send/node_modules/.bin/mime" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/express/node_modules/send/node_modules/mime/cli.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/express/node_modules/send/node_modules/mime/cli.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/deps/sqlite3.gyp" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/deps/sqlite3.gyp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/.bin/node-pre-gyp" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/.bin/node-pre-gyp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/nan/tools/1to2.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/nan/tools/1to2.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/bin/node-pre-gyp" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/bin/node-pre-gyp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/mkdirp/bin/cmd.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/mkdirp/bin/cmd.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/nopt/bin/nopt.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/nopt/bin/nopt.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/nopt/examples/my-program.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/nopt/examples/my-program.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/rc/index.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/rc/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/rc/node_modules/strip-json-comments/cli.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/rc/node_modules/strip-json-comments/cli.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/index.js" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/node_modules/har-validator/bin/har-validator" afterPath="$PROJECT_DIR$/../../serviceApp/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/node_modules/har-validator/bin/har-validator" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -98,10 +78,11 @@
       <file leaf-file-name="Controller.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/sample/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="33" column="11" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
+            <state relative-caret-position="55">
+              <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
               </folding>
             </state>
           </provider>
@@ -158,8 +139,8 @@
       <list>
         <option value="$PROJECT_DIR$/src/sample/Main.java" />
         <option value="$PROJECT_DIR$/src/sample/sample.fxml" />
-        <option value="$PROJECT_DIR$/src/sample/Controller.java" />
         <option value="$PROJECT_DIR$/../../../sqlite jdbc driver/sqlite-jdbc-3.18.0.jar!/org/sqlite/core/CoreConnection.class" />
+        <option value="$PROJECT_DIR$/src/sample/Controller.java" />
       </list>
     </option>
   </component>
@@ -733,7 +714,7 @@
       <workItem from="1495703254266" duration="144000" />
       <workItem from="1495703432145" duration="36000" />
       <workItem from="1495707909698" duration="1105000" />
-      <workItem from="1495881890720" duration="1460000" />
+      <workItem from="1495881890720" duration="1839000" />
     </task>
     <task id="LOCAL-00001" summary="added buttons">
       <created>1495708926953</created>
@@ -746,11 +727,11 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4047000" />
+    <option name="totallyTimeSpent" value="4426000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="30" width="1602" height="871" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -770,7 +751,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39947438" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39947438" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -804,7 +785,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/sample/Controller.java</url>
-          <line>21</line>
+          <line>20</line>
           <properties />
         </line-breakpoint>
       </breakpoints>
@@ -833,6 +814,7 @@
           <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
           </folding>
         </state>
       </provider>
@@ -875,6 +857,7 @@
           <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
           </folding>
         </state>
       </provider>
@@ -906,6 +889,7 @@
           <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
           </folding>
         </state>
       </provider>
@@ -937,6 +921,7 @@
           <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
           </folding>
         </state>
       </provider>
@@ -994,10 +979,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/sample/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="33" column="11" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
+        <state relative-caret-position="55">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1495883870738" expanded="true" signature="582:622" ph="SELECT rowid... user_info" />
           </folding>
         </state>
       </provider>
