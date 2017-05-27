@@ -8,7 +8,12 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
+<<<<<<< HEAD
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+=======
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="sample.Controller">
+>>>>>>> a79e9ba60ee55f6d09b3742245bfbad22fc2ef2e
    <columnConstraints>
       <ColumnConstraints />
    </columnConstraints>
@@ -19,10 +24,17 @@
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0">
          <top>
+<<<<<<< HEAD
             <Button fx:id="runner" mnemonicParsing="false" onMouseClicked="#Runner" text="Web Server Runner" BorderPane.alignment="CENTER" />
          </top>
          <left>
             <Button fx:id="tester" onMouseClicked="#JDBCTester" mnemonicParsing="false" text="JDBC Tester" BorderPane.alignment="CENTER" />
+=======
+            <Button fx:id="runner" onMouseClicked="#Runner" mnemonicParsing="false" text="Web Server Runner" BorderPane.alignment="CENTER" />
+         </top>
+         <left>
+            <Button mnemonicParsing="false" text="Button" BorderPane.alignment="CENTER" />
+>>>>>>> a79e9ba60ee55f6d09b3742245bfbad22fc2ef2e
          </left>
          <center>
             <Button mnemonicParsing="false" text="Button" BorderPane.alignment="CENTER" />
