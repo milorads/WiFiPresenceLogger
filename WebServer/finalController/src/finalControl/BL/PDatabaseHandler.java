@@ -1,5 +1,7 @@
 package finalControl.BL;
 
+import finalControl.Models.PDBModel;
+
 import java.sql.*;
 
 public class PDatabaseHandler implements IDatabase {
