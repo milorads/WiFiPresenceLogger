@@ -13,7 +13,7 @@ public class GUIController extends Home {
     @FXML
     public void Runner() throws IOException {
 
-        String[] args = new String[] {"/bin/bash", "-c", "node ./serviceApp/api.js"};
+        String[] args = new String[] {"/bin/bash", "-c", "node ./nodeWebServer/api.js"};
         Process proc = new ProcessBuilder(args).start();
 
     }
