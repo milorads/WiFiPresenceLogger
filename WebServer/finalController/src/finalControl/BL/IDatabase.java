@@ -5,7 +5,4 @@ package finalControl.BL;
  */
 public interface IDatabase {
     boolean Initialized();
-    void GetAll();
-    void AddRecord();
 }
-

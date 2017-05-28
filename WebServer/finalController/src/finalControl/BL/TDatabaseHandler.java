@@ -1,11 +1,13 @@
 package finalControl.BL;
 
+import finalControl.Models.TDBModel;
+
 import java.sql.*;
 
 /**
  * Created by milor on 28.5.2017..
  */
-public class TDatabaseHandler implements IDatabase {
+public class TDatabaseHandler implements IDatabase, ITemporaryDatabase {
 
     private static TDatabaseHandler instance= null;
     private static Object mutex= new Object();
@@ -36,5 +38,15 @@ public class TDatabaseHandler implements IDatabase {
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    @Override
+    public TDBModel[] GetAll() {
+        return new TDBModel[0];
+    }
+
+    @Override
+    public boolean AddRecord(TDBModel model) {
+        return false;
     }
 }

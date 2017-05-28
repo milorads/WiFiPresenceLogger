@@ -4,7 +4,7 @@ import finalControl.Models.PDBModel;
 
 import java.sql.*;
 
-public class PDatabaseHandler implements IDatabase {
+public class PDatabaseHandler implements IDatabase, IPermanentDatabase {
 
     private static PDatabaseHandler instance= null;
     private static Object mutex= new Object();
@@ -37,5 +37,15 @@ public class PDatabaseHandler implements IDatabase {
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    @Override
+    public PDBModel[] GetAll() {
+        return new PDBModel[0];
+    }
+
+    @Override
+    public boolean AddRecord(PDBModel model) {
+        return false;
     }
 }
