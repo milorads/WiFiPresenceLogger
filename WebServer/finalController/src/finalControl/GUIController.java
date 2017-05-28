@@ -1,52 +1,20 @@
-package sample;
+package finalControl;
 
 import javafx.fxml.FXML;
 import java.sql.*;
 import java.io.IOException;
 
-
 class Home{
     public static String Home = "~/Documents/WiFresenceLogger/WebServer/serviceApp/";
 }
 
-public class Controller extends Home{
+public class GUIController extends Home {
 
     @FXML
     public void Runner() throws IOException {
-//        ProcessBuilder b = new ProcessBuilder("node "+Home+"api.js");
-//        try {
-//            b.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-//        Runtime rt = Runtime.getRuntime();
-//        String[] commands = {"node ./serviceApp/api.js"};
-//        Process proc;
-//        try {
-//            proc = rt.exec(commands);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         String[] args = new String[] {"/bin/bash", "-c", "node ./serviceApp/api.js"};
         Process proc = new ProcessBuilder(args).start();
-
-//        BufferedReader br = new BufferedReader(new FileReader("./serviceApp/api.js"));
-//        try {
-//            StringBuilder sb = new StringBuilder();
-//            String line = br.readLine();
-//
-//            while (line != null) {
-//                sb.append(line);
-//                sb.append(System.lineSeparator());
-//                line = br.readLine();
-//            }
-//            String everything = sb.toString();
-//            String a = "";
-//        } finally {
-//            br.close();
-//        }
 
     }
 
@@ -64,8 +32,8 @@ public class Controller extends Home{
             String sql = "SELECT rowid AS id, info  FROM user_info";
 
             try (
-                 Statement stmt  = conn.createStatement();
-                 ResultSet rs    = stmt.executeQuery(sql)){
+                    Statement stmt  = conn.createStatement();
+                    ResultSet rs    = stmt.executeQuery(sql)){
 
                 // loop through the result set
                 while (rs.next()) {
@@ -86,7 +54,6 @@ public class Controller extends Home{
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
+        }
     }
-    }
-
 }
