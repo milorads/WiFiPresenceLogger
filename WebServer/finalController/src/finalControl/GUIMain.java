@@ -7,14 +7,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.awt.*;
+
 public class GUIMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("GUIStyle.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GUIStyle.fxml"));
+        Parent root = loader.load();
+        //Parent root = FXMLLoader.load(getClass().getResource("GUIStyle.fxml"));
         primaryStage.setTitle("Kontrola registracije");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 320, 480));
         primaryStage.show();
+        //ScrollPane sp = (ScrollPane)loader.getNamespace().get("scrollPane");
     }
 
 
