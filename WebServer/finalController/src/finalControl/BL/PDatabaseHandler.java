@@ -21,14 +21,9 @@ public class PDatabaseHandler implements IDatabase {
     public boolean Initialized(){
         Connection conn = null;
         try {
-            // db parameters
             String url = "jdbc:sqlite:Databases/PDB.db";
-            ResultSet catalogs = null;
-
-            // create a connection to the database
             conn = DriverManager.getConnection(url);
             DatabaseMetaData dbm = conn.getMetaData();
-            // check if "employee" table is there
             ResultSet tables = dbm.getTables(null, null, "user_info", null);
             if (tables.next()) {
                 return true;
