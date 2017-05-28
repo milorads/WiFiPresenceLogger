@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="finalController:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/finalController_jar</output-path>
+    <root id="archive" name="finalController.jar">
+      <element id="module-output" name="finalController" />
+    </root>
+  </artifact>
+</component>
