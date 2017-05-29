@@ -38,11 +38,11 @@ public class TDBModel {
         Date = date;
     }
 
-    public long getCounter() {
+    public int getCounter() {
         return Counter;
     }
 
-    public void setCounter(long counter) {
+    public void setCounter(int counter) {
         Counter = counter;
     }
 
@@ -50,5 +50,5 @@ public class TDBModel {
     private Mac Mac;
     private Ip Ip;
     private java.sql.Date Date;
-    private long Counter;
+    private int Counter;
 }
