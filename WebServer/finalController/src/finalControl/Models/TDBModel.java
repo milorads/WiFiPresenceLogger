@@ -46,9 +46,9 @@ public class TDBModel {
         Counter = counter;
     }
 
-    public int Id;
-    public Mac Mac;
-    public Ip Ip;
-    public java.sql.Date Date;
-    public long Counter;
+    private int Id;
+    private Mac Mac;
+    private Ip Ip;
+    private java.sql.Date Date;
+    private long Counter;
 }

@@ -14,8 +14,8 @@ public class PDBModel {
         Id = id;
     }
 
-    public finalControl.Models.Mac getMac() {
-        return Mac;
+    public String getMac() {
+        return Mac.Get();
     }
 
     public void setMac(finalControl.Models.Mac mac) {
@@ -30,7 +30,7 @@ public class PDBModel {
         Index = index;
     }
 
-    public int Id;
-    public Mac Mac;
-    public String Index;
+    private int Id;
+    private Mac Mac;
+    private String Index;
 }
