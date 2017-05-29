@@ -10,5 +10,5 @@ import java.util.ArrayList;
 public interface IPermanentDatabase {
      ArrayList<PDBModel> GetAll();// dummy parameter
      boolean AddRecord(PDBModel model);
-
+     PDBModel Search(String Index);
 }

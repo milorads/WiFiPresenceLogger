@@ -80,6 +80,12 @@ public class PDatabaseHandler implements IDatabase, IPermanentDatabase {
         }
     }
 
+    @Override
+    public PDBModel Search(String Index) {
+        // todo
+        return null;
+    }
+
     private Connection connect(){
         Connection conn = null;
         try{

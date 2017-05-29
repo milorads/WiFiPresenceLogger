@@ -14,7 +14,6 @@ import java.util.ArrayList;
  */
 public class TDatabaseHandler implements IDatabase, ITemporaryDatabase {
 
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static String url = "jdbc:sqlite:Databases/TDB.db";
     private static TDatabaseHandler instance= null;
     private static Object mutex= new Object();
