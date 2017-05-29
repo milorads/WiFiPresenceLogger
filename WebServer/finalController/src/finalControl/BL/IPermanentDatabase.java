@@ -1,5 +1,6 @@
 package finalControl.BL;
 
+import finalControl.Models.Mac;
 import finalControl.Models.PDBModel;
 
 import java.util.ArrayList;
@@ -11,4 +12,5 @@ public interface IPermanentDatabase {
      ArrayList<PDBModel> GetAll();// dummy parameter
      boolean AddRecord(PDBModel model);
      PDBModel Search(String Index);
+     PDBModel Search(Mac mac);
 }
