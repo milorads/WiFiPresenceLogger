@@ -81,7 +81,6 @@ public class PDatabaseHandler implements IDatabase, IPermanentDatabase {
     }
 
     private Connection connect(){
-        String url = "jdbc:sqlite:Databases/PDB.db";
         Connection conn = null;
         try{
             conn = DriverManager.getConnection(url);

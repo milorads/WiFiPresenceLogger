@@ -14,16 +14,16 @@ public class TDBModel {
         Id = id;
     }
 
-    public finalControl.Models.Mac getMac() {
-        return Mac;
+    public String getMac() {
+        return Mac.Get();
     }
 
     public void setMac(finalControl.Models.Mac mac) {
         Mac = mac;
     }
 
-    public finalControl.Models.Ip getIp() {
-        return Ip;
+    public String getIp() {
+        return Ip.Get();
     }
 
     public void setIp(finalControl.Models.Ip ip) {
