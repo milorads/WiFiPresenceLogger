@@ -16,7 +16,14 @@ import java.text.SimpleDateFormat;
 public class PythonHandler {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public void PythonCaller(){
+    public void PythonLogic(){
+       String callOutput = PythonCaller();
+        //parse mac and ip, add current datetime
+        //write to database
+        //run this thread until it is stopped by timer logic
+    }
+
+    public String PythonCaller(){
         StringWriter writer = new StringWriter(); //ouput will be stored here
 
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -31,7 +38,7 @@ public class PythonHandler {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        System.out.println(writer.toString());
+        return writer.toString();
     }
 
     private Mac MacParser() throws Exception {
