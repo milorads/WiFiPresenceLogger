@@ -107,7 +107,27 @@ public class PDatabaseHandler implements IDatabase, IPermanentDatabase {
 
     @Override
     public PDBModel Search(Mac mac) {
-        return null;
+        String sql = "SELECT Id, Mac, Index FROM users WHERE Mac = ?";
+        try(Connection conn = this.connect();
+            PreparedStatement pstatement = conn.prepareStatement(sql))
+        {
+            pstatement.setString(1, mac.Get());
+            PDBModel mod = new PDBModel();
+            ResultSet rs = pstatement.executeQuery();
+            if(rs.next()){
+                mod.setId(rs.getInt("Id"));
+                mod.setMac(new Mac(rs.getString("Mac")));
+                mod.setIndex(rs.getString("Index"));
+            }
+            return mod;
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     private Connection connect(){

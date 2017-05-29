@@ -7,7 +7,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/finalControl/BL/IPermanentDatabase.java" afterPath="$PROJECT_DIR$/src/finalControl/BL/IPermanentDatabase.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/finalControl/BL/PDatabaseHandler.java" afterPath="$PROJECT_DIR$/src/finalControl/BL/PDatabaseHandler.java" />
     </list>
     <ignored path="JavaFxApplication.iws" />
@@ -95,16 +94,15 @@
       <file leaf-file-name="PDatabaseHandler.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/finalControl/BL/PDatabaseHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
-              <caret line="96" column="23" selection-start-line="96" selection-start-column="23" selection-end-line="96" selection-end-column="23" />
+            <state relative-caret-position="17">
+              <caret line="76" column="5" selection-start-line="76" selection-start-column="5" selection-end-line="76" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1290#1300#0" expanded="true" />
-                <element signature="e#3366#3367#0" expanded="true" />
-                <element signature="e#3393#3394#0" expanded="true" />
-                <marker date="1496057985657" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
-                <marker date="1496057985657" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
-                <marker date="1496057985657" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+                <marker date="1496058366966" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
+                <marker date="1496058366966" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
+                <marker date="1496058366966" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+                <marker date="1496058366966" expanded="true" signature="3390:3436" ph="SELECT Id, M... users" />
               </folding>
             </state>
           </provider>
@@ -935,12 +933,12 @@
       <workItem from="1359379250712" duration="1302000" />
       <workItem from="1495973389334" duration="9670000" />
       <workItem from="1495988387519" duration="9446000" />
-      <workItem from="1496048173986" duration="8364000" />
+      <workItem from="1496048173986" duration="8807000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28782000" />
+    <option name="totallyTimeSpent" value="29225000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="32" width="1616" height="876" extended-state="6" />
@@ -1021,11 +1019,10 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1290#1300#0" expanded="true" />
-            <element signature="e#3366#3367#0" expanded="true" />
-            <element signature="e#3393#3394#0" expanded="true" />
-            <marker date="1496057985657" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
-            <marker date="1496057985657" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
-            <marker date="1496057985657" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
+            <marker date="1496058366966" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="3390:3436" ph="SELECT Id, M... users" />
           </folding>
         </state>
       </provider>
@@ -1333,16 +1330,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/finalControl/BL/PDatabaseHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="96" column="23" selection-start-line="96" selection-start-column="23" selection-end-line="96" selection-end-column="23" />
+        <state relative-caret-position="17">
+          <caret line="76" column="5" selection-start-line="76" selection-start-column="5" selection-end-line="76" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1290#1300#0" expanded="true" />
-            <element signature="e#3366#3367#0" expanded="true" />
-            <element signature="e#3393#3394#0" expanded="true" />
-            <marker date="1496057985657" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
-            <marker date="1496057985657" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
-            <marker date="1496057985657" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="1197:1229" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="1995:2036" ph="INSERT INTO users... " />
+            <marker date="1496058366966" expanded="true" signature="2536:2584" ph="SELECT Id, M... users" />
+            <marker date="1496058366966" expanded="true" signature="3390:3436" ph="SELECT Id, M... users" />
           </folding>
         </state>
       </provider>
