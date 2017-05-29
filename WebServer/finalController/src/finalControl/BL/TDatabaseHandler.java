@@ -47,7 +47,7 @@ public class TDatabaseHandler implements IDatabase, ITemporaryDatabase {
 
     @Override
     public ArrayList<TDBModel> GetAll() {
-        String sql = "SELECT Id, Mac, Ip, Counter, DBDate FROM connections";
+        String sql = "SELECT Id, Mac, Ip, DBDate FROM connections";
         ArrayList<TDBModel> listOfRecords  = new ArrayList<TDBModel>();
 
         try(Connection conn = this.connect();
@@ -58,7 +58,7 @@ public class TDatabaseHandler implements IDatabase, ITemporaryDatabase {
                 mod.setId(rs.getInt("Id"));
                 mod.setMac(new Mac(rs.getString("Mac")));
                 mod.setDate(rs.getDate("Date"));
-                mod.setCounter(rs.getInt("Counter"));
+                //mod.setCounter(rs.getInt("Counter"));
                 mod.setIp(new Ip(rs.getString("Ip")));
                 listOfRecords.add(mod);
             }
@@ -71,14 +71,14 @@ public class TDatabaseHandler implements IDatabase, ITemporaryDatabase {
 
     @Override
     public boolean AddRecord(TDBModel model) {
-        String sql = "INSERT INTO users(Mac, Ip, Counter, DBDate) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO users(Mac, Ip, DBDate) VALUES(?,?,?)";
 
         try(Connection conn = this.connect();
             PreparedStatement pstatement = conn.prepareStatement(sql)){
             pstatement.setString(1, model.getMac());
             pstatement.setString(2, model.getIp());
-            pstatement.setInt(3, model.getCounter());
-            pstatement.setDate(2, model.getDate());
+            //pstatement.setInt(3, model.getCounter());
+            pstatement.setDate(3, model.getDate());
             pstatement.executeUpdate();
             return true;
         } catch (SQLException e) {

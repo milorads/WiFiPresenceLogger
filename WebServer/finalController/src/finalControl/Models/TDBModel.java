@@ -38,17 +38,17 @@ public class TDBModel {
         Date = date;
     }
 
-    public int getCounter() {
-        return Counter;
-    }
-
-    public void setCounter(int counter) {
-        Counter = counter;
-    }
+//    public int getCounter() {
+//        return Counter;
+//    }
+//
+//    public void setCounter(int counter) {
+//        Counter = counter;
+//    }
 
     private int Id;
     private Mac Mac;
     private Ip Ip;
     private java.sql.Date Date;
-    private int Counter;
+    //private int Counter;
 }
