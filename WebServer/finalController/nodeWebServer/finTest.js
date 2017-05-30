@@ -33,9 +33,13 @@ app.post('/registration', function(req, res) {
 			pdb.all("SELECT * FROM users where Mac="+mac,function(err,prows){
 				if(prows.length ==0){
 					// add to perm base and inform
+					pdb.run("INSERT into users(Mac, Index) VALUES ("+mac+", "+index+")");
 					res.send('You have successfully registered the index number "' + req.body.index + '".');
 				}
 				else{
+					var tempInd;
+								prows.forEach(function (prow) {tempInd = prow.Index;}) 
+					res.send('This device has already been registered for the following index: "'+tempInd+'".');
 					//inform that already registered
 				}
 			});
