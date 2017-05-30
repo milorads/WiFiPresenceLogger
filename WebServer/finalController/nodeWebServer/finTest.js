@@ -11,8 +11,8 @@ app.use(bodyParser.json());
 app.use(express['static'](__dirname ));
 
 app.post('/registration', function(req, res) {
-  res.send('You sent the name "' + req.body.name + '".');
-  //console.log(req.body);
+  res.send('You have successfully registered the index number "' + req.body.index + '".');
+  console.log(req.body);
   // db insert implementation here
 });
 
