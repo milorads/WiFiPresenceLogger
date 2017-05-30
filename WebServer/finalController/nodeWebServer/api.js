@@ -1,7 +1,12 @@
 var http = require('http');
 var express = require('express');
+var bodyParser = require('body-parser');
 
 var app = express();
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
 
 // todo: change to database connection
 var inputs = [{ pin: '11', gpio: '17', value: 1 },
@@ -13,6 +18,11 @@ app.use(express['static'](__dirname ));
 app.get('/inputs/:id', function(req, res) {
   res.status(200).send(inputs[req.params.id]);
 }); 
+
+app.post('/registration', function(req, res) {
+  res.send('You sent the name "' + req.body.name + '".');
+  console.log(req.body);
+});
 
 // Express route for any other unrecognised incoming requests
 app.get('*', function(req, res) {
