@@ -2,15 +2,22 @@ package finalControl.BL;
 
 import javax.xml.bind.SchemaOutputResolver;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by milor on 29.5.2017..
  */
-public class ThreadController {
+public class ThreadController implements Runnable {
+
+    public static Hashtable<Parameters, Object> Settings;
+    @Override
+    public void run() {
+        try {
+            StartLogging(Settings);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     // from here Python and Node Handlers will be run into two separate threads
 
     public enum Parameters{

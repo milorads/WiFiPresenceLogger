@@ -30,13 +30,12 @@ public class GUIController extends Home {
         //Process proc = new ProcessBuilder(args).start();
         ThreadController t = new ThreadController();
         //test
+        Thread separate = new Thread(t);
+
         Hashtable<ThreadController.Parameters, Object> a = new Hashtable<>();
         a.put(ThreadController.Parameters.ClassLength, 5);
         a.put(ThreadController.Parameters.TimeUnit, "seconds");
-        try {
-            t.StartLogging(a);
-        } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
-        }
+        t.Settings = a;
+        separate.start();
     }
 }
