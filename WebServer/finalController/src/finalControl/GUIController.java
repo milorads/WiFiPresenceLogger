@@ -1,11 +1,13 @@
 package finalControl;
 
 import finalControl.BL.PDatabaseHandler;
+import finalControl.BL.ThreadController;
 import javafx.fxml.FXML;
 
 import java.awt.*;
 import java.sql.*;
 import java.io.IOException;
+import java.util.Dictionary;
 
 class Home{
     public static String Home = "~/Documents/WiFresenceLogger/WebServer/serviceApp/";
@@ -23,9 +25,15 @@ public class GUIController extends Home {
     @FXML
     public void Runner() throws IOException {
 
-        String[] args = new String[] {"/bin/bash", "-c", "node ./nodeWebServer/api.js"};
-        Process proc = new ProcessBuilder(args).start();
-
+        //String[] args = new String[] {"/bin/bash", "-c", "node ./nodeWebServer/api.js"};
+        //Process proc = new ProcessBuilder(args).start();
+        ThreadController t = new ThreadController();
+        Dictionary<String, String> a = null;
+        try {
+            t.StartLogging(a);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @FXML
