@@ -9,11 +9,12 @@ import java.io.FileReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.Callable;
 
 /**
  * Created by milor on 28.5.2017..
  */
-public class PythonHandler {
+public class PythonHandler implements Callable{
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public void PythonLogic(){
@@ -46,6 +47,25 @@ public class PythonHandler {
     }
     private Ip IpParser() throws Exception {
         return new Ip("");
+    }
+
+    private static int i=0;
+    private static void test(){
+        System.out.println(i+++"++");
+    }
+
+    @Override
+    public String call() throws Exception {
+        while(true){
+            test();
+            if(Thread.interrupted()){
+                System.out.println("task ++ interrupted");
+                break;
+            }
+        }
+
+
+        return null;
     }
 
 }
