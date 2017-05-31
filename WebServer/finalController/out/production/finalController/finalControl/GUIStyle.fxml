@@ -26,7 +26,7 @@
                        <Button fx:id="runner" alignment="BASELINE_CENTER" mnemonicParsing="false" onMouseClicked="#Runner" text="Run Logging" />
                        <ProgressBar fx:id="progress" prefWidth="200.0" progress="0.0" />
                        <Label text="Class length" />
-                       <TextField fx:id="clsLen" />
+                       <TextField fx:id="clsLen" alignment="TOP_CENTER" text="45" />
                        <ComboBox fx:id="tmUnit" value="minutes">
                            <items>
                                <FXCollections fx:factory="observableArrayList">
@@ -37,17 +37,17 @@
                            </items>
                        </ComboBox>
                        <Label text="Number of classes" />
-                       <TextField fx:id="numOfCls" />
+                       <TextField fx:id="numOfCls" alignment="TOP_CENTER" text="1" />
                        <Label text="Break length" />
-                       <TextField fx:id="breakLen" text="Leave empty if single class" />
+                       <TextField fx:id="breakLen" alignment="TOP_CENTER" text="0" />
                        <Label text="Class Name" />
-                       <TextField fx:id="clsName" />
+                       <TextField fx:id="clsName" alignment="TOP_CENTER" text="Testno predavanje" />
                        <Label text="Faculty" />
-                       <TextField fx:id="faculty" />
+                       <TextField fx:id="faculty" alignment="TOP_CENTER" text="Tehnicki Fakultet" />
                        <Label text="Year" />
-                       <TextField fx:id="yr" />
+                       <TextField fx:id="yr" alignment="TOP_CENTER" text="4" />
                        <Label text="Professor name" />
-                       <TextField fx:id="professorName" />
+                       <TextField fx:id="professorName" alignment="TOP_CENTER" text="Marko Tanasković" />
                    </children>
                </VBox>
 

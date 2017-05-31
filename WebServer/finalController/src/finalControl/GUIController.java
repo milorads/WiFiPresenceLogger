@@ -81,6 +81,8 @@ public class GUIController extends Home {
             alert.setTitle("Data error");
             alert.setHeaderText("Some of data you entered needs to be changed in order to start server.");
             alert.setContentText(errorMessage);
+            alert.setResizable(true);
+            alert.getDialogPane().setPrefSize(300,460);
             alert.showAndWait();
         }
     }
