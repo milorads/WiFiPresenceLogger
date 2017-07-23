@@ -1,0 +1,10 @@
+sudo iptables -t nat -A PREROUTING -d 0/0 -p tcp --dport 80 -j DNAT --to-destination 192.168.3.1
+sudo iptables -t nat -A PREROUTING -d 0/0 -p tcp --dport 443 -j DNAT --to-destination 192.168.3.1
+
+sudo iptables -t nat -D PREROUTING -d 0/0 -p tcp --dport 80 -j DNAT --to-destination 192.168.3.1
+sudo iptables -t nat -D PREROUTING -d 0/0 -p tcp --dport 443 -j DNAT --to-destination 192.168.3.1
+
+
+cd /etc/ligghtpd/certs
+openssl req -new -x509 -keyout lighttpd.pem -out lighttpd.pem -days 365 -nodes
+chmod 400 lighttpd.pem 
