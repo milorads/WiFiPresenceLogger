@@ -1,0 +1,19 @@
+IoT Sistem Automatske Detekcije Prisustva
+sadrzaj
+-uvod (motivaciju, potrebe za projektom ? i sta sadrzi dokument - sistem evidencije -----)
+-postojeca resenja za detekciju prisustva (rfid/kartice/otisak prsta/video nadzor)
+-idejno resenje (laicki objasnjenje resenja)
+-hardverska platforma - o njoj, specifikacije, os itd.
+-softverska implementacija
+--konkurentna logika izvrsavanja programa
+--organizacija baze podataka
+--GUI
+--node js server
+--python skripte za ocitavanje adresa
+--migracija podataka
+--ip forwarding (sa ili bez interneta)
+--ap 
+--dhcp i dns server
+-verifikacija (kako je izvrseno testiranje sistema)
+-zakljucak (uvod prepakovan)
+-literatura(datasheetovi, knjige, linkovi)
