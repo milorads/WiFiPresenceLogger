@@ -1,5 +1,8 @@
 package finalControl.BL;
 
+import finalControl.Models.PDBModel;
+import finalControl.Models.TDBModel;
+
 import javax.xml.bind.SchemaOutputResolver;
 import java.util.*;
 import java.util.concurrent.*;
@@ -38,12 +41,26 @@ public class ThreadController implements Runnable {
         Set<Callable<String>> callables = new HashSet<Callable<String>>();
         callables.add(new PythonHandler());
         callables.add(new NodeHandler());
-        serverExecutor.invokeAll(callables, 5, TimeUnit.SECONDS);
+        serverExecutor.invokeAll(callables, 5, TimeUnit.MINUTES);
         serverExecutor.shutdown();
         //nodeExecutor.shutdown();
         System.out.println("i have shut down the thread");
         // run excel creator
-
+        TDatabaseHandler tempDB = TDatabaseHandler.getInstance();
+        PDatabaseHandler permDB = PDatabaseHandler.getInstance();
+        ArrayList<TDBModel> listOfTempRecords = tempDB.GetAll();
+        ArrayList<PDBModel> listOfPermRecords = permDB.GetAll();
+        for (TDBModel tRecord:listOfTempRecords) {
+            String toWrite = "IP:"+tRecord.getIp()+
+                    ", MAC:"+tRecord.getMac()+
+                    ", DATE:"+tRecord.getDate();
+            System.out.println(toWrite);
+        }
+        for (PDBModel tRecord:listOfPermRecords) {
+            String toWrite = "INDEX:"+tRecord.getIndex()+
+                    ", MAC:"+tRecord.getMac();
+            System.out.println(toWrite);
+        }
     }
 
     public TimeUnit getTimeUnit(String input){
