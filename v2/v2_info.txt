@@ -1,0 +1,13 @@
+//todo
+
+Test Orange Pi Zero, Raspberry Pi Zero W (Opi >> Rpi due to availability)
+Drop Java implementation -> unnecessary due to interface moving from screen/Gui to web based API
+Use python to run threads where arp logger and web server will be on different threads. (T1 arp parser, T2 web server)
+changed tdb -> Log Base and pdb -> Reg Base
+Log Base to be permanent with new table each day
+Log Base to contain enter and leave DateTime
+Python script in T1 to do current arp comparison with database and add/update records
+Web server to implement control API -> no more screen, api as only interface
+Review security implementation of the API -> manual handshake enough or use other used and confirmed safe technology
+Try RTC with Opi-armbian, test internet/no internet and power/no power. Test sync when connected to internet
+Test power holding circuit.
