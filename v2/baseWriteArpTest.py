@@ -45,10 +45,12 @@ def checkBase(macArpPair,tableName):
         currentDateTime = datetime.now()
         for arpMac, arpObject in macArpPair.iteritems():
             if arpMac not in macDbPairs:
+                addNewPersonSQL = "INSERT INTO "+tableName + " (Ip,Mac,Ulaz,Izlaz) VALUES(?,?,?,?)"
                 cursor.execute(addNewPersonSQL,[arpObject.GetIp(),arpObject.GetMac(),currentDateTime,None])
                 conn.commit()
         for dbMac, dbObject in macDbPairs.iteritems():
             if dbMac not in macArpPair:
+                updateExistingPersonSQL = "UPDATE "+tableName+" SET Izlaz =? WHERE LogBaseId =?"
                 cursor.execute(updateExistingPersonSQL, [currentDateTime, dbObject.GetId()])
                 conn.commit()
     conn.close()
@@ -63,16 +65,15 @@ def addToBase(macArpPair,tableName):
 		conn.commit()
 	conn.close()
 
-#cleanup = subprocess_cmd("sudo ip -s -s neigh flush all', shell=True")
 try:
     subprocess.call("sudo ./flushArp.sh", shell = True)
 except Exception, e:
-    print("error")
+    print("Error in arp table flushing")
 time.sleep(3)
 try:
     arpl =  subprocess_cmd("arp -a | grep 'wlan0' | grep -v '<unknown>\|<incomplete>'")
 except Exception, e:
-    print("error")
+    print("Error in arp table fetching")
 arp_array = arpl.splitlines()
 pairOfMacArpModel = {}
 
@@ -81,17 +82,24 @@ for i in arp_array:
     pom[1] = re.sub('[()]','',pom[1])
     currentModel = ArpModel(pom[1],pom[3],pom[0])
     pairOfMacArpModel[pom[3]]=currentModel
-
-tableName = "T"+datetime.now().strftime('%d_%m_%y')
-conn = sqlite3.connect("LogBase.db")
-cursor = conn.cursor() 
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (tableName,))
-rows = cursor.fetchall()
+try:
+    tableName = "T"+datetime.now().strftime('%d_%m_%y')
+    conn = sqlite3.connect("LogBase.db")
+    cursor = conn.cursor() 
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (tableName,))
+    rows = cursor.fetchall()
+except Exception, e:
+    print("Error in getting the table name")
 if len(rows) == 0:
-    #create table + write all from models
-    cursor.execute("CREATE TABLE " + tableName + " (LogBaseId integer PRIMARY KEY NOT NULL UNIQUE,Mac TEXT,Ip TEXT,Ulaz DATETIME,Izlaz DATETIME)")
-    conn.close()
-    addToBase(pairOfMacArpModel,tableName)
+    try:
+        cursor.execute("CREATE TABLE " + tableName + " (LogBaseId integer PRIMARY KEY NOT NULL UNIQUE,Mac TEXT,Ip TEXT,Ulaz DATETIME,Izlaz DATETIME)")
+        conn.close()
+        addToBase(pairOfMacArpModel,tableName)
+    except Exception, e:
+        print("Error in Table Create or add to base")
 else:
-    conn.close()
-    checkBase(pairOfMacArpModel,tableName)
+    try:
+        conn.close()
+        checkBase(pairOfMacArpModel,tableName)
+    except Exception, e:
+        print("Error in Check Base")
