@@ -26,7 +26,21 @@ def subprocess_cmd(command):
     output = subprocess.check_output(command,shell = True)
     return output
 
-def checkBase(arpModels,databaseModels):
+def checkBase(arpModels,tableName):
+    conn = sqlite3.connect("LogBase.db")
+    cursor = conn.cursor()
+    sql = "SELECT * FROM " + tableName + " WHERE Izlaz IS NULL"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    if len(rows) == 0:
+        print("no items")
+    else:
+        filtered =  filter(lambda x: x.macAddress in [r[1] for r in rows], arpModels)
+        filtered2 =  filter(lambda x: r.macAddress in [for r in arpModels], rows)
+        for filt in filtered:
+            print filt
+        for filt in filtered:
+            print filt
     print("checkBase")
 
 def addToBase(arpModels,tableName):
@@ -59,9 +73,4 @@ if len(rows) == 0:
     cursor.execute("CREATE TABLE " + tableName + " (LogBaseId integer PRIMARY KEY NOT NULL UNIQUE,Mac TEXT,Ip TEXT,Ulaz DATETIME,Izlaz DATETIME)")
     addToBase(arrayOfModels,tableName)
 else:
-    cursor.execute("SELECT * FROM "+tableName)
-    arrayOfDatabaseEntries = cursor.fetchall()
-    print arrayOfDatabaseEntries
-    checkBase(arrayOfModels,arrayOfDatabaseEntries)
-
-
+    checkBase(arrayOfModels,tableName)
