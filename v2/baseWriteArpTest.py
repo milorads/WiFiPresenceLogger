@@ -70,13 +70,15 @@ try:
     arpCall =  subprocess_cmd("arp -a")
 except Exception, e:
     print("Error in arp table fetching")
-regExpression = r'(?P<host>([^\s]+))[\s][(](?P<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?P<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})'
+regExpression = r'(?P<host>([^\s]+))[\s][(](?P<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?P<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})(([\s][\[][eE][tT][hH][eE][rR][\]][\s][oO][nN][\s])|([\s][oO][nN][\s]))(?P<iface>.*)\r'
 pairOfMacArpModel = {}
 
 pattern = re.compile(regExpression)
 presentDevices = [m.groupdict() for m in pattern.finditer(arpCall)]
 
 for obj in presentDevices:
+    if "wlan0" not in obj["iface"]:
+        continue
     pairOfMacArpModel[obj["mac"]]= ArpModel(obj["ip"],obj["mac"],obj["host"])
 
 try:
