@@ -26,7 +26,6 @@ class ArpModel(object):
     pass
 
 def subprocess_cmd(command):
-
     output = subprocess.check_output(command,shell = True)
     return output
 
@@ -67,21 +66,22 @@ def addToBase(macArpPair,tableName):
 	conn.close()
 
 try:
-    arpl =  subprocess_cmd("arp -a")
+    subprocess.call("sudo ./flushArp.sh", shell = True)
+except Exception, e:
+    print("Error in arp table flushing")
+time.sleep(3)
+try:
+    arpl =  subprocess_cmd("arp -a | grep 'wlan0' | grep -v '<unknown>\|<incomplete>'")
 except Exception, e:
     print("Error in arp table fetching")
-#add regex from file
-#arp_array = arpl.splitlines()
+arp_array = arpl.splitlines()
 pairOfMacArpModel = {}
 
-#for i in arp_array:
-#    pom = i.split()
-#    if((pom[3] == "<incomplete>") or( pom[3] == "<unkonown>")):
-#        continue
-#    pom[1] = re.sub('[()]','',pom[1])
-#    currentModel = ArpModel(pom[1],pom[3],pom[0])
-#    pairOfMacArpModel[pom[3]]=currentModel
-
+for i in arp_array:
+    pom = i.split()
+    pom[1] = re.sub('[()]','',pom[1])
+    currentModel = ArpModel(pom[1],pom[3],pom[0])
+    pairOfMacArpModel[pom[3]]=currentModel
 try:
     tableName = "T"+datetime.now().strftime('%d_%m_%y')
     conn = sqlite3.connect("LogBase.db")
