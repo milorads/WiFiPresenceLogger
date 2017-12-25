@@ -70,17 +70,14 @@ try:
     arpl =  subprocess_cmd("arp -a")
 except Exception, e:
     print("Error in arp table fetching")
-#add regex from file
-#arp_array = arpl.splitlines()
+regExpression = r'(?P<host>([^\s]+))[\s][(](?P<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?P<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})'
+arp_array = arpl.splitlines()
 pairOfMacArpModel = {}
 
-#for i in arp_array:
-#    pom = i.split()
-#    if((pom[3] == "<incomplete>") or( pom[3] == "<unkonown>")):
-#        continue
-#    pom[1] = re.sub('[()]','',pom[1])
-#    currentModel = ArpModel(pom[1],pom[3],pom[0])
-#    pairOfMacArpModel[pom[3]]=currentModel
+for i in arp_array:
+    matchObject = re.search(regExpression, i)
+    currentModel = ArpModel(matchObject.group("ip"),matchObject.group("mac"),matchObject.group("host"))
+    pairOfMacArpModel[pom[3]]=currentModel
 
 try:
     tableName = "T"+datetime.now().strftime('%d_%m_%y')

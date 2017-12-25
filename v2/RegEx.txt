@@ -8,11 +8,21 @@ Following RegEx matches "(space)at(space)"
 (?<drop>[\s][aA][tT][\s])
 
 Following RegEx matches ip and mac pair from arp -a command and puts it in "ip"/"mac" named groups
-[(](?<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)
-[)][\s][aA][tT][\s]
-(?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})
+[(](?<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})
 
 Following RegEx matches ip and mac pair from arp -a command and puts it in "ip"/"mac" named groups (includes <incomplete> addresses to track devices that left table)
 [(](?<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)
 [)][\s][aA][tT][\s]
-(?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2}|[<]incomplete[>])
+(?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2}|[<](i|I)(n|N)(c|C)(o|O)(m|M)(p|P)(l|L)(e|E)(t|T)(e|E)[>])
+
+Following RegEx matches ip and mac pair from arp -a command and puts it in "ip"/"mac"/"nomac" named groups (includes <incomplete> addresses to track devices that left table but under "nomac")
+[(](?<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)
+[)][\s][aA][tT][\s]
+((?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})|(?<nomac>[<](i|I)(n|N)(c|C)(o|O)(m|M)(p|P)(l|L)(e|E)(t|T)(e|E)[>]))
+
+Following RegEx matches ip and mac and host from arp -a command and puts it in "ip"/"mac"/"host" named groups
+(?<host>([^\s]+))
+[\s][(]
+(?<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)
+[)][\s][aA][tT][\s]
+(?<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})
