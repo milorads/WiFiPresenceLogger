@@ -67,17 +67,17 @@ def addToBase(macArpPair,tableName):
 	conn.close()
 
 try:
-    arpl =  subprocess_cmd("arp -a")
+    arpCall =  subprocess_cmd("arp -a")
 except Exception, e:
     print("Error in arp table fetching")
 regExpression = r'(?P<host>([^\s]+))[\s][(](?P<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?P<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})'
-arp_array = arpl.splitlines()
 pairOfMacArpModel = {}
 
-for i in arp_array:
-    matchObject = re.search(regExpression, i)
-    currentModel = ArpModel(matchObject.group("ip"),matchObject.group("mac"),matchObject.group("host"))
-    pairOfMacArpModel[pom[3]]=currentModel
+pattern = re.compile(regExpression)
+presentDevices = [m.groupdict() for m in pattern.finditer(arpCall)]
+
+for obj in presentDevices:
+    pairOfMacArpModel[obj["mac"]]= ArpModel(obj["ip"],obj["mac"],obj["host"])
 
 try:
     tableName = "T"+datetime.now().strftime('%d_%m_%y')
