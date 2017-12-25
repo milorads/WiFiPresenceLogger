@@ -58,7 +58,9 @@ def check_base(mac_arp_pair, table_name):
         for arp_mac, arp_model_object in mac_arp_pair.iteritems():
             if arp_mac not in mac_arp_database_pairs:
                 new_sql_entry = "INSERT INTO " + table_name + " (Ip,Mac,Ulaz,Izlaz) VALUES(?,?,?,?)"
-                check_base_cursor.execute(new_sql_entry, [arp_model_object.GetIp(), arp_model_object.GetMac(), current_date_time, None])
+                check_base_cursor.execute(new_sql_entry,
+                                          [arp_model_object.GetIp(), arp_model_object.GetMac(), current_date_time,
+                                           None])
                 check_base_connection.commit()
         for db_mac, db_model_object in mac_arp_database_pairs.iteritems():
             if db_mac not in mac_arp_database_pairs:
@@ -74,9 +76,11 @@ def add_to_base(mac_arp_pair, table_name):
     sql = "INSERT INTO " + table_name + " (Ip,Mac,Ulaz,Izlaz) VALUES(?,?,?,?)"
     add_to_base_date_time = datetime.now()
     for key, arp_model_object in mac_arp_pair.iteritems():
-        add_to_base_cursor.execute(sql, [arp_model_object.GetIp(), arp_model_object.GetMac(), add_to_base_date_time, None])
+        add_to_base_cursor.execute(sql,
+                                   [arp_model_object.GetIp(), arp_model_object.GetMac(), add_to_base_date_time, None])
         add_to_base_connection.commit()
         add_to_base_connection.close()
+
 
 try:
     try:
@@ -99,7 +103,7 @@ try:
         current_table_name = "T" + datetime.now().strftime('%d_%m_%y')
         main_connection = sqlite3.connect("LogBase.db")
         main_cursor = main_connection.cursor()
-        main_cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=?;', (current_table_name,))
+        main_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (current_table_name,))
         number_of_tables = main_cursor.fetchall()
     except Exception, e:
         raise PresenceCheckerException("Error in getting the table name", e)
