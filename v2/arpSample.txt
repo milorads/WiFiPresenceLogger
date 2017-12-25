@@ -1,0 +1,18 @@
+edge-mqtt-shv-01-vie1.facebook.com (31.13.84.2) at <incomplete> on wlan0
+edge-mqtt-mini-shv-01-sof1.facebook.com (157.240.9.32) at <incomplete> on wlan0
+google-public-dns-a.google.com (8.8.8.8) at <incomplete> on wlan0
+android-c2b8e86149c2f024 (172.24.1.88) at e4:2d:02:4b:d7:5d [ether] on wlan0
+android-d63d9f42b4b94a1c (172.24.1.137) at 48:59:29:f5:bf:a9 [ether] on wlan0
+edge-mqtt-mini-shv-01-vie1.facebook.com (31.13.84.34) at <incomplete> on wlan0
+Marko-PC (172.24.1.143) at e4:b3:18:8d:27:5a [ether] on wlan0
+? (17.252.28.97) at <incomplete> on wlan0
+BOBINATOR (172.24.1.87) at b8:81:98:2a:f2:ce [ether] on wlan0
+ec2-52-0-253-53.compute-1.amazonaws.com (52.0.253.53) at <incomplete> on wlan0
+android-5748cae99811896d (172.24.1.86) at <incomplete> on wlan0
+android-d4b79fedb3372143 (172.24.1.62) at <incomplete> on wlan0
+android-22eee753cab3bf15 (172.24.1.51) at <incomplete> on wlan0
+android-2f7afc7856aabec5 (172.24.1.54) at 90:5f:2e:52:95:04 [ether] on wlan0
+ec2-34-240-79-136.eu-west-1.compute.amazonaws.com (34.240.79.136) at <incomplete> on wlan0
+Inspiron-b02 (172.24.1.148) at ac:7b:a1:28:a2:2b [ether] on wlan0
+gateway (192.168.1.2) at 54:04:a6:5e:f5:04 [ether] on eth0
+? (17.252.28.30) at <incomplete> on wlan0
