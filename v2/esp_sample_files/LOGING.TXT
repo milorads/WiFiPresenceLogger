@@ -1,0 +1,447 @@
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Boban Lukovac 007 is in range, time: 2017-12-11T08:44
+Boban Lukovac 007 is out of range, time: 2017-12-11T08:46
+Boban Lukovac 007 is in range, time: 2017-12-11T09:00
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+5. registrovani korisnik: 48:5A:3F:31:F4:27|Dragan|Agic|2014202524
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Dragan Agic 2014202524 is in range, time: 2017-12-11T09:10
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+6. registrovani korisnik: 74:1B:B2:AB:02:A0|Ognjen|Seratli&#263;|2013200273
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Ognjen Seratli&#263; 2013200273 is in range, time: 2017-12-11T09:10
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+7. registrovani korisnik: E8:93:09:43:AB:44|Srdjan|Kljajevi&#263;|2014200604
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Srdjan Kljajevi&#263; 2014200604 is in range, time: 2017-12-11T09:11
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Srdjan v|E8:93:09:43:AB:44 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+8. registrovani korisnik: 90:5F:2E:52:95:04|Mateja|RADOJICIC|2015202660
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Mateja RADOJICIC 2015202660 is in range, time: 2017-12-11T09:12
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+9. registrovani korisnik: 18:F0:E4:26:B7:3E|Aleksa|Jonic|2014201055
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Aleksa Jonic 2014201055 is in range, time: 2017-12-11T09:12
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Boban Lukovac 007 is in range, time: 2017-12-11T11:40
+Boban Lukovac 007 is out of range, time: 2017-12-11T11:40
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Boban Lukovac 007 is in range, time: 2017-12-11T11:42
+Boban Lukovac 007 is out of range, time: 2017-12-11T11:44
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+Milos Djokovic 10 is in range, time: 2087-00-01T03:00
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milos k|20:64:32:41:4A:16 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+10. registrovani korisnik: 70:0B:C0:C3:FF:9C|Strahinja|Djordjevic|2017/230104
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Strahinja Djordjevic 2017/230104 is in range, time: 2087-00-01T01:05
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+11. registrovani korisnik: 2C:4D:54:7E:2B:0A|Lazar|Pesic|230143
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Lazar Pesic 230143 is in range, time: 2087-00-01T03:05
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Strahinja c|70:0B:C0:C3:FF:9C je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+12. registrovani korisnik: 00:71:CC:76:29:E3|Dzon|Nezbit|Megatrend
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Dzon Nezbit Megatrend is in range, time: 2087-00-01T03:02
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+13. registrovani korisnik: 50:C8:E5:F7:09:67|John|Nasbit|M59
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+John Nasbit M59 is in range, time: 2087-00-01T03:02
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+14. registrovani korisnik: AC:5F:3E:2F:62:09|Milan|Vandi&#263;|2300562017
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Milan Vandi&#263; 2300562017 is in range, time: 2087-00-01T03:02
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+Nabukodonosor Nabukodonosorovi&#263; 321 is in range, time: 2087-00-01T03:07
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+Milos Djokovic 10 is out of range, time: 2087-00-01T03:08
+Nabukodonosor Nabukodonosorovi&#263; 321 is out of range, time: 2087-00-01T03:09
+Milos Djokovic 10 is in range, time: 2087-00-01T03:09
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+John  |50:C8:E5:F7:09:67 je probao ponovo da se uloguje
+Strahinja Djordjevic 2017/230104 is out of range, time: 2087-00-01T03:00
+Nabukodonosor Nabukodonosorovi&#263; 321 is in range, time: 2087-00-01T03:00
+Milos Djokovic 10 is out of range, time: 2087-08-11T03:26
+Lazar Pesic 230143 is out of range, time: 2087-12-01T13:06
+Nabukodonosor Nabukodonosorovi&#263; 321 is out of range, time: 2087-00-11T13:27
+Dzon Nezbit Megatrend is out of range, time: 2087-00-01T03:00
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+Milan Vandi&#263; 2300562017 is out of range, time: 2087-00-01T03:11
+Milan Vandi&#263; 2300562017 is in range, time: 2007-02-11T03:31
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Milan  |AC:5F:3E:2F:62:09 je probao ponovo da se uloguje
+Milan Vandi&#263; 2300562017 is out of range, time: 2087-00-01T03:11
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+Lazar Pesic 230143 is in range, time: 2087-00-01T03:01
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+Lazar Pesic 230143 is out of range, time: 2087-02-11T13:59
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+Serial monitor initialized
+SD card  initialized
+soft AP config started
+Pocetak ucaitavanja podataka sa kartice
+soft AP config finished succesfully
+HTTP server started
+loading user info finished
+rtc started
+kraj setup funkcije
+John Nasbit M59 is in range, time: 2087-00-01T00:00
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+15. registrovani korisnik: A8:66:7F:E3:AC:4F|Djordje|Kostic|2017/230170
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Djordje Kostic 2017/230170 is in range, time: 2087-00-01T00:11
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Djordje  |A8:66:7F:E3:AC:4F je probao ponovo da se uloguje
+Lazar Pesic 230143 is in range, time: 2087-00-01T00:13
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Lazar  |2C:4D:54:7E:2B:0A je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+Lazar  |2C:4D:54:7E:2B:0A je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+Lazar  |2C:4D:54:7E:2B:0A je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+Lazar Pesic 230143 is out of range, time: 2087-00-01T00:13
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+16. registrovani korisnik: D0:25:98:1D:1C:B5|Vuk|Vasiljevi&#263;|230136
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+Vuk Vasiljevi&#263; 230136 is in range, time: 2087-00-01T00:13
+Vuk Vasiljevi&#263; 230136 is out of range, time: 2087-00-01T00:08
+Djordje Kostic 2017/230170 is out of range, time: 2087-00-11T00:39
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Zahtev za registracijom je regularan, salje se stranica za prijavu
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+sva polja su uneta, prenos u kolekciju promenljivih
+upisivanje mac adrese u kolekciju registrovanih
+dealociranje liste station_info
+pocetak upisa podataka na sd karticu
+17. registrovani korisnik: 4C:B5:78:99:8A:96|david|osunsakin|20172309
+poslata stranica za uspesno prijavljivanje
+**KRAJ FUNKCIJE HANDLE DATA **
+david osunsakin 20172309 is in range, time: 2087-00-01T00:00
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+david  |4C:B5:78:99:8A:96 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE DATA**
+pocetak prolaska kroz listu stat_info
+Vec je prijavljen na ovoj mac adresi
+david  |4C:B5:78:99:8A:96 je probao ponovo da se uloguje
+**POCETAK FUNKCIJE HANDLE ROOT**
+Reguest za pocetnom stranicom
+Provera da li je vec registrovan
+Vec je prijavljen na ovoj mac adresi
+david  |4C:B5:78:99:8A:96 je probao ponovo da se uloguje
+david osunsakin 20172309 is out of range, time: 2123-00-01T00:01
+david osunsakin 20172309 is in range, time: 2087-00-01T00:01
+david osunsakin 20172309 is out of range, time: 2087-00-01T00:00
+david osunsakin 20172309 is in range, time: 2087-00-01T00:00
+John Nasbit M59 is out of range, time: 2017-12-11T14:50
+david osunsakin 20172309 is out of range, time: 2087-00-01T00:09
+david osunsakin 20172309 is in range, time: 2087-00-01T00:09
+david osunsakin 20172309 is out of range, time: 2087-00-01T00:09
+John Nasbit M59 is in range, time: 2087-00-01T05:00
+John Nasbit M59 is out of range, time: 2087-00-01T02:00
