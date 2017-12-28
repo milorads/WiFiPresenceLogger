@@ -56,7 +56,9 @@ def log(severity, message, exception = None):
 
 
 def subprocess_cmd(command):
+    log(2, "Running subprocess command -> "+str(command))
     output = subprocess.check_output(command, shell=True)
+    log(1, "Subprocess out: "+str(output))
     return output
 
 
@@ -84,7 +86,7 @@ def check_base(mac_arp_pair, table_name):
         current_date_time = datetime.now()
         log(1, "Current time: " + str(current_date_time))
         for arp_mac, arp_model_object in mac_arp_pair.iteritems():
-            log(1, "Arp records: ip:" + str(arp_model_object.get_ip())+",mac:"+str(arp_model_object.get_mac()))
+            log(1, "Arp records-> ip:" + str(arp_model_object.get_ip())+",mac:"+str(arp_model_object.get_mac()))
             if arp_mac not in mac_arp_database_pairs:
                 log(1, "mac: " + str(arp_mac) + " not in mac arp database, writing to base")
                 new_sql_entry = "INSERT INTO " + table_name + " (Ip,Mac,Ulaz,Izlaz) VALUES(?,?,?,?)"
@@ -94,9 +96,7 @@ def check_base(mac_arp_pair, table_name):
                 check_base_connection.commit()
                 log(1, "Committing transaction")
         for db_mac, db_model_object in mac_arp_database_pairs.iteritems():
-            log(1, "db records: ip:" + str(db_model_object.get_ip()) + ",mac:" + str(db_model_object.get_mac()))
-            log(1, str(db_mac))
-            log(1, str(db_mac not in mac_arp_pair))
+            log(1, "Db records-> ip:" + str(db_model_object.get_ip()) + ",mac:" + str(db_model_object.get_mac()))
             if db_mac not in mac_arp_pair:
                 log(1, "mac: " + str(arp_mac) + " not in mac arp database, updating")
                 existing_sql_update = "UPDATE " + table_name + " SET Izlaz =? WHERE LogBaseId =?"
@@ -105,6 +105,7 @@ def check_base(mac_arp_pair, table_name):
                 log(1, "Committing transaction")
     check_base_connection.close()
     log(1, "Closing database connection")
+    log(2, "Finished check base function")
 
 
 def add_to_base(mac_arp_pair, table_name):
