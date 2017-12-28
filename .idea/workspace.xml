@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="14bd1cc5-e714-4d1b-96a6-508b7b1eeb2c" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="14bd1cc5-e714-4d1b-96a6-508b7b1eeb2c" name="Default" comment="" />
     <ignored path="Diplomski.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -39,8 +37,8 @@
       <file leaf-file-name="arp_check_instance.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/v2/arp_check_instance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="81" column="24" lean-forward="true" selection-start-line="81" selection-start-column="24" selection-end-line="81" selection-end-column="24" />
+            <state relative-caret-position="17">
+              <caret line="81" column="24" lean-forward="false" selection-start-line="81" selection-start-column="24" selection-end-line="81" selection-end-column="24" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
                 <marker date="1514244502059" expanded="true" signature="4475:4535" ph="SELECT name sqlite_master" />
@@ -52,7 +50,7 @@
       <file leaf-file-name="testPyCharm.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/v2/testPyCharm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
+            <state relative-caret-position="425">
               <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
               <folding />
             </state>
@@ -88,7 +86,6 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="NodeModulesDirectoryManager">
-    <handled-path value="$PROJECT_DIR$/WebServer/finalController/nodeWebServer/node_modules" />
     <handled-path value="$PROJECT_DIR$/WebServer/finalController/out/production/finalController/node_modules" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
@@ -111,7 +108,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -129,6 +125,7 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -340,7 +337,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="32" width="1616" height="876" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -394,6 +390,25 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/v2/arp_check_instance.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+            <marker date="1514244502059" expanded="true" signature="4475:4535" ph="SELECT name sqlite_master" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/v2/testPyCharm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/v2/arp_check_instance.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
           <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding>
@@ -419,13 +434,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="824">
           <caret line="244" column="32" lean-forward="true" selection-start-line="244" selection-start-column="32" selection-end-line="244" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/v2/testPyCharm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
+        <state relative-caret-position="425">
           <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
           <folding />
         </state>
@@ -433,8 +447,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/v2/arp_check_instance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="81" column="24" lean-forward="true" selection-start-line="81" selection-start-column="24" selection-end-line="81" selection-end-column="24" />
+        <state relative-caret-position="17">
+          <caret line="81" column="24" lean-forward="false" selection-start-line="81" selection-start-column="24" selection-end-line="81" selection-end-column="24" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
             <marker date="1514244502059" expanded="true" signature="4475:4535" ph="SELECT name sqlite_master" />
