@@ -1,0 +1,4 @@
+Copy the following file to Orange Pi:
+scp node_latest_armhf.deb admin@192.168.0.11:/home/admin/node/
+Install node on remote machine:
+sudo dpkg -i node_latest_armhf.deb
