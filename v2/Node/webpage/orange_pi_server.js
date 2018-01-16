@@ -30,8 +30,7 @@ function getDateTableName()
 	}
 	return 'Td_m_Y'.replace('Y', yearString).replace('m', monthString).replace('d', dayString);
 }
-var tableName = getDateTableName();
-var mac_sql = 'SELECT * FROM '+tableName + ' WHERE Ip = ? LIMIT 1';
+
 
 http.createServer(function (request, response) {
     var filePath = '.' + request.url;
@@ -98,7 +97,7 @@ app.post('/registration', function(req, res) {
   console.log(req.body);
   // db insert implementation here
   var ime = req.body.name;
-  var prezime = "Qwerty";
+  var prezime = req.body.surname;
   var id = req.body.index;
   var ip = req.body.ip;
   if(ip == undefined)
@@ -110,70 +109,74 @@ app.post('/registration', function(req, res) {
   //var tableName = getDateTableName();
   //console.log(tableName);
   //var tableName = "T09_01_18";
-  var mac;
-	  LogBase.get(mac_sql,ip, (err, row) => {
-	  if (err) {
-		return console.error(err.message);
+  
+  RegBase.run(table_sql,(err) => {
+	  if(err)
+	  {
+		  return console.error(err.message);
 	  }
-	  else{
-		  if(row == undefined)
-		  {
-			console.log("uredjaj sa zadatom ip adresom ne postoji u arp tabeli");
-		  	res.end("Uredjaj sa zadatom ip adresom ne postoji u arp listi");
-}
-		  else
-		  {
-			  mac = row.Mac;
-			  console.log(mac);
-			  
-			  RegBase.run(table_sql,(err) => {
-				  if(err)
+	  else
+	  {
+		  var tableName = getDateTableName();
+		  var mac_sql = 'SELECT * FROM '+tableName + ' WHERE Ip = ? LIMIT 1';
+		  
+		  var mac;
+			  LogBase.get(mac_sql,ip, (err, row) => {
+			  if (err) {
+				return console.error(err.message);
+			  }
+			  else{
+				  if(row == undefined)
 				  {
-					  return console.error(err.message);
+					console.log("uredjaj sa zadatom ip adresom ne postoji u arp tabeli");
+					res.end("Uredjaj sa zadatom ip adresom ne postoji u arp listi");
 				  }
 				  else
 				  {
-					  console.log("uspesno kreiranje tabele");
-				  }
-			  });
-			  
-			  RegBase.all(reg_sql,mac,(err,rows) => {
-				  if(err){
-					  return console.error(err.message);
-				  }
-				  else
-				  {
-					  if(rows == 0)
-					  {
-						res.end("Ne postoji mac adresa u bazi, sledi upis");
-						  console.log("ne postoji ova mac adresa u bazi, sledi upis");
-						  RegBase.run(insert_sql,[mac,ime,prezime,id],function(err){
-							  if(err)
+					  mac = row.Mac;
+					  console.log(mac);
+					  
+					  
+					  RegBase.all(reg_sql,mac,(err,rows) => {
+						  if(err){
+							  return console.error(err.message);
+						  }
+						  else
+						  {
+							  if(rows == 0)
 							  {
-								res.end("greska pri upisu u bazu!");
-								  return console.log(err.message);
+								res.end("Ne postoji mac adresa u bazi, sledi upis");
+								  console.log("ne postoji ova mac adresa u bazi, sledi upis");
+								  RegBase.run(insert_sql,[mac,ime,prezime,id],function(err){
+									  if(err)
+									  {
+										res.end("greska pri upisu u bazu!");
+										  return console.log(err.message);
+									  }
+									  else
+									  {
+										res.end("Registracija zavrsena");
+										  console.log("upis novog korisnika zavrsen");
+									  }
+								  });
 							  }
 							  else
 							  {
-								res.end("Registracija zavrsena");
-								  console.log("upis novog korisnika zavrsen");
+								  console.log("vec postoji mac adresa u regList tabeli"); 
+								res.end("Ovaj uredjaj je vec registrovan");
 							  }
-						  });
-					  }
-					  else
-					  {
-						  console.log("vec postoji mac adresa u regList tabeli"); 
-						res.end("Ovaj uredjaj je vec registrovan");
-					  }
+						  }
+					  });
+					  
 				  }
-			  });
-			  
-		  }
-		  
-		 
+				  
+				 
 
+			  }
+			});
 	  }
-	});
+  });
+  
 });
 
 // Express route for any other unrecognised incoming requests
