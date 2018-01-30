@@ -3,12 +3,18 @@
 msgNoConnection="No connection to NTP time-server"
 msgConnection="Connection to NTP time-server"
 
+#provera da li ntpq radi
 if( ntpq -p | grep -q "^*" );then
 	#ima konekcije
 	echo $msgConnection
 	echo "-----------------"
+	#prilikom podesavanja rtc-a, potrebno je podestiti rtc preko:
+    #echo ds3231 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
+	
+	#setovanje rtc registara preko hwclock-a 
 	hwclock -f /dev/rtc1 -w
-	#setovanje rtc registara
+	
+	
 	#date +"%s" > i2cset 
 	#i2cset -y 0 0x68 0x00 $(date +"%S") b
 	#i2cset -y 0 0x68 0x01 $(date +"%M") b
@@ -19,7 +25,7 @@ if( ntpq -p | grep -q "^*" );then
 	#i2cset -y 0 0x68 0x03 $(date +"%u") b
 
 else
-	#nema konekcije
+	#nema konekcije, upisuje se sa rtc-a u sistemsko vreme
 	echo $msgNoConnection
 	i2cdump -r 0-6 -y -f 0 0x68 b | grep -A10 : > rtc_dump.txt
 	awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < rtc_dump.txt > rtc_time.txt
