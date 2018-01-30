@@ -8,10 +8,10 @@ if( ntpq -p | grep -q "^*" );then
 	#ima konekcije
 	echo $msgConnection
 	echo "-----------------"
-	#prilikom podesavanja rtc-a, potrebno je podestiti rtc preko:
-    #echo ds3231 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
-	
 	#setovanje rtc registara preko hwclock-a 
+    echo ds3231 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
+	
+	
 	hwclock -f /dev/rtc1 -w
 	
 	
