@@ -94,7 +94,8 @@ app.get('/deleteData', function(req, res){
 						console.error(err.message);
 				} else {
 					if (row == undefined) {
-						console.log("Tabela ne postoji")
+						console.log("Tabela ne postoji");
+						res.end("Tabela ne postoji");
 					} else {
 						var brisi = `DROP TABLE `+row.name;
 						LogBase.run(brisi, (er, row) => {
