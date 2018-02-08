@@ -4,6 +4,7 @@ var crypto = require('crypto');
 
 var sqlite3 = require(`sqlite3`).verbose();
 var LogBase = new sqlite3.Database(`../../LogBase.db`);
+var RegBase = new sqlite3.Database(`../../RegBase.db`);
 
 var app = express();
 function checkCode(hashCode, timestamp) {
@@ -30,12 +31,13 @@ function checkCode(hashCode, timestamp) {
 
 }
 
-app.get('/getData', function(req, res){
+app.get('/getData', function(req, res) {
 	var kod = req.param("code");
 	var timestamp = req.param("timestamp");
 	switch (checkCode(kod, timestamp)) {
 		case 0:
 			console.log("Wrong hash.");
+			res.end("Wrong hash.");
 			break;
 		case 1:
 			console.log("Right hash.");
@@ -48,7 +50,8 @@ app.get('/getData', function(req, res){
 					console.error(err.message);
 				} else {
 					if (row == undefined) {
-						console.log("Tabela ne postoji")
+						console.log("Tabela ne postoji");
+						res.end("Tabela ne postoji");
 					} else {
 						var sadrzaj = `SELECT * FROM `+row.name;
 
@@ -57,12 +60,9 @@ app.get('/getData', function(req, res){
 								console.error(err.message);
 							} else {
 								console.log(row);
-								var n = row.length;
-								var i = 0;
 								var odgovor = "";
-								while (i != n) {
+								for (var i = 0; i < row.length; i++) {
 									odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+'\n';
-									i++;
 								}
 								res.end(odgovor);
 							}
@@ -73,15 +73,17 @@ app.get('/getData', function(req, res){
 			break;
 		case 2:
 			console.log("Timeout.");
+			res.end("Timeout.");
 			break;
 	}
 });
-app.get('/deleteData', function(req, res){
+app.get('/deleteData', function(req, res) {
 	var kod = req.param("code");
 	var timestamp = req.param("timestamp");
 	switch (checkCode(kod, timestamp)) {
 		case 0:
 			console.log("Wrong hash.");
+			res.end("Wrong hash.");
 			break;
 		case 1:
 			console.log("Right hash.");
@@ -103,7 +105,7 @@ app.get('/deleteData', function(req, res){
 								console.error(er.message);
 							} else {
 								console.log("Uspesno obrisana tabela");
-								res.end("Uspesno si obrisao kralju");
+								res.end("Uspesno obrisana tabela");
 							}
 						});
 					}
@@ -112,6 +114,7 @@ app.get('/deleteData', function(req, res){
 			break;
 		case 2:
 			console.log("Timeout.");
+			res.end("Timeout.");
 			break;
 	}
 });
@@ -124,6 +127,7 @@ app.get('/apiTest', function(req, res) {
 	switch(checkCode(code, timestamp)) {
 		case 0:
 			console.log("Wrong hash");
+			res.end("Wrong hash");
 			break;
 		case 1:
 			console.log("Right hash");
@@ -131,15 +135,17 @@ app.get('/apiTest', function(req, res) {
 			break;
 		case 2:
 			console.log("Timeout");
+			res.end("Timeout");
 			break;
 	}
 });
-app.get('/listData',function(req, res){
+app.get('/listData',function(req, res) {
 	var kod = req.param("code");
 	var timestamp = req.param("timestamp");
 	switch (checkCode(kod, timestamp)) {
 		case 0:
 			console.log("Wrong hash.");
+			res.end("Wrong hash.");
 			break;
 		case 1:
 			console.log("Right hash.");
@@ -150,11 +156,9 @@ app.get('/listData',function(req, res){
 					console.error(err.message);
 				} else {
 					console.log(row);
-					var i = 0;
 					var odgovor = "";
-					while (i != row.length) {
+					for (var i = 0; i < row.length; i++) {
 						odgovor += row[i].name+'\n';
-						i++;
 					}
 					res.end(odgovor);
 				}
@@ -162,12 +166,58 @@ app.get('/listData',function(req, res){
 			break;
 		case 2:
 			console.log("Timeout.");
+			res.end("Timeout.");
 			break;
 	}
 });
-app.get('/getTimestamp',function(req,res){
+app.get('/getTimestamp', function(req, res) {
 	console.log("method: getTimestamp");
 	tStamp = new Date().toISOString().replace(/\..+/,'');
 	res.end(tStamp);
+});
+app.get('/setTimestamp', function(req, res) {
+	console.log("method: setTimestamp");
+	const exec = require('child_process').exec;
+	var yourscript = exec('bash ../../rtc_set.bash', (error, stdout, stderr) => {
+		console.log(`${stdout}`);
+		console.log(`${stderr}`);
+		if (error !== null) {
+			console.log(`exec error: ${error}`);
+		} else {
+			console.log("Uspesno izvrsen bash fajl");
+			res.end("Uspesno izvrsen bash fajl");
+		}
+	});
+});
+app.get('/getRegList', function(req, res) {
+	var kod = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(kod, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+
+			var lista = `SELECT * FROM regList`;
+			RegBase.all(lista, (err, row) => {
+				if (err) {
+					console.error(err.message);
+				} else {
+					console.log(row);
+					var odgovor = "";
+					for (var i = 0; i < row.length; i++) {
+						odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+'\n';
+					}
+					res.end(odgovor);
+				}
+			});
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
 });
 app.listen(3002);
