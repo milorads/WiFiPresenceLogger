@@ -1,7 +1,7 @@
 #!/bin/bash
 
-INSTALLED="$(cat ./installed)"
-
+INSTALLED=$(cat ./installed)
+ETHERNET_CONNECTED=
 echo "Access point installation (make sure you have ethernet connected fo eveything to work properly)"
 
 read -p "Is ethernet connected? (y/n)"  ethConn
@@ -12,7 +12,7 @@ else
 fi
 
 echo "Installing hostapd, dnsmasq and dhcpd."
-sudo apt-get -y install dnsmasq hostapd dhcpd dhcpcd5
+sudo apt-get install dnsmasq hostapd dhcpd dhcpcd5
 
 echo "Checking for existing interfaces configuration and backing up if existent"
 sudo mv /etc/network/interfaces /etc/network/interfaces.backup
@@ -34,12 +34,8 @@ sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
 echo "Installing required conf pointer configuration"
 sudo cp dnsmasq.conf /etc/
 
-if [ $INSTALLED == 0 ]; then
-	echo "Enabling ip forwarding"
-	echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.conf
-else
-	echo "Skipping ip forwarding, already installed the script."
-fi
+echo "Enabling ip forwarding"
+echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.conf
 
 echo "Enabling eth0 <-> wlan0 ip forwarding"
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE  
@@ -53,10 +49,3 @@ echo "Checking for existing rc.local file and backing up if existent"
 sudo mv /etc/rc.local /etc/rc.local.backup
 echo "Installing forwarding on boot"
 sudo cp rc.local /etc/
-
-if [ $INSTALLED = 0  ]; then
-	echo 1 | tee logfile.txt
-fi
-
-echo "Rebooting the system"
-sudo reboot -f
