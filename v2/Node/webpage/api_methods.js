@@ -177,17 +177,32 @@ app.get('/getTimestamp', function(req, res) {
 });
 app.get('/setTimestamp', function(req, res) {
 	console.log("method: setTimestamp");
-	const exec = require('child_process').exec;
-	var yourscript = exec('bash ../../rtc_set.bash', (error, stdout, stderr) => {
-		console.log(`${stdout}`);
-		console.log(`${stderr}`);
-		if (error !== null) {
-			console.log(`exec error: ${error}`);
-		} else {
-			console.log("Uspesno izvrsen bash fajl");
-			res.end("Uspesno izvrsen bash fajl");
-		}
-	});
+	var kod = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(kod, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			const exec = require('child_process').exec;
+			var yourscript = exec('bash ../../rtc_set.bash', (error, stdout, stderr) => {
+				console.log(`${stdout}`);
+				console.log(`${stderr}`);
+				if (error !== null) {
+					console.log(`exec error: ${error}`);
+				} else {
+					console.log("Uspesno izvrsen bash fajl");
+					res.end("Uspesno izvrsen bash fajl");
+				}
+			});
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
 });
 app.get('/getRegList', function(req, res) {
 	var kod = req.param("code");
