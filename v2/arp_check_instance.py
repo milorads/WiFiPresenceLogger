@@ -1,6 +1,7 @@
 import subprocess
 import re
 import sqlite3
+import os
 from datetime import datetime
 
 
@@ -65,7 +66,7 @@ def subprocess_cmd(command):
 def check_base(mac_arp_pair, table_name):
     log(2, "Check base function")
     log(1, "Connecting to base")
-    check_base_connection = sqlite3.connect("LogBase.db")
+    check_base_connection = sqlite3.connect(os.path.dirname(os.path.realpath(__file__)) + "/LogBase.db")
     log(1, "Getting cursor")
     check_base_cursor = check_base_connection.cursor()
     sql = "SELECT * FROM " + table_name + " WHERE Izlaz IS NULL"
@@ -75,6 +76,7 @@ def check_base(mac_arp_pair, table_name):
     database_records = check_base_cursor.fetchall()
     if len(database_records) == 0:
         log(3, "No records")
+	add_to_base(mac_arp_pair, table_name)
     else:
         mac_arp_database_pairs = {}
         log(1, "Database records: " + str(database_records))
@@ -111,7 +113,7 @@ def check_base(mac_arp_pair, table_name):
 def add_to_base(mac_arp_pair, table_name):
     log(2, "Add to base function")
     log(1, "Connecting to base")
-    add_to_base_connection = sqlite3.connect("LogBase.db")
+    add_to_base_connection = sqlite3.connect(os.path.dirname(os.path.realpath(__file__)) + "/LogBase.db")
     log(1, "Getting cursor")
     add_to_base_cursor = add_to_base_connection.cursor()
     sql = "INSERT INTO " + table_name + " (Ip,Mac,Ulaz,Izlaz) VALUES(?,?,?,?)"
@@ -119,6 +121,9 @@ def add_to_base(mac_arp_pair, table_name):
     log(1, "Creating query ->" + str(sql) + "\r\nTime ->" + str(add_to_base_date_time))
     for key, arp_model_object in mac_arp_pair.iteritems():
         log(1, "Executing")
+	print "printing ip and mac"
+	print arp_model_object.get_ip()
+	print arp_model_object.get_mac()
         add_to_base_cursor.execute(sql,
                                    [arp_model_object.get_ip(), arp_model_object.get_mac(), add_to_base_date_time, None])
         log(1, "Committing")
@@ -156,7 +161,8 @@ try:
     try:
         log(2, "Looking for database tables")
         current_table_name = "T" + datetime.now().strftime('%d_%m_%y')
-        main_connection = sqlite3.connect("LogBase.db")
+        main_connection = sqlite3.connect(os.path.dirname(os.path.realpath(__file__)) +"/LogBase.db")
+	print current_table_name
         main_cursor = main_connection.cursor()
         main_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (current_table_name,))
         number_of_tables = main_cursor.fetchall()

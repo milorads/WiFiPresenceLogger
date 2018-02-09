@@ -1,8 +1,10 @@
 import os
 import time
 import sqlite3
-#funkcija za proveru iskljucenja 
-file = open("shutdown_time.txt","r")
+#funkcija za proveru iskljucenja
+
+curDir = os.path.dirname(os.path.realpath(__file__)) 
+file = open(curDir+ "/shutdown_time.txt","r")
 shutdownTime  =  file.readline()
 if shutdownTime != "":
 	shutdownTime = shutdownTime.split()
@@ -10,7 +12,7 @@ if shutdownTime != "":
 	outTime = shutdownTime[1] + " " + shutdownTime[2]
 	print tableName
 	print outTime
-	conn = sqlite3.connect("LogBase.db")
+	conn = sqlite3.connect(curDir + "/LogBase.db")
 	cursor= conn.cursor()
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;",(tableName,))
 	tablesNum = cursor.fetchall()
@@ -23,6 +25,6 @@ if shutdownTime != "":
 		print "upisivanje izlaza"
 	conn.close()
 while True:
-	os.system('date "+T%d_%m_%y %Y-%m-%d %T.%6N" > shutdown_time.txt')
-	os.system('sudo python arp_check_instance.py')
+	os.system('date "+T%d_%m_%y %Y-%m-%d %T.%6N" > '+curDir+'/shutdown_time.txt')
+	os.system('sudo python '+ curDir +'/arp_check_instance.py')
 	time.sleep(30)
