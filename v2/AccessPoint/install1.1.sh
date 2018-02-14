@@ -40,6 +40,15 @@ sudo apt-get install npm
 echo "Installing node-sqlite3."
 npm i sqlite3 --build-from-source
 
+#naknadno dodato:
+sudo npm install express
+
+#instalacija i2c-tools-a
+sudo apt install i2c-tools
+
+#enabling i2c-tools
+#kompiranje i pravljenje backup fajla  /boot/armbianEnv.txt pa reboot
+
 echo "Checking for existing interfaces configuration and backing up if existent"
 sudo mv /etc/network/interfaces /etc/network/interfaces.backup
 echo "Installing required interfaces configuration"
