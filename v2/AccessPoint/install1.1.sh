@@ -28,46 +28,27 @@ sudo apt-get upgrade
 echo "Installing hostapd, dnsmasq and dhcpd."
 sudo apt-get install dnsmasq hostapd dhcpd dhcpcd5
 
-echo "Installing sqlite3."
-sudo apt-get install sqlite3
-
-echo "Installing node-legacy."
-sudo apt-get install nodejs-legacy
-
-echo "Installing npm."
-sudo apt-get install npm
-
-echo "Installing node-sqlite3."
-npm i sqlite3 --build-from-source
-
-#naknadno dodato:
-sudo npm install express
-
-#instalacija i2c-tools-a
-sudo apt install i2c-tools
-
-#enabling i2c-tools
 #kompiranje i pravljenje backup fajla  /boot/armbianEnv.txt pa reboot
 
 echo "Checking for existing interfaces configuration and backing up if existent"
 sudo mv /etc/network/interfaces /etc/network/interfaces.backup
 echo "Installing required interfaces configuration"
-sudo cp interfaces /etc/network/
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/interfaces /etc/network/
 
 echo "Checking for existing hostapd configuration and backing up if existent"
 sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.backup
 echo "Installing required hostapd configuration"
-sudo cp hostapd.conf /etc/hostapd/
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/hostapd.conf /etc/hostapd/
 
 echo "Checking for existing configuration pointer file and backing up if existent"
 sudo mv /etc/default/hostapd /etc/default/hostapd.backup
 echo "Installing required conf pointer configuration"
-sudo cp hostapd /etc/default/
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/hostapd /etc/default/
 
 echo "Checking for existing dnsmasq configuration file and backing up if existent"
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
 echo "Installing required conf pointer configuration"
-sudo cp dnsmasq.conf /etc/
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/dnsmasq.conf /etc/
 
 echo "Enabling ip forwarding"
 echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.conf
@@ -83,7 +64,36 @@ sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 echo "Checking for existing rc.local file and backing up if existent"
 sudo mv /etc/rc.local /etc/rc.local.backup
 echo "Installing forwarding on boot"
-sudo cp /home/admin/WiFiPresenceLogger/v2/rc.local /etc/
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/rc.local /etc/
+
+
+echo "Installing sqlite3."
+sudo apt-get install sqlite3
+
+echo "Installing node-legacy."
+sudo apt-get install nodejs-legacy
+
+echo "Installing npm."
+sudo apt-get install npm
+
+echo "Installing node-sqlite3."
+npm i sqlite3 --build-from-source
+
+echo "Installing node-express."
+sudo npm install express
+
+echo "Installing i2c-tools."
+sudo apt install i2c-tools
+
+#enabling i2c-tools
+#kompiranje i pravljenje backup fajla  /boot/armbianEnv.txt pa reboot
+echo "Checking for existing interfaces configuration and backin up if exist"
+sudo mv /boot/armbianEnv.txt /boot/armbianEnv.backup.txt
+echo "Installing required armbianEnv.txt configuration"
+sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/armbianEnv.txt /boot/
+
+
+
 
 echo "Synchronising real time clock."
 msgNoConnection="No connection to NTP time-server"
