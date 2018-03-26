@@ -1,0 +1,17 @@
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe.config
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.pdb
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\EntityFramework.dll
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLoggerClassLibrary.dll
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLoggerClassLibrary.pdb
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLoggerClassLibrary.dll.config
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\EntityFramework.xml
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.csprojResolveAssemblyReference.cache
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.Properties.Resources.resources
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.csproj.GenerateResource.Cache
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.csproj.CoreCompileInputs.cache
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.exe
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.pdb
+C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.LogIn.resources
