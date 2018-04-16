@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WiFiPresenceLogger_v2", "WiFiPresenceLogger_v2\WiFiPresenceLogger_v2.csproj", "{B6D44339-182C-4985-8902-C9933340590F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WiFiPresenceLoggerClassLibrary", "..\WiFiPresenceLogger\WiFiPresenceLoggerClassLibrary\WiFiPresenceLoggerClassLibrary.csproj", "{1FEA3D38-F014-4EFA-AD69-723D11D60DEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WiFiPresenceLoggerClassLibrary", "WiFiPresenceLoggerClassLibrary\WiFiPresenceLoggerClassLibrary.csproj", "{1FEA3D38-F014-4EFA-AD69-723D11D60DEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,5 +25,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1D83DC0-92FB-41B5-AEF4-27AE832C0840}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

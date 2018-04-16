@@ -9,7 +9,8 @@ namespace WiFiPresenceLoggerClassLibrary
 {
     public class Api
     {
-        public string code { get; set; } = "bfa86fdd-398c-462e-9b4e-9cb52ffafb58";
+        public string deviceCode = "bfa86fdd-398c-462e-9b4e-9cb52ffafb58";
+        public string gatewayAddr = "http://192.168.4.1:3002/";
 
         public static string CreateMD5(string input)
         {
@@ -28,9 +29,10 @@ namespace WiFiPresenceLoggerClassLibrary
                 return sb.ToString().ToLower();
             }
         }
-
+        //kodovi za status request-a??
         public string apiMethod(string url)
         {
+            //https:// ??
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "Get";
 
@@ -41,6 +43,46 @@ namespace WiFiPresenceLoggerClassLibrary
                 myResponse = sr.ReadToEnd();
             }
             return myResponse;
+        }
+        public string getTimestamp()
+        {
+            return apiMethod(gatewayAddr + "getTimestamp");
+        }
+        public string apiTest()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+            System.Diagnostics.Debug.WriteLine(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+            System.Diagnostics.Debug.WriteLine("hello");
+            return apiMethod(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
+        public string setTimestamp()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+
+            return apiMethod(gatewayAddr + "setTimeStamp?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
+        public string getData(string fileName)
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+
+            return apiMethod(gatewayAddr + "getData?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&file=" + fileName);
+        }
+        public string deleteData(string fileName)
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+
+            return apiMethod(gatewayAddr + "deleteData?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&file=" + fileName);
+        }
+        public string getRegList()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+
+            return apiMethod(gatewayAddr + "getRegList?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
     }
 }

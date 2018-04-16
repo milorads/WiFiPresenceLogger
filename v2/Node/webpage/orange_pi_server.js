@@ -42,7 +42,9 @@ function checkCode(hashCode, timestamp) {
 	} else {
 		var code = devCode + timestamp;
 		var localHashCode = crypto.createHash('md5').update(code).digest('hex');
-		//console.log(localHashCode);
+		
+		console.log("primljeni hash:" + hashCode);
+		console.log("lokalni hash: " + String(localHashCode));
 		if(hashCode == String(localHashCode)) {
 			console.log(hashCode)
 			console.log(localHashCode)
@@ -253,7 +255,7 @@ app_api.get('/getData', function(req, res) {
 								console.log(row);
 								var odgovor = "";
 								for (var i = 0; i < row.length; i++) {
-									odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+'\n';
+									odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 								}
 								res.end(odgovor);
 							}
@@ -349,7 +351,7 @@ app_api.get('/listData',function(req, res) {
 					console.log(row);
 					var odgovor = "";
 					for (var i = 0; i < row.length; i++) {
-						odgovor += row[i].name+'\n';
+						odgovor += row[i].name+';';
 					}
 					res.end(odgovor);
 				}
@@ -414,7 +416,7 @@ app_api.get('/getRegList', function(req, res) {
 					console.log(row);
 					var odgovor = "";
 					for (var i = 0; i < row.length; i++) {
-						odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+'\n';
+						odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
 					}
 					res.end(odgovor);
 				}

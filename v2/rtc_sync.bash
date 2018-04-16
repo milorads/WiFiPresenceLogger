@@ -3,7 +3,7 @@
 msgNoConnection="No connection to NTP time-server"
 msgConnection="Connection to NTP time-server"
 
-if (ntpq -p | grep -q "^*");then
+if [ "$(ping -c 1 google.com)" ];then
 	#ima konekcije
 	echo $msgConnection
 	echo "-----------------"
