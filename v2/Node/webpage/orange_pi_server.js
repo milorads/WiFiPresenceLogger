@@ -41,7 +41,7 @@ function checkCode(hashCode, timestamp) {
 		return 2; //timeout
 	} else {
 		var code = devCode + timestamp;
-		var localHashCode = crypto.createHash('md5').update(code).digest('hex');
+		var localHashCode = crypto.createHash('sha256').update(code).digest('hex');
 		
 		console.log("primljeni hash:" + hashCode);
 		console.log("lokalni hash: " + String(localHashCode));
@@ -257,6 +257,7 @@ app_api.get('/getData', function(req, res) {
 								for (var i = 0; i < row.length; i++) {
 									odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 								}
+								odgovor = odgovor.substring(0,odgovor.length - 1);
 								res.end(odgovor);
 							}
 						});
@@ -353,6 +354,7 @@ app_api.get('/listData',function(req, res) {
 					for (var i = 0; i < row.length; i++) {
 						odgovor += row[i].name+';';
 					}
+					odgovor = odgovor.substring(0,odgovor.length - 1);
 					res.end(odgovor);
 				}
 			});
@@ -418,6 +420,7 @@ app_api.get('/getRegList', function(req, res) {
 					for (var i = 0; i < row.length; i++) {
 						odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
 					}
+					odgovor = odgovor.substring(0,odgovor.length - 1);
 					res.end(odgovor);
 				}
 			});
