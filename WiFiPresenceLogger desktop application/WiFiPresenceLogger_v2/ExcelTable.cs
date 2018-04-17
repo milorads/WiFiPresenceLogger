@@ -67,7 +67,7 @@ namespace WiFiPresenceLogger_v2
             {
                 Termins[dateStr] += (int)endTime.Subtract(startTime).TotalMinutes;
             }
-            else if (entraceTime < startTime && exitTime < endTime)
+            else if (entraceTime < startTime && exitTime < endTime && exitTime > startTime)
             {
                 Termins[dateStr] += (int)exitTime.Subtract(startTime).TotalMinutes;
             }
@@ -75,7 +75,7 @@ namespace WiFiPresenceLogger_v2
             {
                 Termins[dateStr] += (int)exitTime.Subtract(entraceTime).TotalMinutes;
             }
-            else if (entraceTime >= startTime && exitTime >= endTime)
+            else if (entraceTime >= startTime && exitTime >= endTime && entraceTime < endTime)
             {
                 Termins[dateStr] += (int)endTime.Subtract(entraceTime).TotalMinutes;
             }

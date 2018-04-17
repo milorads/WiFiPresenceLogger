@@ -20,6 +20,7 @@ namespace WiFiPresenceLogger_v2
 
         bool dateCnt = false;
 
+        bool dateOK = false;
         public LogIn()
         {
             InitializeComponent();
@@ -177,7 +178,7 @@ namespace WiFiPresenceLogger_v2
             foreach (var item in tableData)
             {
                 //lista izparsirane tabele po redovima
-                if (item.Value.Equals("Tabela ne postoji"))
+                if (item.Value.Equals("Tabela ne postoji") || item.Value.Equals(""))
                     continue;
                 List<string> oneTable = new List<string>(item.Value.Split(';'));
                 foreach (var item1 in oneTable)
@@ -186,7 +187,7 @@ namespace WiFiPresenceLogger_v2
                     List<string> oneRow = new List<string>(item1.Split('|'));
 
                     //ako kojim slucajem nemamo izlazni datum
-                    if (oneRow.ElementAt(4).Equals(null))
+                    if (oneRow.ElementAt(4).Equals(""))
                         continue;
                     //ako je postojeca mac adresa:
                     string macH = oneRow.ElementAt(1);
@@ -221,14 +222,28 @@ namespace WiFiPresenceLogger_v2
         {
             if (dateCnt)
             {
-
                 endDate = monthCalendar1.SelectionRange.Start;
-                labelEnd.Text = monthCalendar1.SelectionRange.Start.ToShortDateString().ToString();
+                if (endDate < startDate)
+                {
+                    startDate = default(DateTime);
+                    endDate = default(DateTime);
+                    labelStart.Text = "";
+                    labelEnd.Text = "";
+                    MessageBox.Show("neispravni unos!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                    labelEnd.Text = endDate.ToShortDateString().ToString();
+                dateOK = true;
             }
             else
             {
+                startDate = default(DateTime);
+                endDate = default(DateTime);
+                labelStart.Text = "";
+                labelEnd.Text = "";
+
                 startDate = monthCalendar1.SelectionRange.Start;
-                labelStart.Text = monthCalendar1.SelectionRange.Start.ToShortDateString().ToString();
+                labelStart.Text = startDate.ToShortDateString().ToString();
             }
             dateCnt = !dateCnt;
         }
