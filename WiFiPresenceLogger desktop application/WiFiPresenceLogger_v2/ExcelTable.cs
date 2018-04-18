@@ -53,7 +53,7 @@ namespace WiFiPresenceLogger_v2
             DateTime entraceTime = DateTime.ParseExact(entraceTimeStr, "yyyy-MM-dd HH:mm:ss.ffffff", System.Globalization.CultureInfo.InstalledUICulture);
 
             DateTime exitTime;
-            if (exitTimeStr.Equals(""))
+            if (string.IsNullOrEmpty(exitTimeStr) || exitTimeStr.Equals("null"))
             {
                 //pretpostavka da ako ne postoji vreme izlaza, klijent je jos uvek prikacen na wifi pa mu dodeljujemo vreme kraja termina
                 exitTime = endTime;

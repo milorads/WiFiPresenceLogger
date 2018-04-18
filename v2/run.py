@@ -24,6 +24,8 @@ if shutdownTime != "":
 		conn.commit()
 		print "upisivanje izlaza"
 	conn.close()
+	time.sleep(30)
+	os.system('sudo bash /home/admin/WiFiPresenceLogger/v2/rtc_sync.bash')
 while True:
 	os.system('date "+T%d_%m_%y %Y-%m-%d %T.%6N" > '+curDir+'/shutdown_time.txt')
 	os.system('sudo python '+ curDir +'/arp_check_instance.py')
