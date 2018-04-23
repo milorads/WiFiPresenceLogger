@@ -100,7 +100,7 @@ def check_base(mac_arp_pair, table_name):
         for db_mac, db_model_object in mac_arp_database_pairs.iteritems():
             log(1, "Db records-> ip:" + str(db_model_object.get_ip()) + ",mac:" + str(db_model_object.get_mac()))
             if db_mac not in mac_arp_pair:
-                log(1, "mac: " + str(arp_mac) + " not in mac arp database, updating")
+                log(1, "mac: " + str(db_mac) + " not in mac arp database, updating")
                 existing_sql_update = "UPDATE " + table_name + " SET Izlaz =? WHERE LogBaseId =?"
                 check_base_cursor.execute(existing_sql_update, [current_date_time, db_model_object.get_id()])
                 check_base_connection.commit()

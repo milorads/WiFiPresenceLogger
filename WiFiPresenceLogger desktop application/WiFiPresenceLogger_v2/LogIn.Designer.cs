@@ -157,12 +157,7 @@
             // 
             this.numericEnd.Location = new System.Drawing.Point(85, 288);
             this.numericEnd.Maximum = new decimal(new int[] {
-            21,
-            0,
-            0,
-            0});
-            this.numericEnd.Minimum = new decimal(new int[] {
-            8,
+            23,
             0,
             0,
             0});
@@ -195,12 +190,7 @@
             // 
             this.numericStart.Location = new System.Drawing.Point(25, 288);
             this.numericStart.Maximum = new decimal(new int[] {
-            21,
-            0,
-            0,
-            0});
-            this.numericStart.Minimum = new decimal(new int[] {
-            8,
+            23,
             0,
             0,
             0});
