@@ -1,6 +1,7 @@
 import os
 import time
 import sqlite3
+import subprocess
 #funkcija za proveru iskljucenja
 
 def updateTableOutTime(tableNameStr,outTimeStr):
@@ -28,15 +29,17 @@ if shutdownTime != "":
 	print tableName
 	print outTime
 	updateTableOutTime(tableName,outTime)
-	time.sleep(30)
+	time.sleep(20)
 	os.system('sudo bash /home/admin/WiFiPresenceLogger/v2/rtc_sync.bash')
+	time.sleep(10)
+	
 	prevTime = ""
 	curTime = ""
 file.close
 while True:
 	#######################
 	curTime = subprocess.check_output('sudo date "+%d"', shell=True)
-	if((curTime != prevTime) && (prevTime != "")):
+	if((curTime != prevTime) and (prevTime != "")):
 		file = open(curDir+ "/shutdown_time.txt","r")
 		shutdownTime  =  file.readline()
 		shutdownTime = shutdownTime.split()
