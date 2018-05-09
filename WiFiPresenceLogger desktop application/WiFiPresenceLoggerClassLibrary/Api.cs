@@ -36,6 +36,7 @@ namespace WiFiPresenceLoggerClassLibrary
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "Get";
 
+            //dodati exception na gresku u konekciji
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             string myResponse = "";
             using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))

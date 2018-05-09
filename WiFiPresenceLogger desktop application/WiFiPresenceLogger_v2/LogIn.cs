@@ -206,6 +206,7 @@ namespace WiFiPresenceLogger_v2
                 }
             }
             MessageBox.Show(excelTbl.generateOutputString(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            textBox1.Text = excelTbl.generateOutputString();
             excelTbl.generateExcellFile();
         }
 
