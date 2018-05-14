@@ -15,16 +15,16 @@ C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debu
 C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.exe
 C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.pdb
 C:\Users\bluko\source\repos\WiFiPresenceLogger_v2\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.LogIn.resources
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe.config
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.pdb
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\Microsoft.Web.XmlTransform.dll
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\NuGet.Core.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLoggerClassLibrary.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLoggerClassLibrary.pdb
+D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\Microsoft.Web.XmlTransform.dll
+D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\NuGet.Core.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.csprojResolveAssemblyReference.cache
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.LogIn.resources
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.Properties.Resources.resources
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.csproj.GenerateResource.Cache
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.exe
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.pdb
+D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe.config

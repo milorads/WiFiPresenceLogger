@@ -85,5 +85,11 @@ namespace WiFiPresenceLoggerClassLibrary
 
             return apiMethod(gatewayAddr + "getRegList?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
+        public string listData()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+            return apiMethod(gatewayAddr + "listData?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
     }
 }

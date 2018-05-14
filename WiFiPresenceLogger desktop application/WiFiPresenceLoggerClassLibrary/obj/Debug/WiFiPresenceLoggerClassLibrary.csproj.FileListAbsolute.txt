@@ -17,4 +17,3 @@ D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLo
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\NuGet.Core.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.pdb
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.csprojResolveAssemblyReference.cache

@@ -17,6 +17,8 @@ namespace WiFiPresenceLogger_v2
     {
         WFPL_Db db = new WFPL_Db();
         DateTime startDate, endDate;
+        TableList currentTableListState;
+
 
         bool dateCnt = false;
 
@@ -40,6 +42,9 @@ namespace WiFiPresenceLogger_v2
             //var user = new Subject { name = "oop", surname = "", ID = 1, isLast = 1 };// e sad vidji samo sta ti je islast i id  i prezime :) jer ovo bi puklo, users je set User klase, tako da si pokusao dodati subject
             //db.Users.Add(user);
             //db.SaveChanges();
+
+            currentTableListState = new TableList();
+            //currentTableListState.getCurrentList();
         }
 
         private void buttonContinue_Click(object sender, EventArgs e)
@@ -206,8 +211,25 @@ namespace WiFiPresenceLogger_v2
                 }
             }
             MessageBox.Show(excelTbl.generateOutputString(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            textBox1.Text = excelTbl.generateOutputString();
+            //textBox1.Text = excelTbl.generateOutputString();
             excelTbl.generateExcellFile();
+
+            /***************************************************************/
+            foreach (var item in dayOFTheWeek)
+            {
+
+                //tableListBox.Items.Remove(item);
+                tablesDeleteListBox.Items.Add("T" + item);
+                currentTableListState.ListOfDeletedTables.Add("T" + item.ToString());
+                tableListBox.Items.Remove("T" + item);
+            }
+            foreach (var item in currentTableListState.ListOfTables)
+            {
+                tableListBox.Items.Add(item.ToString());
+            }
+            //for (int i = dayOFTheWeek.Count - 1; i >= 0; i--)
+            //    tableListBox.Items.Remove(i);
+            /***************************************************************/
         }
 
         private void monthCalendar1_DateChanged(object sender, DateRangeEventArgs e)
@@ -248,5 +270,49 @@ namespace WiFiPresenceLogger_v2
             }
             dateCnt = !dateCnt;
         }
+
+        private void addToDeleteListBtn_Click(object sender, EventArgs e)
+        {
+            foreach (var item in tableListBox.SelectedItems)
+            {
+
+                //tableListBox.Items.Remove(item);
+                tablesDeleteListBox.Items.Add(item);
+                currentTableListState.ListOfDeletedTables.Add(item.ToString());
+            }
+            for (int i = tableListBox.SelectedItems.Count - 1; i >= 0; i--)
+                tableListBox.Items.Remove(tableListBox.SelectedItems[i]);
+        }
+        private void removeFromDeleteListBtn_Click(object sender, EventArgs e)
+        {
+            foreach (var item in tablesDeleteListBox.SelectedItems)
+            {
+                tableListBox.Items.Add(item);
+                currentTableListState.ListOfDeletedTables.Remove(item.ToString());
+            }
+            for (int i = tablesDeleteListBox.SelectedItems.Count - 1; i >= 0; i--)
+                tablesDeleteListBox.Items.Remove(tablesDeleteListBox.SelectedItems[i]);
+        }
+        private void refreshBtn_Click(object sender, EventArgs e)
+        {
+            currentTableListState.refreshTableState();
+            tableListBox.Items.Clear();
+            tablesDeleteListBox.Items.Clear();
+            foreach (var item in currentTableListState.ListOfTables)
+            {
+                tableListBox.Items.Add(item.ToString());
+            }
+            tablesDeleteListBox.Items.Clear();
+        }
+
+        private void tableDeleteBtn_Click(object sender, EventArgs e)
+        {
+            currentTableListState.deleteTables();
+            currentTableListState.refreshTableState();
+            for (int i = tablesDeleteListBox.Items.Count - 1; i >= 0; i--)
+                tablesDeleteListBox.Items.Remove(tablesDeleteListBox.Items[i]);
+        }
+
+
     }
 }

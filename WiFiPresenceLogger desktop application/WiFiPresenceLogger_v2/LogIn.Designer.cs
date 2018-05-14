@@ -34,7 +34,12 @@
             this.textBoxUser = new System.Windows.Forms.TextBox();
             this.SignUp = new System.Windows.Forms.Panel();
             this.Choose = new System.Windows.Forms.Panel();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.removeFromDeleteListBtn = new System.Windows.Forms.Button();
+            this.addToDeleteListBtn = new System.Windows.Forms.Button();
+            this.tablesDeleteListBox = new System.Windows.Forms.ListBox();
+            this.tableListBox = new System.Windows.Forms.ListBox();
+            this.tableDeleteBtn = new System.Windows.Forms.Button();
+            this.refreshBtn = new System.Windows.Forms.Button();
             this.numericEnd = new System.Windows.Forms.NumericUpDown();
             this.domainUpDown1 = new System.Windows.Forms.DomainUpDown();
             this.numericStart = new System.Windows.Forms.NumericUpDown();
@@ -126,7 +131,12 @@
             // 
             // Choose
             // 
-            this.Choose.Controls.Add(this.textBox1);
+            this.Choose.Controls.Add(this.removeFromDeleteListBtn);
+            this.Choose.Controls.Add(this.addToDeleteListBtn);
+            this.Choose.Controls.Add(this.tablesDeleteListBox);
+            this.Choose.Controls.Add(this.tableListBox);
+            this.Choose.Controls.Add(this.tableDeleteBtn);
+            this.Choose.Controls.Add(this.refreshBtn);
             this.Choose.Controls.Add(this.numericEnd);
             this.Choose.Controls.Add(this.domainUpDown1);
             this.Choose.Controls.Add(this.numericStart);
@@ -145,13 +155,65 @@
             this.Choose.Visible = false;
             this.Choose.Paint += new System.Windows.Forms.PaintEventHandler(this.Choose_Paint);
             // 
-            // textBox1
+            // removeFromDeleteListBtn
             // 
-            this.textBox1.Location = new System.Drawing.Point(369, 53);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(399, 255);
-            this.textBox1.TabIndex = 9;
+            this.removeFromDeleteListBtn.Location = new System.Drawing.Point(465, 102);
+            this.removeFromDeleteListBtn.Name = "removeFromDeleteListBtn";
+            this.removeFromDeleteListBtn.Size = new System.Drawing.Size(38, 23);
+            this.removeFromDeleteListBtn.TabIndex = 16;
+            this.removeFromDeleteListBtn.Text = "<<";
+            this.removeFromDeleteListBtn.UseVisualStyleBackColor = true;
+            this.removeFromDeleteListBtn.Click += new System.EventHandler(this.removeFromDeleteListBtn_Click);
+            // 
+            // addToDeleteListBtn
+            // 
+            this.addToDeleteListBtn.Location = new System.Drawing.Point(465, 56);
+            this.addToDeleteListBtn.Name = "addToDeleteListBtn";
+            this.addToDeleteListBtn.Size = new System.Drawing.Size(38, 23);
+            this.addToDeleteListBtn.TabIndex = 15;
+            this.addToDeleteListBtn.Text = ">>";
+            this.addToDeleteListBtn.UseVisualStyleBackColor = true;
+            this.addToDeleteListBtn.Click += new System.EventHandler(this.addToDeleteListBtn_Click);
+            // 
+            // tablesDeleteListBox
+            // 
+            this.tablesDeleteListBox.FormattingEnabled = true;
+            this.tablesDeleteListBox.Location = new System.Drawing.Point(509, 53);
+            this.tablesDeleteListBox.Name = "tablesDeleteListBox";
+            this.tablesDeleteListBox.ScrollAlwaysVisible = true;
+            this.tablesDeleteListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.tablesDeleteListBox.Size = new System.Drawing.Size(120, 95);
+            this.tablesDeleteListBox.TabIndex = 14;
+            // 
+            // tableListBox
+            // 
+            this.tableListBox.FormattingEnabled = true;
+            this.tableListBox.Location = new System.Drawing.Point(337, 53);
+            this.tableListBox.Name = "tableListBox";
+            this.tableListBox.ScrollAlwaysVisible = true;
+            this.tableListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.tableListBox.Size = new System.Drawing.Size(120, 95);
+            this.tableListBox.TabIndex = 13;
+            // 
+            // tableDeleteBtn
+            // 
+            this.tableDeleteBtn.Location = new System.Drawing.Point(509, 152);
+            this.tableDeleteBtn.Name = "tableDeleteBtn";
+            this.tableDeleteBtn.Size = new System.Drawing.Size(120, 23);
+            this.tableDeleteBtn.TabIndex = 12;
+            this.tableDeleteBtn.Text = "delete Table(s)";
+            this.tableDeleteBtn.UseVisualStyleBackColor = true;
+            this.tableDeleteBtn.Click += new System.EventHandler(this.tableDeleteBtn_Click);
+            // 
+            // refreshBtn
+            // 
+            this.refreshBtn.Location = new System.Drawing.Point(337, 154);
+            this.refreshBtn.Name = "refreshBtn";
+            this.refreshBtn.Size = new System.Drawing.Size(120, 23);
+            this.refreshBtn.TabIndex = 10;
+            this.refreshBtn.Text = "refresh list";
+            this.refreshBtn.UseVisualStyleBackColor = true;
+            this.refreshBtn.Click += new System.EventHandler(this.refreshBtn_Click);
             // 
             // numericEnd
             // 
@@ -379,7 +441,12 @@
         private System.Windows.Forms.DomainUpDown domainUpDown1;
         private System.Windows.Forms.NumericUpDown numericStart;
         private System.Windows.Forms.NumericUpDown numericEnd;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button refreshBtn;
+        private System.Windows.Forms.Button tableDeleteBtn;
+        private System.Windows.Forms.Button removeFromDeleteListBtn;
+        private System.Windows.Forms.Button addToDeleteListBtn;
+        private System.Windows.Forms.ListBox tablesDeleteListBox;
+        private System.Windows.Forms.ListBox tableListBox;
     }
 }
 
