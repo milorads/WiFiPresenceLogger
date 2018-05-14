@@ -106,7 +106,8 @@ http.createServer(function (request, response) {
         }
     });
 
-}).listen(3000);
+}).listen(80);
+
 console.log('Server running at http://172.24.1.1:3000/');
 
 
@@ -232,7 +233,6 @@ app.use(function(err, req, res, next) {
     next(err);
   }
 });
-
 app.listen(3001);
 
 /* ========================= api methods ========================= */
@@ -357,29 +357,38 @@ app_api.get('/deleteData', function(req, res) {
 		case 1:
 			console.log("Right hash.");
 
-			var datum = req.param("file");
-			var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+"T"+datum+`'`;
-
-			LogBase.get(evidencija, (err, row) => {
-				if (err) {
-						console.error(err.message);
-				} else {
-					if (row == undefined) {
-						console.log("Tabela ne postoji");
-						res.end("Tabela ne postoji");
+			var dates = req.param("file");
+			/************************/
+			var tableList = dates.split(',')
+			console.log("table lista: " , tableList);
+			console.log("-----");
+			/************************/
+			for (var datum in tableList)
+			{
+				var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+tableList[datum]+`'`;
+				console.log("upit za brisanje: " + evidencija);
+				LogBase.get(evidencija, (err, row) => {
+					if (err) {
+							console.error(err.message);
 					} else {
-						var brisi = `DROP TABLE `+row.name;
-						LogBase.run(brisi, (er, row) => {
-							if (er) {
-								console.error(er.message);
-							} else {
-								console.log("Uspesno obrisana tabela");
-								res.end("Uspesno obrisana tabela");
-							}
-						});
+						if (row == undefined) {
+							console.log("Tabela ne postoji");
+							res.end("Tabela ne postoji");
+						} else {
+							var brisi = `DROP TABLE `+row.name;
+							LogBase.run(brisi, (er, row) => {
+								if (er) {
+									console.error(er.message);
+								} else {
+									console.log("Uspesno obrisana tabela");
+									res.end("Uspesno obrisana tabela");
+								}
+							});
+						}
 					}
-				}
-			});
+				});
+			}
+			
 			break;
 		case 2:
 			console.log("Timeout.");
