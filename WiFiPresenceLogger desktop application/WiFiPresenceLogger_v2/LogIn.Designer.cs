@@ -56,6 +56,9 @@
             this.textBoxSurname = new System.Windows.Forms.TextBox();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.rtcShiftBtn = new System.Windows.Forms.Button();
+            this.rtcShiftLabel = new System.Windows.Forms.Label();
+            this.setTimeBtn = new System.Windows.Forms.Button();
             this.SignUp.SuspendLayout();
             this.Choose.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericEnd)).BeginInit();
@@ -131,6 +134,9 @@
             // 
             // Choose
             // 
+            this.Choose.Controls.Add(this.setTimeBtn);
+            this.Choose.Controls.Add(this.rtcShiftLabel);
+            this.Choose.Controls.Add(this.rtcShiftBtn);
             this.Choose.Controls.Add(this.removeFromDeleteListBtn);
             this.Choose.Controls.Add(this.addToDeleteListBtn);
             this.Choose.Controls.Add(this.tablesDeleteListBox);
@@ -393,6 +399,34 @@
             this.label1.TabIndex = 9;
             this.label1.Text = "LISTA OSOBA";
             // 
+            // rtcShiftBtn
+            // 
+            this.rtcShiftBtn.Location = new System.Drawing.Point(537, 222);
+            this.rtcShiftBtn.Name = "rtcShiftBtn";
+            this.rtcShiftBtn.Size = new System.Drawing.Size(93, 23);
+            this.rtcShiftBtn.TabIndex = 17;
+            this.rtcShiftBtn.Text = "show RTC Shift";
+            this.rtcShiftBtn.UseVisualStyleBackColor = true;
+            this.rtcShiftBtn.Click += new System.EventHandler(this.rtcShiftBtn_Click);
+            // 
+            // rtcShiftLabel
+            // 
+            this.rtcShiftLabel.AutoSize = true;
+            this.rtcShiftLabel.Location = new System.Drawing.Point(630, 222);
+            this.rtcShiftLabel.Name = "rtcShiftLabel";
+            this.rtcShiftLabel.Size = new System.Drawing.Size(0, 13);
+            this.rtcShiftLabel.TabIndex = 18;
+            // 
+            // setTimeBtn
+            // 
+            this.setTimeBtn.Location = new System.Drawing.Point(537, 271);
+            this.setTimeBtn.Name = "setTimeBtn";
+            this.setTimeBtn.Size = new System.Drawing.Size(93, 23);
+            this.setTimeBtn.TabIndex = 19;
+            this.setTimeBtn.Text = "set System time";
+            this.setTimeBtn.UseVisualStyleBackColor = true;
+            this.setTimeBtn.Click += new System.EventHandler(this.setTimeBtn_Click);
+            // 
             // LogIn
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -447,6 +481,9 @@
         private System.Windows.Forms.Button addToDeleteListBtn;
         private System.Windows.Forms.ListBox tablesDeleteListBox;
         private System.Windows.Forms.ListBox tableListBox;
+        private System.Windows.Forms.Label rtcShiftLabel;
+        private System.Windows.Forms.Button rtcShiftBtn;
+        private System.Windows.Forms.Button setTimeBtn;
     }
 }
 

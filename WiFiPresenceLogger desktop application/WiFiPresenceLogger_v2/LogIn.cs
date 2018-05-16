@@ -18,7 +18,7 @@ namespace WiFiPresenceLogger_v2
         WFPL_Db db = new WFPL_Db();
         DateTime startDate, endDate;
         TableList currentTableListState;
-
+        Api api = new Api();
 
         bool dateCnt = false;
 
@@ -133,7 +133,7 @@ namespace WiFiPresenceLogger_v2
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Api api = new Api();
+            
             List<string> lista = new List<string>();
 
             //"ana voli milovana"=="ana voli milovana"
@@ -311,6 +311,20 @@ namespace WiFiPresenceLogger_v2
             currentTableListState.refreshTableState();
             for (int i = tablesDeleteListBox.Items.Count - 1; i >= 0; i--)
                 tablesDeleteListBox.Items.Remove(tablesDeleteListBox.Items[i]);
+        }
+
+        private void rtcShiftBtn_Click(object sender, EventArgs e)
+        {
+            string shiftSeconds = api.getTimeShift();
+            rtcShiftLabel.Text = "time shift:" + shiftSeconds + " s";
+        }
+
+        private void setTimeBtn_Click(object sender, EventArgs e)
+        {
+            //exitTime = DateTime.ParseExact(exitTimeStr, "yyyy-MM-dd HH:mm:ss.ffffff", System.Globalization.CultureInfo.InstalledUICulture);
+            DateTime utcTimestamp = DateTime.UtcNow;
+            string response = api.setSystemTime("0",utcTimestamp.ToString("o"));
+            MessageBox.Show("Vreme je setovano na (UTC):" + utcTimestamp.ToString("o"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
 

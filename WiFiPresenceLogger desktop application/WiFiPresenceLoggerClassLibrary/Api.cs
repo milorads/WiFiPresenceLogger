@@ -57,12 +57,13 @@ namespace WiFiPresenceLoggerClassLibrary
             System.Diagnostics.Debug.WriteLine("hello");
             return apiMethod(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
-        public string setTimestamp()
+        public string setSystemTime(string actionCode,string adminTimestamp)
         {
+            //provera koda
             string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
 
-            return apiMethod(gatewayAddr + "setTimeStamp?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+            return apiMethod(gatewayAddr + "setSystemTime?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&actionCode=" + actionCode + "&adminTimestamp=" + adminTimestamp);
         }
         public string getData(string fileName)
         {
@@ -90,6 +91,12 @@ namespace WiFiPresenceLoggerClassLibrary
             string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
             return apiMethod(gatewayAddr + "listData?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
+        public string getTimeShift()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+            return apiMethod(gatewayAddr + "getTimeShift?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
     }
 }
