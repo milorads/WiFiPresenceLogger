@@ -295,7 +295,7 @@ app_api.get('/getData1', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-
+			console.log("detData1");
 			var datum = req.param("file");
 			var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+"T"+datum+`'`;
 
@@ -313,7 +313,7 @@ app_api.get('/getData1', function(req, res) {
 							if (err) {
 								console.error(err.message);
 							} else {
-								console.log(row);
+								//console.log(row);
 								/***************************************************/
 								var regListDict = [];
 								regSql = `SELECT * FROM regList`;
@@ -326,8 +326,9 @@ app_api.get('/getData1', function(req, res) {
 									var odgovor = "";
 									for (var i = 0; i < row.length; i++) {
 										var imePrezime = regListDict[row[i].Mac];
-										odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+'\n';
+										odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 									}
+									console.log("response: " + odgovor);
 									res.end(odgovor);
 								/***************************************************/
 								});
@@ -454,8 +455,8 @@ app_api.get('/getTimestamp', function(req, res) {
 	tStamp = new Date().toISOString().replace(/\..+/,'');
 	res.end(tStamp);
 });
-app_api.get('/setTimestamp', function(req, res) {
-	console.log("method: setTimestamp");
+app_api.get('/getTimeShift', function(req, res) {
+	console.log("method: setAdministratorTimestamp");
 	var kod = req.param("code");
 	var timestamp = req.param("timestamp");
 	switch (checkCode(kod, timestamp)) {
@@ -464,19 +465,61 @@ app_api.get('/setTimestamp', function(req, res) {
 			res.end("Wrong hash.");
 			break;
 		case 1:
-			console.log("Right hash.");
+			console.log("Right hash");
 			const exec = require('child_process').exec;
-			var yourscript = exec('bash ../../rtc_set.bash', (error, stdout, stderr) => {
+			//var tStamp = new Date(timestamp.replace(/T/, ' '));
+			var yourscript = exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
 				console.log(`${stdout}`);
 				console.log(`${stderr}`);
 				if (error !== null) {
 					console.log(`exec error: ${error}`);
+					res.end(`exec error: ${error}`);
 				} else {
-					console.log("Uspesno izvrsen bash fajl");
-					res.end("Uspesno izvrsen bash fajl");
+					var strArr = stdout.split('\n');
+					var sysTime = new Date(strArr[0]);
+					console.log("SYS time:" + sysTime);
+					rtcStrArr = strArr[1].split(' ');
+					var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
+					console.log("RTC time" + rtcTime);
+					//res.end((sysTime - rtcTime)/1000);
+					res.end(String((sysTime-rtcTime)/1000));
+					console.log("shift: " + (sysTime-rtcTime)/1000);
 				}
 			});
 			break;
+		case 2:
+			console.log("Timeout...");
+			res.end("Timeout...");
+			break;
+	}
+});
+app_api.get('/setSystemTime', function(req, res) {
+	console.log("method: setAdministratorTimestamp");
+	var kod = req.param("code");
+	var timestamp = req.param("timestamp");
+	var actionCode = req.param("actionCode");
+	var adminTimestamp = req.param("adminTimestamp");
+	switch (checkCode(kod, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash");
+			const exec = require('child_process').exec;
+			bashProcess = exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode+" " + adminTimestamp, (error, stdout, stderr) => {
+				console.log(`${stdout}`);
+				console.log(`${stderr}`);
+				if (error !== null) {
+					console.log(`exec error: ${error}`);
+					res.end(`exec error: ${error}`);
+				} else {
+					console.log(stdout);
+					res.end(stdout);
+				}
+			});
+			break;
+			
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
