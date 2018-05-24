@@ -40,6 +40,7 @@ case "$1" in
 			#ima konekcije
 			echo $msgConnection
 			echo "-----------------"
+			sudo /etc/init.d/ntp stop & sudo ntp -q -g & sudo /etc/init.d/ntp start
 			#setovanje rtc registara
 			i2cset -y -f 1 0x68 0x00 0x$(date +"%S") b
 			i2cset -y -f 1 0x68 0x01 0x$(date +"%M") b
