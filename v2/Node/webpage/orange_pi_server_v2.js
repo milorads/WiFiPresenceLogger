@@ -320,7 +320,7 @@ app_api.get('/getData1', function(req, res) {
 								RegBase.all(regSql,(err,row1) => {
 									for(var i = 0;i<row1.length;i++)
 									{
-										regListDict[row1[i].Mac] = row1[i].Ime + "|" + row1[i].Prezime + "|" + row1[i].Id;
+										regListDict[row1[i].Mac] = (row1[i].Ime == undefined)?"undefined":row1[i].Ime + "|" + (row1[i].Prezime == undefined)?"undefined":row1[i].Prezime + "|" + row1[i].Id;
 									}
 								
 									var odgovor = "";
