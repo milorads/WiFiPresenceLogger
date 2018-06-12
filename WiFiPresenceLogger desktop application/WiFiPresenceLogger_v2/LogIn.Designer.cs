@@ -34,6 +34,14 @@
             this.textBoxUser = new System.Windows.Forms.TextBox();
             this.SignUp = new System.Windows.Forms.Panel();
             this.Choose = new System.Windows.Forms.Panel();
+            this.passwordCheckBox = new System.Windows.Forms.CheckBox();
+            this.ssidCheckBox = new System.Windows.Forms.CheckBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.passwordTextBox = new System.Windows.Forms.TextBox();
+            this.ssidTextBox = new System.Windows.Forms.TextBox();
+            this.setTimeBtn = new System.Windows.Forms.Button();
+            this.rtcShiftLabel = new System.Windows.Forms.Label();
+            this.rtcShiftBtn = new System.Windows.Forms.Button();
             this.removeFromDeleteListBtn = new System.Windows.Forms.Button();
             this.addToDeleteListBtn = new System.Windows.Forms.Button();
             this.tablesDeleteListBox = new System.Windows.Forms.ListBox();
@@ -56,9 +64,7 @@
             this.textBoxSurname = new System.Windows.Forms.TextBox();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.rtcShiftBtn = new System.Windows.Forms.Button();
-            this.rtcShiftLabel = new System.Windows.Forms.Label();
-            this.setTimeBtn = new System.Windows.Forms.Button();
+            this.subjectAddBtn = new System.Windows.Forms.Button();
             this.SignUp.SuspendLayout();
             this.Choose.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericEnd)).BeginInit();
@@ -134,6 +140,12 @@
             // 
             // Choose
             // 
+            this.Choose.Controls.Add(this.subjectAddBtn);
+            this.Choose.Controls.Add(this.passwordCheckBox);
+            this.Choose.Controls.Add(this.ssidCheckBox);
+            this.Choose.Controls.Add(this.button2);
+            this.Choose.Controls.Add(this.passwordTextBox);
+            this.Choose.Controls.Add(this.ssidTextBox);
             this.Choose.Controls.Add(this.setTimeBtn);
             this.Choose.Controls.Add(this.rtcShiftLabel);
             this.Choose.Controls.Add(this.rtcShiftBtn);
@@ -160,6 +172,82 @@
             this.Choose.TabIndex = 16;
             this.Choose.Visible = false;
             this.Choose.Paint += new System.Windows.Forms.PaintEventHandler(this.Choose_Paint);
+            // 
+            // passwordCheckBox
+            // 
+            this.passwordCheckBox.AutoSize = true;
+            this.passwordCheckBox.Location = new System.Drawing.Point(294, 236);
+            this.passwordCheckBox.Name = "passwordCheckBox";
+            this.passwordCheckBox.Size = new System.Drawing.Size(95, 17);
+            this.passwordCheckBox.TabIndex = 24;
+            this.passwordCheckBox.Text = "WiFi password";
+            this.passwordCheckBox.UseVisualStyleBackColor = true;
+            this.passwordCheckBox.CheckedChanged += new System.EventHandler(this.passwordCheckBox_CheckedChanged);
+            // 
+            // ssidCheckBox
+            // 
+            this.ssidCheckBox.AutoSize = true;
+            this.ssidCheckBox.Location = new System.Drawing.Point(294, 207);
+            this.ssidCheckBox.Name = "ssidCheckBox";
+            this.ssidCheckBox.Size = new System.Drawing.Size(75, 17);
+            this.ssidCheckBox.TabIndex = 23;
+            this.ssidCheckBox.Text = "WiFi SSID";
+            this.ssidCheckBox.UseVisualStyleBackColor = true;
+            this.ssidCheckBox.CheckedChanged += new System.EventHandler(this.ssidCheckBox_CheckedChanged);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(390, 259);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(113, 23);
+            this.button2.TabIndex = 22;
+            this.button2.Text = "set WiFi parameters";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Enabled = false;
+            this.passwordTextBox.Location = new System.Drawing.Point(390, 230);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(113, 20);
+            this.passwordTextBox.TabIndex = 21;
+            // 
+            // ssidTextBox
+            // 
+            this.ssidTextBox.Enabled = false;
+            this.ssidTextBox.Location = new System.Drawing.Point(390, 204);
+            this.ssidTextBox.Name = "ssidTextBox";
+            this.ssidTextBox.Size = new System.Drawing.Size(113, 20);
+            this.ssidTextBox.TabIndex = 20;
+            // 
+            // setTimeBtn
+            // 
+            this.setTimeBtn.Location = new System.Drawing.Point(602, 261);
+            this.setTimeBtn.Name = "setTimeBtn";
+            this.setTimeBtn.Size = new System.Drawing.Size(93, 23);
+            this.setTimeBtn.TabIndex = 19;
+            this.setTimeBtn.Text = "set System time";
+            this.setTimeBtn.UseVisualStyleBackColor = true;
+            this.setTimeBtn.Click += new System.EventHandler(this.setTimeBtn_Click);
+            // 
+            // rtcShiftLabel
+            // 
+            this.rtcShiftLabel.AutoSize = true;
+            this.rtcShiftLabel.Location = new System.Drawing.Point(695, 212);
+            this.rtcShiftLabel.Name = "rtcShiftLabel";
+            this.rtcShiftLabel.Size = new System.Drawing.Size(0, 13);
+            this.rtcShiftLabel.TabIndex = 18;
+            // 
+            // rtcShiftBtn
+            // 
+            this.rtcShiftBtn.Location = new System.Drawing.Point(602, 212);
+            this.rtcShiftBtn.Name = "rtcShiftBtn";
+            this.rtcShiftBtn.Size = new System.Drawing.Size(93, 23);
+            this.rtcShiftBtn.TabIndex = 17;
+            this.rtcShiftBtn.Text = "show RTC Shift";
+            this.rtcShiftBtn.UseVisualStyleBackColor = true;
+            this.rtcShiftBtn.Click += new System.EventHandler(this.rtcShiftBtn_Click);
             // 
             // removeFromDeleteListBtn
             // 
@@ -203,7 +291,7 @@
             // 
             // tableDeleteBtn
             // 
-            this.tableDeleteBtn.Location = new System.Drawing.Point(509, 152);
+            this.tableDeleteBtn.Location = new System.Drawing.Point(509, 154);
             this.tableDeleteBtn.Name = "tableDeleteBtn";
             this.tableDeleteBtn.Size = new System.Drawing.Size(120, 23);
             this.tableDeleteBtn.TabIndex = 12;
@@ -399,33 +487,16 @@
             this.label1.TabIndex = 9;
             this.label1.Text = "LISTA OSOBA";
             // 
-            // rtcShiftBtn
+            // subjectAddBtn
             // 
-            this.rtcShiftBtn.Location = new System.Drawing.Point(537, 222);
-            this.rtcShiftBtn.Name = "rtcShiftBtn";
-            this.rtcShiftBtn.Size = new System.Drawing.Size(93, 23);
-            this.rtcShiftBtn.TabIndex = 17;
-            this.rtcShiftBtn.Text = "show RTC Shift";
-            this.rtcShiftBtn.UseVisualStyleBackColor = true;
-            this.rtcShiftBtn.Click += new System.EventHandler(this.rtcShiftBtn_Click);
-            // 
-            // rtcShiftLabel
-            // 
-            this.rtcShiftLabel.AutoSize = true;
-            this.rtcShiftLabel.Location = new System.Drawing.Point(630, 222);
-            this.rtcShiftLabel.Name = "rtcShiftLabel";
-            this.rtcShiftLabel.Size = new System.Drawing.Size(0, 13);
-            this.rtcShiftLabel.TabIndex = 18;
-            // 
-            // setTimeBtn
-            // 
-            this.setTimeBtn.Location = new System.Drawing.Point(537, 271);
-            this.setTimeBtn.Name = "setTimeBtn";
-            this.setTimeBtn.Size = new System.Drawing.Size(93, 23);
-            this.setTimeBtn.TabIndex = 19;
-            this.setTimeBtn.Text = "set System time";
-            this.setTimeBtn.UseVisualStyleBackColor = true;
-            this.setTimeBtn.Click += new System.EventHandler(this.setTimeBtn_Click);
+            this.subjectAddBtn.Location = new System.Drawing.Point(664, 24);
+            this.subjectAddBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.subjectAddBtn.Name = "subjectAddBtn";
+            this.subjectAddBtn.Size = new System.Drawing.Size(110, 36);
+            this.subjectAddBtn.TabIndex = 25;
+            this.subjectAddBtn.Text = "Dodaj Predmet";
+            this.subjectAddBtn.UseVisualStyleBackColor = true;
+            this.subjectAddBtn.Click += new System.EventHandler(this.subjectAddBtn_Click);
             // 
             // LogIn
             // 
@@ -484,6 +555,12 @@
         private System.Windows.Forms.Label rtcShiftLabel;
         private System.Windows.Forms.Button rtcShiftBtn;
         private System.Windows.Forms.Button setTimeBtn;
+        private System.Windows.Forms.CheckBox passwordCheckBox;
+        private System.Windows.Forms.CheckBox ssidCheckBox;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox passwordTextBox;
+        private System.Windows.Forms.TextBox ssidTextBox;
+        private System.Windows.Forms.Button subjectAddBtn;
     }
 }
 

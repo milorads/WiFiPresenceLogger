@@ -19,10 +19,11 @@ namespace WiFiPresenceLogger_v2
         DateTime startDate, endDate;
         TableList currentTableListState;
         Api api = new Api();
-
+        User currentUser;
+        bool dateOK;
+        Form form1;
         bool dateCnt = false;
 
-        bool dateOK = false;
         public LogIn()
         {
             InitializeComponent();
@@ -45,6 +46,10 @@ namespace WiFiPresenceLogger_v2
 
             currentTableListState = new TableList();
             //currentTableListState.getCurrentList();
+
+            string res = api.apiTest();
+            if(res != "1")
+                MessageBox.Show("Greska: " + res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void buttonContinue_Click(object sender, EventArgs e)
@@ -91,6 +96,7 @@ namespace WiFiPresenceLogger_v2
 
             db.SaveChanges();
             Choose.Visible = true;
+            currentUser = db.getLastUser();
         }
 
         private void buttonDodaj_Click(object sender, EventArgs e)
@@ -256,7 +262,7 @@ namespace WiFiPresenceLogger_v2
                 }
                 else
                     labelEnd.Text = endDate.ToShortDateString().ToString();
-                dateOK = true;
+                    dateOK = true;
             }
             else
             {
@@ -327,6 +333,34 @@ namespace WiFiPresenceLogger_v2
             MessageBox.Show("Vreme je setovano na (UTC):" + utcTimestamp.ToString("o"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
+        private void ssidCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ssidCheckBox.CheckState == CheckState.Checked)
+                ssidTextBox.Enabled = true;
+            else
+                ssidTextBox.Enabled = false;
+        }
+
+        private void passwordCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (passwordCheckBox.CheckState == CheckState.Checked)
+                passwordTextBox.Enabled = true;
+            else
+                passwordTextBox.Enabled = false;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            api.wifiSetting(ssidTextBox.Text, passwordTextBox.Text);
+            MessageBox.Show("Connect again to WiFi network", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private void subjectAddBtn_Click(object sender, EventArgs e)
+        {
+            var subjectForm = new subjectForm();
+            subjectForm.Show();
+            
+        }
 
     }
 }

@@ -32,18 +32,25 @@ namespace WiFiPresenceLoggerClassLibrary
         //kodovi za status request-a??
         public string apiMethod(string url)
         {
-            //https:// ??
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "Get";
-
-            //dodati exception na gresku u konekciji
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            string myResponse = "";
-            using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))
+            try
             {
-                myResponse = sr.ReadToEnd();
+                //https:// ??
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "Get";
+
+                //dodati exception na gresku u konekciji
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                string myResponse = "";
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))
+                {
+                    myResponse = sr.ReadToEnd();
+                }
+                return myResponse;
             }
-            return myResponse;
+            catch (Exception e)
+            {
+                return "Error:" + e;
+            }
         }
         public string getTimestamp()
         {
@@ -97,6 +104,12 @@ namespace WiFiPresenceLoggerClassLibrary
             string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
             return apiMethod(gatewayAddr + "getTimeShift?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
+        public string wifiSetting(string ssid, string passwrd)
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+            return apiMethod(gatewayAddr + "wifiSetting?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&ssid=" + ssid + "&passwrd=" + passwrd);
         }
     }
 }

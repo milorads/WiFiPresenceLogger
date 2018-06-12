@@ -28,3 +28,4 @@ D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLo
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.exe
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.pdb
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\bin\Debug\WiFiPresenceLogger_v2.exe.config
+D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLogger_v2\obj\Debug\WiFiPresenceLogger_v2.subjectForm.resources

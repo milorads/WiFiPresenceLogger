@@ -37,6 +37,35 @@ namespace WiFiPresenceLoggerClassLibrary
                 throw e;
             }
         }
+        private bool checkIntervalCollision(string startTime1, int classDuration1, string startTime2,int classDuration2)
+        {
+            DateTime strTime1 = DateTime.ParseExact(startTime1, "yyyy-MM-dd HH:mm:ss.ffffff", System.Globalization.CultureInfo.InstalledUICulture);
+            DateTime strTime2 = DateTime.ParseExact(startTime2, "yyyy-MM-dd HH:mm:ss.ffffff", System.Globalization.CultureInfo.InstalledUICulture);
+            return strTime1.AddMinutes(classDuration1) > strTime2 || (strTime1 > strTime2 && strTime1 < strTime2.AddMinutes(classDuration2));
+        }
+
+        public bool addSubject(User currentUser,Subject sub)
+        {
+            //provera da nije doslo do kolizije
+            try
+            {
+                if (Subjects.Where(o => (o.dayOfWeek == sub.dayOfWeek && checkIntervalCollision(sub.startTime,sub.durationTime,o.startTime,o.durationTime))).Count() == 0)
+                {
+                    Subjects.Add(sub);
+                    SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         
 
     }

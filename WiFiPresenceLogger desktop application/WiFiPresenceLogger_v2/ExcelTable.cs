@@ -128,11 +128,12 @@ namespace WiFiPresenceLogger_v2
             workSheet.Cells[1,2] = "Prezime";
             workSheet.Cells[1,3] = "Index";
             var row = 4;
-            foreach (var item in tableRows[0].Termins)
-            {
-                workSheet.Cells[1, row] = item.Key;
-                row++;
-            }
+            if(tableRows.Count != 0)
+                foreach (var item in tableRows[0].Termins)
+                {
+                    workSheet.Cells[1, row] = item.Key;
+                    row++;
+                }
 
             row = 1;
             foreach (var exclRow in tableRows)
