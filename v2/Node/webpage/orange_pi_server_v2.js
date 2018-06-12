@@ -320,7 +320,7 @@ app_api.get('/getData1', function(req, res) {
 								RegBase.all(regSql,(err,row1) => {
 									for(var i = 0;i<row1.length;i++)
 									{
-										regListDict[row1[i].Mac] = (row1[i].Ime == undefined)?"undefined":row1[i].Ime + "|" + (row1[i].Prezime == undefined)?"undefined":row1[i].Prezime + "|" + row1[i].Id;
+										regListDict[row1[i].Mac] = row1[i].Ime + "|" + row1[i].Prezime + "|" + row1[i].Id;
 									}
 								
 									var odgovor = "";
@@ -551,6 +551,45 @@ app_api.get('/getRegList', function(req, res) {
 					res.end(odgovor);
 				}
 			});
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
+app_api.get('/wifiSetting', function(req, res) {
+	var kod = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(kod, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			//sudo sed -i '3s/.*/ssid=PrijavaPris/' /etc/hostapd/hostapd.conf
+			commandString = "";
+			if(req.param("ssid") != null)
+				commandString = "sudo sed -i '3s/.*/ssid='"+ req.param("ssid")+ "'/' /etc/hostapd/hostapd.conf &";
+			if(param("passwrd")  != "")
+				commandString += "sudo sed -i '11s/.*/wpa_passphrase='"+ req.param("passwrd") + "'/' /etc/hostapd/hostapd.conf";
+			
+			
+			const exec = require('child_process').exec;
+			bashProcess = exec(commandString +  "& sudo reboot", (error, stdout, stderr) => {
+				console.log(`${stdout}`);
+				console.log(`${stderr}`);
+				if (error !== null) {
+					console.log(`exec error: ${error}`);
+					res.end(`exec error: ${error}`);
+				} else {
+					console.log(stdout);
+					res.end(stdout);
+				}
+			});			
+			
+			
 			break;
 		case 2:
 			console.log("Timeout.");
