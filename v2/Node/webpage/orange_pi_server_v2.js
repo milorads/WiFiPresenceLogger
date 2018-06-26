@@ -237,6 +237,9 @@ app.listen(3001);
 
 /* ========================= api methods ========================= */
 var app_api = express();
+app_api.use(bodyParser.urlencoded({extended: true}));
+app_api.use(bodyParser.json());
+app_api.use(express['static'](__dirname ));
 
 app_api.get('/getData', function(req, res) {
 	var kod = req.param("code");
@@ -397,6 +400,28 @@ app_api.get('/deleteData', function(req, res) {
 			break;
 	}
 });
+app_api.post('/PostApiTest', function(req, res) {
+	console.log("pozvana PostApi metoda...")
+	var code = req.body.code;
+	console.log("code: " + code);
+	var timestamp = req.body.timestamp;
+	console.log("timestamp: " + timestamp);
+	console.log("-------------------------");
+	switch(checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash");
+			res.end("Wrong hash");
+			break;
+		case 1:
+			console.log("Right hash for Post apiTest");
+			res.end("1");
+			break;
+		case 2:
+			console.log("Timeout");
+			res.end("Timeout");
+			break;
+	}
+});
 app_api.get('/apiTest', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -551,45 +576,6 @@ app_api.get('/getRegList', function(req, res) {
 					res.end(odgovor);
 				}
 			});
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/wifiSetting', function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			//sudo sed -i '3s/.*/ssid=PrijavaPris/' /etc/hostapd/hostapd.conf
-			commandString = "";
-			if(req.param("ssid") != null)
-				commandString = "sudo sed -i '3s/.*/ssid='"+ req.param("ssid")+ "'/' /etc/hostapd/hostapd.conf &";
-			if(param("passwrd")  != "")
-				commandString += "sudo sed -i '11s/.*/wpa_passphrase='"+ req.param("passwrd") + "'/' /etc/hostapd/hostapd.conf";
-			
-			
-			const exec = require('child_process').exec;
-			bashProcess = exec(commandString +  "& sudo reboot", (error, stdout, stderr) => {
-				console.log(`${stdout}`);
-				console.log(`${stderr}`);
-				if (error !== null) {
-					console.log(`exec error: ${error}`);
-					res.end(`exec error: ${error}`);
-				} else {
-					console.log(stdout);
-					res.end(stdout);
-				}
-			});			
-			
-			
 			break;
 		case 2:
 			console.log("Timeout.");
