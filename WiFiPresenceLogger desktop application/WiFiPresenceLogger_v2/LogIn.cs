@@ -15,7 +15,8 @@ namespace WiFiPresenceLogger_v2
 {   
     public partial class LogIn : Form
     {
-        WFPL_Db db = new WFPL_Db();
+
+        WFPL_Db db;
         DateTime startDate, endDate;
         TableList currentTableListState;
         Api api = new Api();
@@ -27,6 +28,16 @@ namespace WiFiPresenceLogger_v2
         public LogIn()
         {
             InitializeComponent();
+            try
+            {
+                db = new WFPL_Db();
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
 
             try
             {
@@ -360,6 +371,11 @@ namespace WiFiPresenceLogger_v2
             var subjectForm = new subjectForm();
             subjectForm.Show();
             
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(api.apiTest1(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
     }

@@ -13,8 +13,6 @@ C:\Users\bluko\source\repos\WiFiPresenceLogger\WiFiPresenceLoggerClassLibrary\ob
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\WiFiPresenceLoggerClassLibrary.dll.config
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\WiFiPresenceLoggerClassLibrary.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\WiFiPresenceLoggerClassLibrary.pdb
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\Microsoft.Web.XmlTransform.dll
-D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\bin\Debug\NuGet.Core.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.dll
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.pdb
 D:\jeti\WiFiPresenceLogger\WiFiPresenceLogger desktop application\WiFiPresenceLoggerClassLibrary\obj\Debug\WiFiPresenceLoggerClassLibrary.csprojResolveAssemblyReference.cache

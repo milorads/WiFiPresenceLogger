@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.IO; 
 namespace WiFiPresenceLoggerClassLibrary
 {
     public class Api
@@ -64,6 +64,63 @@ namespace WiFiPresenceLoggerClassLibrary
             System.Diagnostics.Debug.WriteLine("hello");
             return apiMethod(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
+        public string apiTest1()
+        {
+            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string hash = CreateMD5(deviceCode + deviceTimeStamp);
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(gatewayAddr + "PostApiTest");
+            request.ContentType = "application/json";
+            request.Method = "POST";
+
+            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+            {
+                //string json = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
+                string json = "{ \"code\":\"bf1bbb4565bd1dadfe8819a7edc0b026d2c628e61fcc96ace0dccd9ec5bb8fe0\",\"timestamp\":\"2018-06-26T13:06:23\"}";
+
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+            //var postData = "code=" + hash + "&timestamp=" + deviceTimeStamp;
+            //var data = Encoding.ASCII.GetBytes(postData);
+            //request.Method = "Post";
+
+            //request.ContentLength = data.Length;
+
+            /*using (var stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+            */
+            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(gatewayAddr + "apiTest1?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+            HttpWebResponse response;
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (WebException ex)
+            {
+
+                response = ex.Response as HttpWebResponse;
+            }
+            
+            using (var streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+                return result;
+            }
+            
+            /*string myResponse = "";
+            using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))
+            {
+                myResponse = sr.ReadToEnd();
+            }
+            return myResponse;
+            */
+            //return apiMethod(gatewayAddr + "apiTest1?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+        }
         public string setSystemTime(string actionCode,string adminTimestamp)
         {
             //provera koda
@@ -79,6 +136,7 @@ namespace WiFiPresenceLoggerClassLibrary
 
             return apiMethod(gatewayAddr + "getData?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&file=" + fileName);
         }
+
         public string deleteData(string fileName)
         {
             string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");

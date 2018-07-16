@@ -34,6 +34,7 @@
             this.textBoxUser = new System.Windows.Forms.TextBox();
             this.SignUp = new System.Windows.Forms.Panel();
             this.Choose = new System.Windows.Forms.Panel();
+            this.subjectAddBtn = new System.Windows.Forms.Button();
             this.passwordCheckBox = new System.Windows.Forms.CheckBox();
             this.ssidCheckBox = new System.Windows.Forms.CheckBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -64,7 +65,7 @@
             this.textBoxSurname = new System.Windows.Forms.TextBox();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.subjectAddBtn = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
             this.SignUp.SuspendLayout();
             this.Choose.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericEnd)).BeginInit();
@@ -140,6 +141,7 @@
             // 
             // Choose
             // 
+            this.Choose.Controls.Add(this.button3);
             this.Choose.Controls.Add(this.subjectAddBtn);
             this.Choose.Controls.Add(this.passwordCheckBox);
             this.Choose.Controls.Add(this.ssidCheckBox);
@@ -172,6 +174,17 @@
             this.Choose.TabIndex = 16;
             this.Choose.Visible = false;
             this.Choose.Paint += new System.Windows.Forms.PaintEventHandler(this.Choose_Paint);
+            // 
+            // subjectAddBtn
+            // 
+            this.subjectAddBtn.Location = new System.Drawing.Point(664, 24);
+            this.subjectAddBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.subjectAddBtn.Name = "subjectAddBtn";
+            this.subjectAddBtn.Size = new System.Drawing.Size(110, 36);
+            this.subjectAddBtn.TabIndex = 25;
+            this.subjectAddBtn.Text = "Dodaj Predmet";
+            this.subjectAddBtn.UseVisualStyleBackColor = true;
+            this.subjectAddBtn.Click += new System.EventHandler(this.subjectAddBtn_Click);
             // 
             // passwordCheckBox
             // 
@@ -487,16 +500,15 @@
             this.label1.TabIndex = 9;
             this.label1.Text = "LISTA OSOBA";
             // 
-            // subjectAddBtn
+            // button3
             // 
-            this.subjectAddBtn.Location = new System.Drawing.Point(664, 24);
-            this.subjectAddBtn.Margin = new System.Windows.Forms.Padding(2);
-            this.subjectAddBtn.Name = "subjectAddBtn";
-            this.subjectAddBtn.Size = new System.Drawing.Size(110, 36);
-            this.subjectAddBtn.TabIndex = 25;
-            this.subjectAddBtn.Text = "Dodaj Predmet";
-            this.subjectAddBtn.UseVisualStyleBackColor = true;
-            this.subjectAddBtn.Click += new System.EventHandler(this.subjectAddBtn_Click);
+            this.button3.Location = new System.Drawing.Point(600, 326);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 26;
+            this.button3.Text = "PostTest";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // LogIn
             // 
@@ -561,6 +573,7 @@
         private System.Windows.Forms.TextBox passwordTextBox;
         private System.Windows.Forms.TextBox ssidTextBox;
         private System.Windows.Forms.Button subjectAddBtn;
+        private System.Windows.Forms.Button button3;
     }
 }
 
