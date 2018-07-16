@@ -10,9 +10,9 @@ namespace WiFiPresenceLoggerClassLibrary
 {
     public class WFPL_Db : DbContext
     {
-        public WFPL_Db(): base("WiFiPresenceLoggerDB1")
+        public WFPL_Db(): base()
         {
-            Database.SetInitializer<WFPL_Db>(new CreateDatabaseIfNotExists<WFPL_Db>());
+            Database.SetInitializer<WFPL_Db>(new DropCreateDatabaseIfModelChanges<WFPL_Db>());
         }
 
         public DbSet<Device> Devices { get; set; }
