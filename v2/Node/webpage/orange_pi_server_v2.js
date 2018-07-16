@@ -241,158 +241,69 @@ app_api.use(bodyParser.urlencoded({extended: true}));
 app_api.use(bodyParser.json());
 app_api.use(express['static'](__dirname ));
 
-app_api.get('/getData', function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
+function getData(datum) {
+	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
 
-			var datum = req.param("file");
-			var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+"T"+datum+`'`;
+	LogBase.get(evidencija, (err, row) => {
+		if (err) {
+			console.error(err.message);
+			return "";
+		} else {
+			if (row == undefined) {
+				console.log("Tabela ne postoji");
+				return "Tabela ne postoji";
+			} else {
+				var sadrzaj = `SELECT * FROM `+row.name;
 
-			LogBase.get(evidencija, (err, row) => {
-				if (err) {
-					console.error(err.message);
-				} else {
-					if (row == undefined) {
-						console.log("Tabela ne postoji");
-						res.end("Tabela ne postoji");
-					} else {
-						var sadrzaj = `SELECT * FROM `+row.name;
-
-						LogBase.all(sadrzaj, (err, row) => {
-							if (err) {
-								console.error(err.message);
-							} else {
-								console.log(row);
-								var odgovor = "";
-								for (var i = 0; i < row.length; i++) {
-									odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
-								}
-								odgovor = odgovor.substring(0,odgovor.length - 1);
-								res.end(odgovor);
-							}
-						});
-					}
-				}
-			});
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/getData1', function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			console.log("detData1");
-			var datum = req.param("file");
-			var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+"T"+datum+`'`;
-
-			LogBase.get(evidencija, (err, row) => {
-				if (err) {
-					console.error(err.message);
-				} else {
-					if (row == undefined) {
-						console.log("Tabela ne postoji");
-						res.end("Tabela ne postoji");
-					} else {
-						var sadrzaj = `SELECT * FROM `+row.name;
-
-						LogBase.all(sadrzaj, (err, row) => {
-							if (err) {
-								console.error(err.message);
-							} else {
-								//console.log(row);
-								/***************************************************/
-								var regListDict = [];
-								regSql = `SELECT * FROM regList`;
-								RegBase.all(regSql,(err,row1) => {
-									for(var i = 0;i<row1.length;i++)
-									{
-										regListDict[row1[i].Mac] = row1[i].Ime + "|" + row1[i].Prezime + "|" + row1[i].Id;
-									}
-								
-									var odgovor = "";
-									for (var i = 0; i < row.length; i++) {
-										var imePrezime = regListDict[row[i].Mac];
-										odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
-									}
-									console.log("response: " + odgovor);
-									res.end(odgovor);
-								/***************************************************/
-								});
-
-								//odgovor = odgovor.substring(0,odgovor.length - 1);
-								
-							}
-						});
-					}
-				}
-			});
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/deleteData', function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-
-			var dates = req.param("file");
-			/************************/
-			var tableList = dates.split(',')
-			console.log("table lista: " , tableList);
-			console.log("-----");
-			/************************/
-			for (var datum in tableList)
-			{
-				var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='`+tableList[datum]+`'`;
-				console.log("upit za brisanje: " + evidencija);
-				LogBase.get(evidencija, (err, row) => {
+				LogBase.all(sadrzaj, (err, row) => {
 					if (err) {
-							console.error(err.message);
+						console.error(err.message);
+						return "";
 					} else {
-						if (row == undefined) {
-							console.log("Tabela ne postoji");
-							res.end("Tabela ne postoji");
-						} else {
-							var brisi = `DROP TABLE `+row.name;
-							LogBase.run(brisi, (er, row) => {
-								if (er) {
-									console.error(er.message);
-								} else {
-									console.log("Uspesno obrisana tabela");
-									res.end("Uspesno obrisana tabela");
-								}
-							});
+						console.log(row);
+						var odgovor = "";
+						for (var i = 0; i < row.length; i++) {
+							odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 						}
+						odgovor = odgovor.substring(0,odgovor.length - 1);
+						return odgovor;
 					}
 				});
 			}
-			
+		}
+	});
+}
+app_api.post('/postGetData', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			var datum = req.param("file");
+			res.end(getData(datum));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/getData', function(req, res) {
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			var datum = req.param("file");
+			res.end(getData(datum));
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -400,74 +311,207 @@ app_api.get('/deleteData', function(req, res) {
 			break;
 	}
 });
+
+function getData1(datum) {
+	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
+
+	LogBase.get(evidencija, (err, row) => {
+		if (err) {
+			console.error(err.message);
+			return "";
+		} else {
+			if (row == undefined) {
+				console.log("Tabela ne postoji");
+				return "Tabela ne postoji";
+			} else {
+				var sadrzaj = `SELECT * FROM `+row.name;
+
+				LogBase.all(sadrzaj, (err, row) => {
+					if (err) {
+						console.error(err.message);
+						return "";
+					} else {
+						//console.log(row);
+						/***************************************************/
+						var regListDict = [];
+						regSql = `SELECT * FROM regList`;
+						RegBase.all(regSql,(err,row1) => {
+							for(var i = 0;i<row1.length;i++)
+							{
+								regListDict[row1[i].Mac] = row1[i].Ime + "|" + row1[i].Prezime + "|" + row1[i].Id;
+							}
+						
+							var odgovor = "";
+							for (var i = 0; i < row.length; i++) {
+								var imePrezime = regListDict[row[i].Mac];
+								odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
+							}
+							console.log("response: " + odgovor);
+							return odgovor;
+						/***************************************************/
+						});
+						//odgovor = odgovor.substring(0,odgovor.length - 1);
+					}
+				});
+			}
+		}
+	});
+}
+app_api.post('/postGetData1', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			console.log("getData1");
+			var datum = req.param("file");
+			res.end(getData1(datum));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/getData1', function(req, res) {
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			console.log("getData1");
+			var datum = req.param("file");
+			res.end(getData1(datum));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
+
+function deleteData(dates) {
+	/************************/
+	var tableList = dates.split(',');
+	console.log("table lista: " , tableList);
+	console.log("-----");
+	/************************/
+	for (var datum in tableList)
+	{
+		var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableList[datum] + `'`;
+		console.log("upit za brisanje: " + evidencija);
+		LogBase.get(evidencija, (err, row) => {
+			if (err) {
+					console.error(err.message);
+					return "";
+			} else {
+				if (row == undefined) {
+					console.log("Tabela ne postoji");
+					return "Tabela ne postoji";
+				} else {
+					var brisi = `DROP TABLE `+row.name;
+					LogBase.run(brisi, (er, row) => {
+						if (er) {
+							console.error(er.message);
+							return "";
+						} else {
+							console.log("Uspesno obrisana tabela");
+							return "Uspesno obrisana tabela";
+						}
+					});
+				}
+			}
+		});
+	}
+}
+app_api.post('/postDeleteData', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			var dates = req.param("file");
+			res.end(deleteData(dates));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/deleteData', function(req, res) {
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			var dates = req.param("file");
+			res.end(deleteData(dates));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
+
+function apiTest() {
+	return 1;
+}
 app_api.post('/PostApiTest', function(req, res) {
 	console.log("pozvana PostApi metoda...")
 	var code = req.body.code;
-	console.log("code: " + code);
 	var timestamp = req.body.timestamp;
+	console.log("code: " + code);
 	console.log("timestamp: " + timestamp);
 	console.log("-------------------------");
+	
 	switch(checkCode(code, timestamp)) {
 		case 0:
-			console.log("Wrong hash");
-			res.end("Wrong hash");
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
 			break;
 		case 1:
-			console.log("Right hash for Post apiTest");
-			res.end("1");
+			console.log("Right hash api-test.");
+			res.end(apiTest());
 			break;
 		case 2:
-			console.log("Timeout");
-			res.end("Timeout");
+			console.log("Timeout.");
+			res.end("Timeout.");
 			break;
 	}
 });
 app_api.get('/apiTest', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
-	console.log(code)
-	console.log(timestamp);
+	console.log("code: " + code);
+	console.log("timestamp: " + timestamp);
 	console.log("-------------------------");
+	
 	switch(checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash");
-			res.end("Wrong hash");
-			break;
-		case 1:
-			console.log("Right hash");
-			res.end("1");
-			break;
-		case 2:
-			console.log("Timeout");
-			res.end("Timeout");
-			break;
-	}
-});
-app_api.get('/listData',function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
 		case 0:
 			console.log("Wrong hash.");
 			res.end("Wrong hash.");
 			break;
 		case 1:
-			console.log("Right hash.");
-
-			var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
-			LogBase.all(tabele, (err, row) => {
-				if (err) {
-					console.error(err.message);
-				} else {
-					console.log(row);
-					var odgovor = "";
-					for (var i = 0; i < row.length; i++) {
-						odgovor += row[i].name+';';
-					}
-					odgovor = odgovor.substring(0,odgovor.length - 1);
-					res.end(odgovor);
-				}
-			});
+			console.log("Right hash api-test.");
+			res.end(apiTest());
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -475,107 +519,226 @@ app_api.get('/listData',function(req, res) {
 			break;
 	}
 });
+
+function listData() {
+	var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
+	var odgovor = "";
+	LogBase.all(tabele, (err, row) => {
+		if (err) {
+			console.error(err.message);
+		} else {
+			console.log(row);
+			for (var i = 0; i < row.length; i++) {
+				odgovor += row[i].name+';';
+			}
+			odgovor = odgovor.substring(0,odgovor.length - 1);
+		}
+	});
+	return odgovor;
+}
+app_api.post('/postListData', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(listData());
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/listData', function(req, res) {
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(listData());
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
+
 app_api.get('/getTimestamp', function(req, res) {
 	console.log("method: getTimestamp");
 	tStamp = new Date().toISOString().replace(/\..+/,'');
 	res.end(tStamp);
 });
-app_api.get('/getTimeShift', function(req, res) {
-	console.log("method: setAdministratorTimestamp");
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash");
-			const exec = require('child_process').exec;
-			//var tStamp = new Date(timestamp.replace(/T/, ' '));
-			var yourscript = exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
-				console.log(`${stdout}`);
-				console.log(`${stderr}`);
-				if (error !== null) {
-					console.log(`exec error: ${error}`);
-					res.end(`exec error: ${error}`);
-				} else {
-					var strArr = stdout.split('\n');
-					var sysTime = new Date(strArr[0]);
-					console.log("SYS time:" + sysTime);
-					rtcStrArr = strArr[1].split(' ');
-					var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
-					console.log("RTC time" + rtcTime);
-					//res.end((sysTime - rtcTime)/1000);
-					res.end(String((sysTime-rtcTime)/1000));
-					console.log("shift: " + (sysTime-rtcTime)/1000);
-				}
-			});
-			break;
-		case 2:
-			console.log("Timeout...");
-			res.end("Timeout...");
-			break;
-	}
-});
-app_api.get('/setSystemTime', function(req, res) {
-	console.log("method: setAdministratorTimestamp");
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	var actionCode = req.param("actionCode");
-	var adminTimestamp = req.param("adminTimestamp");
-	switch (checkCode(kod, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash");
-			const exec = require('child_process').exec;
-			bashProcess = exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode+" " + adminTimestamp, (error, stdout, stderr) => {
-				console.log(`${stdout}`);
-				console.log(`${stderr}`);
-				if (error !== null) {
-					console.log(`exec error: ${error}`);
-					res.end(`exec error: ${error}`);
-				} else {
-					console.log(stdout);
-					res.end(stdout);
-				}
-			});
-			break;
-			
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/getRegList', function(req, res) {
-	var kod = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(kod, timestamp)) {
+
+function getTimeShift() {
+	const exec = require('child_process').exec;
+	//var tStamp = new Date(timestamp.replace(/T/, ' '));
+	var yourscript = exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
+		console.log(`${stdout}`);
+		console.log(`${stderr}`);
+		if (error !== null) {
+			console.log(`exec error: ${error}`);
+			return `exec error: ${error}`;
+		} else {
+			var strArr = stdout.split('\n');
+			var sysTime = new Date(strArr[0]);
+			console.log("SYS time:" + sysTime);
+			rtcStrArr = strArr[1].split(' ');
+			var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
+			console.log("RTC time" + rtcTime);
+			console.log("shift: " + (sysTime-rtcTime)/1000);
+			return String((sysTime-rtcTime)/1000);
+		}
+	});
+}
+app_api.post('/postGetTimeShift', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
 		case 0:
 			console.log("Wrong hash.");
 			res.end("Wrong hash.");
 			break;
 		case 1:
 			console.log("Right hash.");
+			res.end(getTimeShift());
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/getTimeShift', function(req, res) {
+	console.log("method: setAdministratorTimestamp");
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(getTimeShift());
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
 
-			var lista = `SELECT * FROM regList`;
-			RegBase.all(lista, (err, row) => {
-				if (err) {
-					console.error(err.message);
-				} else {
-					console.log(row);
-					var odgovor = "";
-					for (var i = 0; i < row.length; i++) {
-						odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
-					}
-					odgovor = odgovor.substring(0,odgovor.length - 1);
-					res.end(odgovor);
-				}
-			});
+function setSystemTime(actionCode, adminTimestamp) {
+	const exec = require('child_process').exec;
+	bashProcess = exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
+		console.log(`${stdout}`);
+		console.log(`${stderr}`);
+		if (error !== null) {
+			console.log(`exec error: ${error}`);
+			return `exec error: ${error}`;
+		} else {
+			console.log(stdout);
+			return stdout;
+		}
+	});
+}
+app_api.post('/postSetSystemTime', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	var actionCode = req.body.actionCode;
+	var adminTimestamp = req.body.adminTimestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(setSystemTime(actionCode, adminTimestamp));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/setSystemTime', function(req, res) {
+	console.log("method: setAdministratorTimestamp");
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	var actionCode = req.param("actionCode");
+	var adminTimestamp = req.param("adminTimestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash");
+			res.end(setSystemTime(actionCode, adminTimestamp));
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+});
+
+function getRegList() {
+	var lista = `SELECT * FROM regList`;
+	var odgovor = "";
+	RegBase.all(lista, (err, row) => {
+		if (err) {
+			console.error(err.message);
+		} else {
+			console.log(row);
+			for (var i = 0; i < row.length; i++) {
+				odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
+			}
+			odgovor = odgovor.substring(0, odgovor.length - 1);
+		}
+	});
+	return odgovor;
+}
+app_api.post('/postGetRegList', function(req, res) {
+	var code = req.body.code;
+	var timestamp = req.body.timestamp;
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(getRegList());
+			break;
+		case 2:
+			console.log("Timeout.");
+			res.end("Timeout.");
+			break;
+	}
+}
+app_api.get('/getRegList', function(req, res) {
+	var code = req.param("code");
+	var timestamp = req.param("timestamp");
+	switch (checkCode(code, timestamp)) {
+		case 0:
+			console.log("Wrong hash.");
+			res.end("Wrong hash.");
+			break;
+		case 1:
+			console.log("Right hash.");
+			res.end(getRegList());
 			break;
 		case 2:
 			console.log("Timeout.");
