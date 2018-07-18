@@ -26,6 +26,10 @@ namespace WiFiPresenceLogger_v2
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        /*
+         * Dodavanje predmeta. Predmet se dodaje u lokalnom vremenu, a pri sakupljanju podataka
+         * sa Raspberry-a treba konvertovati njegova vremena u lokalna
+         */
         private void addSub_Click(object sender, EventArgs e)
         {
             string name = textBox1.Text;
@@ -33,8 +37,8 @@ namespace WiFiPresenceLogger_v2
             DateTime startDate = monthCalendar1.SelectionStart;
             DateTime endDate = monthCalendar1.SelectionEnd;
 
-            int startTime = ToUniversal((int)numericStart.Value);
-            int endTime = ToUniversal((int)numericEnd.Value);
+            int startTime = (int)numericStart.Value;
+            int endTime = (int)numericEnd.Value;
             
             object dayOfWeek = domainUpDown1.SelectedItem;
             int userID = db.getLastUser().ID;
@@ -71,18 +75,18 @@ namespace WiFiPresenceLogger_v2
 
                     if (itStartTime <= startTime && startTime < itEndTime)
                     {
-                        throw new Exception("Predmet se preklapa u intervalu " + ToLocal(startTime)
-                            + " - " + (itEndTime < endTime ? ToLocal(itEndTime) : ToLocal(endTime)));
+                        throw new Exception("Predmet se preklapa u intervalu " + startTime
+                            + " - " + (itEndTime < endTime ? itEndTime : endTime));
                     }
                     if (itStartTime < endTime && endTime <= itEndTime)
                     {
                         throw new Exception("Predmet se preklapa u intervalu " + (itStartTime > startTime
-                            ? ToLocal(itStartTime) : ToLocal(startTime)) + " - " + ToLocal(endTime));
+                            ? itStartTime : startTime) + " - " + endTime);
                     }
                     if (startTime <= itStartTime && itStartTime < endTime)
                     {
-                        throw new Exception("Predmet se preklapa u intervalu " + ToLocal(itStartTime)
-                            + " - " + ToLocal(itEndTime));
+                        throw new Exception("Predmet se preklapa u intervalu " + itStartTime + " - "
+                            + itEndTime);
                     }
                 }
 
@@ -104,15 +108,6 @@ namespace WiFiPresenceLogger_v2
             {
                 MessageBox.Show(exception.Message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-        }
-        // Mozda prebaciti u neki drugi modul?
-        private int ToLocal(int universalHour)
-        {
-            return new DateTime(1, 1, 1, universalHour, 0, 0, DateTimeKind.Utc).Hour;
-        }
-        private int ToUniversal(int localHour)
-        {
-            return new DateTime(1, 1, 1, localHour, 0, 0, DateTimeKind.Local).Hour;
         }
     }
 }
