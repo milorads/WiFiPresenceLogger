@@ -13,6 +13,9 @@ namespace WiFiPresenceLoggerClassLibrary
         public string startTime { get; set; }
         public int durationTime { get; set; }
         public string dayOfWeek { get; set; }
+        public string startDate { get; set; }
+        public string endDate { get; set; }
         public int userID { get; set; }
+        
     }
 }
