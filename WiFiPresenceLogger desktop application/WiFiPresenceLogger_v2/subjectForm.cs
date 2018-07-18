@@ -33,11 +33,9 @@ namespace WiFiPresenceLogger_v2
             DateTime startDate = monthCalendar1.SelectionStart;
             DateTime endDate = monthCalendar1.SelectionEnd;
 
-            int startTime = new DateTime(1, 1, 1, (int)numericStart.Value, 0, 0)
-                .ToUniversalTime().Hour;
-            int endTime = new DateTime(1, 1, 1, (int)numericEnd.Value, 0, 0)
-                .ToUniversalTime().Hour;
-
+            int startTime = ToUniversal((int)numericStart.Value);
+            int endTime = ToUniversal((int)numericEnd.Value);
+            
             object dayOfWeek = domainUpDown1.SelectedItem;
             int userID = db.getLastUser().ID;
 
@@ -68,14 +66,23 @@ namespace WiFiPresenceLogger_v2
 
                 foreach (Subject subject in overlapQuery)
                 {
-                    if (Convert.ToInt32(subject.startTime) <= startTime
-                            && Convert.ToInt32(subject.startTime) + subject.durationTime > startTime
-                        || Convert.ToInt32(subject.startTime) < endTime
-                            && Convert.ToInt32(subject.startTime) + subject.durationTime >= endTime
-                        || startTime <= Convert.ToInt32(subject.startTime)
-                            && endTime > Convert.ToInt32(subject.startTime))
+                    int itStartTime = Convert.ToInt32(subject.startTime);
+                    int itEndTime = itStartTime + subject.durationTime;
+
+                    if (itStartTime <= startTime && startTime < itEndTime)
                     {
-                        throw new Exception("Postoji predmet koji isti profesor drzi u isto vreme");
+                        throw new Exception("Predmet se preklapa u intervalu " + ToLocal(startTime)
+                            + " - " + (itEndTime < endTime ? ToLocal(itEndTime) : ToLocal(endTime)));
+                    }
+                    if (itStartTime < endTime && endTime <= itEndTime)
+                    {
+                        throw new Exception("Predmet se preklapa u intervalu " + (itStartTime > startTime
+                            ? ToLocal(itStartTime) : ToLocal(startTime)) + " - " + ToLocal(endTime));
+                    }
+                    if (startTime <= itStartTime && itStartTime < endTime)
+                    {
+                        throw new Exception("Predmet se preklapa u intervalu " + ToLocal(itStartTime)
+                            + " - " + ToLocal(itEndTime));
                     }
                 }
 
@@ -97,6 +104,15 @@ namespace WiFiPresenceLogger_v2
             {
                 MessageBox.Show(exception.Message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+        // Mozda prebaciti u neki drugi modul?
+        private int ToLocal(int universalHour)
+        {
+            return new DateTime(1, 1, 1, universalHour, 0, 0, DateTimeKind.Utc).Hour;
+        }
+        private int ToUniversal(int localHour)
+        {
+            return new DateTime(1, 1, 1, localHour, 0, 0, DateTimeKind.Local).Hour;
         }
     }
 }
