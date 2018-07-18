@@ -241,24 +241,22 @@ app_api.use(bodyParser.urlencoded({extended: true}));
 app_api.use(bodyParser.json());
 app_api.use(express['static'](__dirname ));
 
-function getData(datum) {
+async function getData(result, datum) {
 	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
 
 	LogBase.get(evidencija, (err, row) => {
 		if (err) {
 			console.error(err.message);
-			return "";
 		} else {
 			if (row == undefined) {
 				console.log("Tabela ne postoji");
-				return "Tabela ne postoji";
+				result.end("Tabela ne postoji");
 			} else {
 				var sadrzaj = `SELECT * FROM `+row.name;
 
 				LogBase.all(sadrzaj, (err, row) => {
 					if (err) {
 						console.error(err.message);
-						return "";
 					} else {
 						console.log(row);
 						var odgovor = "";
@@ -266,7 +264,7 @@ function getData(datum) {
 							odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 						}
 						odgovor = odgovor.substring(0,odgovor.length - 1);
-						return odgovor;
+						result.end(odgovor);
 					}
 				});
 			}
@@ -284,14 +282,14 @@ app_api.post('/postGetData', function(req, res) {
 		case 1:
 			console.log("Right hash.");
 			var datum = req.param("file");
-			res.end(getData(datum));
+			getData(res, datum);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/getData', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -303,7 +301,7 @@ app_api.get('/getData', function(req, res) {
 		case 1:
 			console.log("Right hash.");
 			var datum = req.param("file");
-			res.end(getData(datum));
+			getData(res, datum);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -312,24 +310,22 @@ app_api.get('/getData', function(req, res) {
 	}
 });
 
-function getData1(datum) {
+async function getData1(result, datum) {
 	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
 
 	LogBase.get(evidencija, (err, row) => {
 		if (err) {
 			console.error(err.message);
-			return "";
 		} else {
 			if (row == undefined) {
 				console.log("Tabela ne postoji");
-				return "Tabela ne postoji";
+				result.end("Tabela ne postoji");
 			} else {
 				var sadrzaj = `SELECT * FROM `+row.name;
 
 				LogBase.all(sadrzaj, (err, row) => {
 					if (err) {
 						console.error(err.message);
-						return "";
 					} else {
 						//console.log(row);
 						/***************************************************/
@@ -347,7 +343,7 @@ function getData1(datum) {
 								odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 							}
 							console.log("response: " + odgovor);
-							return odgovor;
+							result.end(odgovor);
 						/***************************************************/
 						});
 						//odgovor = odgovor.substring(0,odgovor.length - 1);
@@ -369,14 +365,14 @@ app_api.post('/postGetData1', function(req, res) {
 			console.log("Right hash.");
 			console.log("getData1");
 			var datum = req.param("file");
-			res.end(getData1(datum));
+			getData1(res, datum);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/getData1', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -389,7 +385,7 @@ app_api.get('/getData1', function(req, res) {
 			console.log("Right hash.");
 			console.log("getData1");
 			var datum = req.param("file");
-			res.end(getData1(datum));
+			getData1(res, datum);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -398,7 +394,7 @@ app_api.get('/getData1', function(req, res) {
 	}
 });
 
-function deleteData(dates) {
+async function deleteData(result, dates) {
 	/************************/
 	var tableList = dates.split(',');
 	console.log("table lista: " , tableList);
@@ -411,20 +407,18 @@ function deleteData(dates) {
 		LogBase.get(evidencija, (err, row) => {
 			if (err) {
 					console.error(err.message);
-					return "";
 			} else {
 				if (row == undefined) {
 					console.log("Tabela ne postoji");
-					return "Tabela ne postoji";
+					result.end("Tabela ne postoji");
 				} else {
 					var brisi = `DROP TABLE `+row.name;
 					LogBase.run(brisi, (er, row) => {
 						if (er) {
 							console.error(er.message);
-							return "";
 						} else {
 							console.log("Uspesno obrisana tabela");
-							return "Uspesno obrisana tabela";
+							result.end("Uspesno obrisana tabela");
 						}
 					});
 				}
@@ -443,14 +437,14 @@ app_api.post('/postDeleteData', function(req, res) {
 		case 1:
 			console.log("Right hash.");
 			var dates = req.param("file");
-			res.end(deleteData(dates));
+			deleteData(res, dates);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+});
 app_api.get('/deleteData', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -462,7 +456,7 @@ app_api.get('/deleteData', function(req, res) {
 		case 1:
 			console.log("Right hash.");
 			var dates = req.param("file");
-			res.end(deleteData(dates));
+			deleteData(res, dates);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -471,8 +465,8 @@ app_api.get('/deleteData', function(req, res) {
 	}
 });
 
-function apiTest() {
-	return 1;
+async function apiTest(result) {
+	result.end("1");
 }
 app_api.post('/PostApiTest', function(req, res) {
 	console.log("pozvana PostApi metoda...")
@@ -489,7 +483,7 @@ app_api.post('/PostApiTest', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash api-test.");
-			res.end(apiTest());
+			apiTest(res);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -511,7 +505,7 @@ app_api.get('/apiTest', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash api-test.");
-			res.end(apiTest());
+			apiTest(res);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -520,21 +514,21 @@ app_api.get('/apiTest', function(req, res) {
 	}
 });
 
-function listData() {
+async function listData(result) {
 	var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
-	var odgovor = "";
 	LogBase.all(tabele, (err, row) => {
 		if (err) {
 			console.error(err.message);
 		} else {
 			console.log(row);
+			var odgovor = "";
 			for (var i = 0; i < row.length; i++) {
 				odgovor += row[i].name+';';
 			}
 			odgovor = odgovor.substring(0,odgovor.length - 1);
+			result.end(odgovor);
 		}
 	});
-	return odgovor;
 }
 app_api.post('/postListData', function(req, res) {
 	var code = req.body.code;
@@ -546,14 +540,14 @@ app_api.post('/postListData', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(listData());
+			listData(res);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/listData', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -564,7 +558,7 @@ app_api.get('/listData', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(listData());
+			listData(res);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -579,7 +573,7 @@ app_api.get('/getTimestamp', function(req, res) {
 	res.end(tStamp);
 });
 
-function getTimeShift() {
+async function getTimeShift(result) {
 	const exec = require('child_process').exec;
 	//var tStamp = new Date(timestamp.replace(/T/, ' '));
 	var yourscript = exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
@@ -587,7 +581,7 @@ function getTimeShift() {
 		console.log(`${stderr}`);
 		if (error !== null) {
 			console.log(`exec error: ${error}`);
-			return `exec error: ${error}`;
+			result.end(`exec error: ${error}`);
 		} else {
 			var strArr = stdout.split('\n');
 			var sysTime = new Date(strArr[0]);
@@ -596,7 +590,7 @@ function getTimeShift() {
 			var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
 			console.log("RTC time" + rtcTime);
 			console.log("shift: " + (sysTime-rtcTime)/1000);
-			return String((sysTime-rtcTime)/1000);
+			result.end(String((sysTime-rtcTime)/1000));
 		}
 	});
 }
@@ -610,14 +604,14 @@ app_api.post('/postGetTimeShift', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(getTimeShift());
+			getTimeShift(res);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/getTimeShift', function(req, res) {
 	console.log("method: setAdministratorTimestamp");
 	var code = req.param("code");
@@ -629,7 +623,7 @@ app_api.get('/getTimeShift', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(getTimeShift());
+			getTimeShift(res);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -638,17 +632,17 @@ app_api.get('/getTimeShift', function(req, res) {
 	}
 });
 
-function setSystemTime(actionCode, adminTimestamp) {
+async function setSystemTime(result, actionCode, adminTimestamp) {
 	const exec = require('child_process').exec;
 	bashProcess = exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
 		console.log(`${stdout}`);
 		console.log(`${stderr}`);
 		if (error !== null) {
 			console.log(`exec error: ${error}`);
-			return `exec error: ${error}`;
+			result.end(`exec error: ${error}`);
 		} else {
 			console.log(stdout);
-			return stdout;
+			result.end(stdout);
 		}
 	});
 }
@@ -664,14 +658,14 @@ app_api.post('/postSetSystemTime', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(setSystemTime(actionCode, adminTimestamp));
+			setSystemTime(res, actionCode, adminTimestamp);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/setSystemTime', function(req, res) {
 	console.log("method: setAdministratorTimestamp");
 	var code = req.param("code");
@@ -685,7 +679,7 @@ app_api.get('/setSystemTime', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash");
-			res.end(setSystemTime(actionCode, adminTimestamp));
+			setSystemTime(res, actionCode, adminTimestamp);
 			break;
 		case 2:
 			console.log("Timeout.");
@@ -694,21 +688,21 @@ app_api.get('/setSystemTime', function(req, res) {
 	}
 });
 
-function getRegList() {
+async function getRegList(result) {
 	var lista = `SELECT * FROM regList`;
-	var odgovor = "";
 	RegBase.all(lista, (err, row) => {
 		if (err) {
 			console.error(err.message);
 		} else {
 			console.log(row);
+			var odgovor = "";
 			for (var i = 0; i < row.length; i++) {
 				odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
 			}
 			odgovor = odgovor.substring(0, odgovor.length - 1);
+			result.end(odgovor);
 		}
 	});
-	return odgovor;
 }
 app_api.post('/postGetRegList', function(req, res) {
 	var code = req.body.code;
@@ -720,14 +714,14 @@ app_api.post('/postGetRegList', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(getRegList());
+			getRegList(res);
 			break;
 		case 2:
 			console.log("Timeout.");
 			res.end("Timeout.");
 			break;
 	}
-}
+})
 app_api.get('/getRegList', function(req, res) {
 	var code = req.param("code");
 	var timestamp = req.param("timestamp");
@@ -738,7 +732,7 @@ app_api.get('/getRegList', function(req, res) {
 			break;
 		case 1:
 			console.log("Right hash.");
-			res.end(getRegList());
+			getRegList(res);
 			break;
 		case 2:
 			console.log("Timeout.");
