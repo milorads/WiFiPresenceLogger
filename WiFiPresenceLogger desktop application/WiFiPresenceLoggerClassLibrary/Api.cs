@@ -19,6 +19,11 @@ namespace WiFiPresenceLoggerClassLibrary
 
         private string token = null;
         private IUserApplication app = null;
+
+        public Api(IUserApplication app)
+        {
+            this.app = app;
+        }
         
         private static string CreateMD5(string input)
         {
@@ -69,7 +74,7 @@ namespace WiFiPresenceLoggerClassLibrary
                     token = response.Headers["token"];
                 }
                 var result = streamReader.ReadToEnd();
-                return new ApiResponse(response.Headers["status"], result);
+                return new ApiResponse(response.Headers["error"], result);
             }
         }
 
@@ -111,14 +116,16 @@ namespace WiFiPresenceLoggerClassLibrary
 
         public string apiTest1()
         {
+            if (token == null) GetToken();
+
             ApiResponse res;
             do
             {
                 string parameters = "{\"token\":\"" + token + "\"}";
                 res = PostApiMethod(gatewayAddr + "tokenApiTest", parameters);
-                if (!"success".Equals(res.Status)) GetToken();
+                if (!"ok".Equals(res.Error)) GetToken();
             }
-            while (!"success".Equals(res.Status));
+            while (!"ok".Equals(res.Error));
 
             return res.Text;
         }
@@ -132,7 +139,7 @@ namespace WiFiPresenceLoggerClassLibrary
                 string parameters = "{\"usr\":\"" + username + "\",\"pass\":\"" + password + "\"}";
                 res = PostApiMethod(gatewayAddr + "getToken", parameters);
             }
-            while (!"success".Equals(res.Status));
+            while (!"ok".Equals(res.Error));
             
             token = res.Text;
         }

@@ -19,7 +19,7 @@ namespace WiFiPresenceLogger_v2
         WFPL_Db db;
         DateTime startDate, endDate;
         TableList currentTableListState;
-        Api api = new Api();
+        Api api;
         User currentUser;
         bool dateOK;
         Form form1;
@@ -57,7 +57,8 @@ namespace WiFiPresenceLogger_v2
 
             currentTableListState = new TableList();
             //currentTableListState.getCurrentList();
-            
+
+            api = new Api(this);
             string res = api.apiTest1();
             MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }

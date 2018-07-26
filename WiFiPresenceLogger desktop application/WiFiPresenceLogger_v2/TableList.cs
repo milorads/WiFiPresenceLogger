@@ -19,7 +19,7 @@ namespace WiFiPresenceLogger_v2
         {
             ListOfTables = new List<string>();
             ListOfDeletedTables = new List<string>();
-            httpApiObj = new Api();
+            httpApiObj = new Api(null);
         }
 
         public void getCurrentList()
