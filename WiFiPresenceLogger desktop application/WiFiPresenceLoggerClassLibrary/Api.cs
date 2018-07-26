@@ -4,15 +4,23 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO; 
+using System.IO;
+using System.Security.Cryptography;
+using System.Web.Script.Serialization;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+
 namespace WiFiPresenceLoggerClassLibrary
 {
     public class Api
     {
         public string deviceCode = "bfa86fdd-398c-462e-9b4e-9cb52ffafb58";
-        public string gatewayAddr = "http://192.168.4.1:3002/";
+        public string gatewayAddr = "https://192.168.4.1:3002/";
 
-        public static string CreateMD5(string input)
+        private string token = null;
+        private IUserApplication app = null;
+        
+        private static string CreateMD5(string input)
         {
             // Use input string to calculate MD5 hash
             using (System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create())
@@ -29,14 +37,15 @@ namespace WiFiPresenceLoggerClassLibrary
                 return sb.ToString().ToLower();
             }
         }
+        
         //kodovi za status request-a??
-        // Univerzalni metod za POST zahteve
-        public string PostApiMethod(string url, string jsonParameters)
+        private ApiResponse PostApiMethod(string url, string jsonParameters)
         {
+            ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.ContentType = "application/json";
             request.Method = "POST";
-            
+
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
                 streamWriter.Write(jsonParameters);
@@ -52,115 +61,144 @@ namespace WiFiPresenceLoggerClassLibrary
             {
                 response = ex.Response as HttpWebResponse;
             }
-            
+
             using (var streamReader = new StreamReader(response.GetResponseStream()))
             {
+                if (response.Headers["token"] != null)
+                {
+                    token = response.Headers["token"];
+                }
                 var result = streamReader.ReadToEnd();
-                return result;
+                return new ApiResponse(response.Headers["status"], result);
             }
         }
-        public string apiMethod(string url)
+
+        private string ApiMethod(string url)
         {
+            ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
             try
             {
-                //https:// ??
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "Get";
 
-                //dodati exception na gresku u konekciji
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                string myResponse = "";
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))
+                using (var streamReader = new StreamReader(response.GetResponseStream()))
                 {
-                    myResponse = sr.ReadToEnd();
+                    var result = streamReader.ReadToEnd();
+                    return result;
                 }
-                return myResponse;
             }
-            catch (Exception e)
+            catch(WebException)
             {
-                return "Error:" + e;
+                return null;
             }
+            //https:// ??
         }
 
         public string getTimestamp()
         {
-            return apiMethod(gatewayAddr + "getTimestamp");
+            return ApiMethod(gatewayAddr + "getTimestamp");
         }
 
         public string apiTest()
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
             System.Diagnostics.Debug.WriteLine(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
             System.Diagnostics.Debug.WriteLine("hello");
-            return apiMethod(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
+            return ApiMethod(gatewayAddr + "apiTest?" + "code=" + hash + "&timestamp=" + deviceTimeStamp);
         }
 
         public string apiTest1()
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "PostApiTest", parameters);
+            ApiResponse res;
+            do
+            {
+                string parameters = "{\"token\":\"" + token + "\"}";
+                res = PostApiMethod(gatewayAddr + "tokenApiTest", parameters);
+                if (!"success".Equals(res.Status)) GetToken();
+            }
+            while (!"success".Equals(res.Status));
+
+            return res.Text;
+        }
+
+        public void GetToken()
+        {
+            ApiResponse res;
+            do
+            {
+                app.AskForCredentials(out string username, out string password);
+                string parameters = "{\"usr\":\"" + username + "\",\"pass\":\"" + password + "\"}";
+                res = PostApiMethod(gatewayAddr + "getToken", parameters);
+            }
+            while (!"success".Equals(res.Status));
+            
+            token = res.Text;
         }
 
         public string setSystemTime(string actionCode,string adminTimestamp)
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
                     + "\",\"actionCode\":\"" + actionCode + "\",\"adminTimestamp\":\"" + adminTimestamp
                     + "\"}";
-            return PostApiMethod(gatewayAddr + "postSetSystemTime", parameters);
+            return PostApiMethod(gatewayAddr + "postSetSystemTime", parameters).Text;
         }
 
         public string getData(string fileName)
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
                     + "\",\"file\":\"" + fileName + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetData", parameters);
+            return PostApiMethod(gatewayAddr + "postGetData", parameters).Text;
         }
 
         public string deleteData(string fileName)
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
                     + "\",\"file\":\"" + fileName + "\"}";
-            return PostApiMethod(gatewayAddr + "postDeleteData", parameters);
+            return PostApiMethod(gatewayAddr + "postDeleteData", parameters).Text;
         }
 
         public string getRegList()
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetRegList", parameters);
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
+            return PostApiMethod(gatewayAddr + "postGetRegList", parameters).Text;
         }
 
         public string listData()
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postListData", parameters);
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
+            return PostApiMethod(gatewayAddr + "postListData", parameters).Text;
         }
 
         public string getTimeShift()
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{ \"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetTimeShift", parameters);
+            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
+            return PostApiMethod(gatewayAddr + "postGetTimeShift", parameters).Text;
         }
 
         public string wifiSetting(string ssid, string passwrd)
         {
-            string deviceTimeStamp = apiMethod(gatewayAddr + "getTimestamp");
+            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
             string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            return apiMethod(gatewayAddr + "wifiSetting?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&ssid=" + ssid + "&passwrd=" + passwrd);
+            return ApiMethod(gatewayAddr + "wifiSetting?" + "code=" + hash + "&timestamp=" + deviceTimeStamp + "&ssid=" + ssid + "&passwrd=" + passwrd);
+        }
+
+        private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
         }
     }
 }

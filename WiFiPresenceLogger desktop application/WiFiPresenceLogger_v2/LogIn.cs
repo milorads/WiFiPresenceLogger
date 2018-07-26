@@ -13,7 +13,7 @@ using WiFiPresenceLoggerClassLibrary;
 
 namespace WiFiPresenceLogger_v2
 {   
-    public partial class LogIn : Form
+    public partial class LogIn : Form, IUserApplication
     {
 
         WFPL_Db db;
@@ -57,15 +57,20 @@ namespace WiFiPresenceLogger_v2
 
             currentTableListState = new TableList();
             //currentTableListState.getCurrentList();
+            
+            string res = api.apiTest1();
+            MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
 
-            string res = api.apiTest();
-            if(res != "1")
-                MessageBox.Show("Greska: " + res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        public void AskForCredentials(out string username, out string password)
+        {
+            username = "lik";
+            password = "lik";
         }
 
         private void buttonContinue_Click(object sender, EventArgs e)
         {
-
+            // Logovanje ponudjenog korisnika
         }
 
         private void linkLabelNotYou_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -130,7 +135,23 @@ namespace WiFiPresenceLogger_v2
 
         private void buttonSubjects_Click(object sender, EventArgs e)
         {
+            // !!! Nije implementirana do kraja
 
+            var query = from subject in db.Subjects select subject;
+            string message = "";
+
+            foreach (Subject subject in query)
+            {
+                // Trebalo bi bolji prikaz predmeta
+                if (DateTime.Parse(subject.startDate) <= DateTime.Now
+                    && DateTime.Now <= DateTime.Parse(subject.endDate))
+                {
+                    string subjectString = subject.name + '\t' + subject.dayOfWeek + '\t'
+                        + subject.startTime + '\t' + subject.durationTime + '\n';
+                    message += subjectString;
+                }
+                MessageBox.Show(message);
+            }
         }
 
         private void buttonLogIn_Click(object sender, EventArgs e)
