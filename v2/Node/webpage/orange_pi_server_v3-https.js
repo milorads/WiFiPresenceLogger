@@ -42,7 +42,12 @@ function getDateTableName()
 function checkUser(username, password) {
 	// Checks if (username, password) pair is OK
 	// Used for generating tokens
-	return true;
+	if (true) {
+		return Promise.resolve();
+	}
+	else {
+		return Promise.reject('authorization');
+	}
 }
 
 //another function for api methods
@@ -257,52 +262,72 @@ app_api.use(express['static'](__dirname ));
 const token_rsa = new rsa({b: 512});
 const token_header = '{"alg":"rs256"}'.toString('base64');
 
-app_api.post('/getToken', function(req, res) {
-	var username = req.body.username;
-	var password = req.body.password;
-	
-	if (checkUser(username, password)) {
-		var expiration = new Date();
-		expiration.setSeconds(expiration.getSeconds() + 180);
+async function getToken(username) {
+	try {
+		var exp = new Date().getTime() + 180 * 1000;
 		
-		const payload = ("{\"usr\":\"" + username +
-			"\",\"exp\":\"" + expiration.getTime() + "\"}")
+		const payload = new Buffer(JSON.stringify({ usr: username, exp: exp }))
 			.toString('base64');
 		const plaintext = token_header + payload;
 		const signature = token_rsa.sign(plaintext, 'base64', 'base64');
-		const token = payload + '.' + signature; // Header is constant, and isn't sent to the client.
-		console.log('Token sent. Token value is:', token);
+		const token = payload + '.' + signature;
+		
+		return Promise.resolve(token);
+	} catch (err) {
+		return Promise.reject('generation');
+	}
+}
+
+app_api.post('/getToken', function(req, res) {
+	console.log('Request: getToken');
+	var username = req.body.usr;
+	var password = req.body.pass;
+	
+	checkUser(username, password)
+	.then( () => {
+		console.log('Authentication OK.');
+		return getToken(username);
+	}, err => {
+		console.log('Authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( token => {
+		console.log('New token generated. Token value is:', token);
+		console.log('Sending token.');
+		res.setHeader('error', 'ok');
 		res.end(token);
-	}
-	else {
-		console.log('Invalid authentication');
-		res.end('Invalid authentication');
-	}
+	}, err => {
+		console.log('Token generating failed.');
+		console.log('Sending failure.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.catch( err => {
+		console.log('Sending failed.');
+	})
 })
 
-function verifyToken(token) {
-	console.log('Verifying token...');
+async function authenticateToken(token) {
+	console.log('Authenticating token...');
 	try {
 		var comps = token.split('.');
 		const payload = comps[0];
 		const signature = comps[1];
 		const plaintext = token_header + payload;
 		
-		if (!token_rsa.verify(plaintext, signature, 'base64', 'base64') {
-			console.log('Invalid signature');
-                	return false;
+		if (!token_rsa.verify(plaintext, signature, 'base64', 'base64')) {
+			return Promise.reject('signature');
 		}
-		var info = JSON.parse(new Buffer(payload, 'base64').toString('ascii');
+		const info = JSON.parse(new Buffer(payload, 'base64').toString('ascii'));
 		if (info.exp < new Date().getTime()) {
-			console.log('Token expired');
-			return false;
+			return Promise.reject('expired');
 		}
-		console.log('Token OK');
-		return true;
-	}
-	catch(err) {
-		console.log('Invalid token format');
-		return false;
+		// after every action, user gets a new token to extend the duration
+		const newToken = getToken(info.usr);
+		return Promise.resolve(newToken);
+	} catch (err) {
+		return Promise.reject('format');
 	}
 }
 
@@ -531,8 +556,41 @@ app_api.get('/deleteData', function(req, res) {
 });
 
 async function apiTest(result) {
-	result.end("1");
+	return Promise.resolve("1");
 }
+app_api.post('/tokenApiTest', function(req, res) {
+	console.log('Request: tokenApiTest');
+	var token;
+	try {
+		token = req.body.token;
+	} catch(err) {
+		token = null;
+	}
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authentication successful.');
+		res.setHeader('token', newToken);
+		return apiTest();
+	}, err => {
+		console.log('Token authentication failed');
+		return Promise.reject(err);
+	})
+	.then( value => {
+		console.log('Request successful.');
+		console.log('Sending response.');
+		res.setHeader('error', 'ok');
+		res.end(value);
+	}, err => {
+		console.log('Request failed.');
+		console.log('Sending failure.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+})
+
 app_api.post('/PostApiTest', function(req, res) {
 	console.log("pozvana PostApi metoda...")
 	var code = req.body.code;
