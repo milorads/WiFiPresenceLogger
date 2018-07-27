@@ -14,6 +14,9 @@ namespace WiFiPresenceLoggerClassLibrary
 {
     public class Api
     {
+        private static int numOfTries = 5;
+        private static int waitTime = 200;
+
         public string deviceCode = "bfa86fdd-398c-462e-9b4e-9cb52ffafb58";
         public string gatewayAddr = "https://192.168.4.1:3002/";
 
@@ -71,10 +74,13 @@ namespace WiFiPresenceLoggerClassLibrary
             {
                 if (response.Headers["token"] != null)
                 {
+                    // API je mozda dao novi token u odgovoru
                     token = response.Headers["token"];
                 }
                 var result = streamReader.ReadToEnd();
-                return new ApiResponse(response.Headers["error"], result);
+                string err = response.Headers["error"];
+                if (err == "signature" || err == "expired" || err == "format") err = "token";
+                return new ApiResponse(err, result);
             }
         }
 
@@ -117,83 +123,140 @@ namespace WiFiPresenceLoggerClassLibrary
         public string apiTest1()
         {
             if (token == null) GetToken();
-
-            ApiResponse res;
-            do
+            for (int i = 0; i < numOfTries; ++i)
             {
                 string parameters = "{\"token\":\"" + token + "\"}";
-                res = PostApiMethod(gatewayAddr + "tokenApiTest", parameters);
-                if (!"ok".Equals(res.Error)) GetToken();
-            }
-            while (!"ok".Equals(res.Error));
+                ApiResponse res = PostApiMethod(gatewayAddr + "apiTest", parameters);
 
-            return res.Text;
+                /* Ako je ok, izlazi iz funkcije. Ako je greska zbog tokena, trazi novi token
+                 * i ponavlja zahtev. U suprotnom, samo ponavlja zahtev.
+                 */
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public void GetToken()
         {
-            ApiResponse res;
-            do
+            token = null;
+            for (int i = 0; token == null && i < numOfTries; ++i)
             {
                 app.AskForCredentials(out string username, out string password);
                 string parameters = "{\"usr\":\"" + username + "\",\"pass\":\"" + password + "\"}";
-                res = PostApiMethod(gatewayAddr + "getToken", parameters);
+                ApiResponse res = PostApiMethod(gatewayAddr + "getToken", parameters);
+
+                if (res.Error == "ok")
+                    token = res.Text;
+                else
+                    System.Threading.Thread.Sleep(waitTime);
             }
-            while (!"ok".Equals(res.Error));
-            
-            token = res.Text;
         }
 
         public string setSystemTime(string actionCode,string adminTimestamp)
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
-                    + "\",\"actionCode\":\"" + actionCode + "\",\"adminTimestamp\":\"" + adminTimestamp
-                    + "\"}";
-            return PostApiMethod(gatewayAddr + "postSetSystemTime", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\",\"actionCode\":\""
+                    + actionCode + "\",\"adminTimestamp\":\"" + adminTimestamp + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "setSystemTime", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string getData(string fileName)
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
-                    + "\",\"file\":\"" + fileName + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetData", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\",\"file\":\"" + fileName + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "getData", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string deleteData(string fileName)
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp
-                    + "\",\"file\":\"" + fileName + "\"}";
-            return PostApiMethod(gatewayAddr + "postDeleteData", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\",\"file\":\"" + fileName + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "deleteData", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string getRegList()
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetRegList", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "getRegList", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string listData()
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postListData", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "listData", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string getTimeShift()
         {
-            string deviceTimeStamp = ApiMethod(gatewayAddr + "getTimestamp");
-            string hash = CreateMD5(deviceCode + deviceTimeStamp);
-            string parameters = "{\"code\":\"" + hash + "\",\"timestamp\":\"" + deviceTimeStamp + "\"}";
-            return PostApiMethod(gatewayAddr + "postGetTimeShift", parameters).Text;
+            if (token == null) GetToken();
+            for (int i = 0; i < numOfTries; ++i)
+            {
+                string parameters = "{\"token\":\"" + token + "\"}";
+                ApiResponse res = PostApiMethod(gatewayAddr + "getTimeShift", parameters);
+
+                if (res.Error == "ok")
+                    return res.Text;
+                else if (res.Error == "token")
+                    GetToken();
+                System.Threading.Thread.Sleep(waitTime);
+            }
+            return null;
         }
 
         public string wifiSetting(string ssid, string passwrd)

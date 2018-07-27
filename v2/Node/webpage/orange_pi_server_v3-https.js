@@ -40,14 +40,13 @@ function getDateTableName()
 
 //function for api methods
 function checkUser(username, password) {
+	// !!! Not implemented
 	// Checks if (username, password) pair is OK
 	// Used for generating tokens
-	if (true) {
-		return Promise.resolve();
-	}
-	else {
+	if (username == null || password == null) {
 		return Promise.reject('authorization');
 	}
+	return Promise.resolve();
 }
 
 //another function for api methods
@@ -61,7 +60,7 @@ function checkCode(hashCode, timestamp) {
 	} else {
 		var code = devCode + timestamp;
 		var localHashCode = crypto.createHash('sha256').update(code).digest('hex');
-
+		
 		console.log("primljeni hash:" + hashCode);
 		console.log("lokalni hash: " + String(localHashCode));
 		if(hashCode == String(localHashCode)) {
@@ -279,37 +278,37 @@ async function getToken(username) {
 }
 
 app_api.post('/getToken', function(req, res) {
-	console.log('Request: getToken');
-	var username = req.body.usr;
-	var password = req.body.pass;
+	console.log('------------------------');
+	console.log('Request: get token');
+	var username = ('usr' in req.body) ? req.body.usr : null;
+	var password = ('pass' in req.body) ? req.body.pass : null;
 	
 	checkUser(username, password)
 	.then( () => {
-		console.log('Authentication OK.');
+		console.log('User authenticated.');
 		return getToken(username);
 	}, err => {
-		console.log('Authentication failed.');
+		console.log('User authentication failed.');
 		return Promise.reject(err);
 	})
 	.then( token => {
 		console.log('New token generated. Token value is:', token);
-		console.log('Sending token.');
 		res.setHeader('error', 'ok');
 		res.end(token);
 	}, err => {
 		console.log('Token generating failed.');
-		console.log('Sending failure.');
 		console.error('> Error:', err);
 		res.setHeader('error', err);
 		res.end();
 	})
-	.catch( err => {
-		console.log('Sending failed.');
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
 	})
 })
 
 async function authenticateToken(token) {
-	console.log('Authenticating token...');
 	try {
 		var comps = token.split('.');
 		const payload = comps[0];
@@ -331,22 +330,21 @@ async function authenticateToken(token) {
 	}
 }
 
-async function getData(result, datum) {
+async function getData(datum, callback) {
 	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
-
+	
 	LogBase.get(evidencija, (err, row) => {
 		if (err) {
-			console.error(err.message);
+			callback(err.message);
 		} else {
 			if (row == undefined) {
-				console.log("Tabela ne postoji");
-				result.end("Tabela ne postoji");
+				callback('undefined table');
 			} else {
 				var sadrzaj = `SELECT * FROM `+row.name;
-
+				
 				LogBase.all(sadrzaj, (err, row) => {
 					if (err) {
-						console.error(err.message);
+						callback(err.message);
 					} else {
 						console.log(row);
 						var odgovor = "";
@@ -354,68 +352,72 @@ async function getData(result, datum) {
 							odgovor += row[i].LogBaseId+'|'+row[i].Mac+'|'+row[i].Ip+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 						}
 						odgovor = odgovor.substring(0,odgovor.length - 1);
-						result.end(odgovor);
+						callback(null, odgovor);
 					}
 				});
 			}
 		}
 	});
 }
-app_api.post('/postGetData', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			var datum = req.param("file");
-			getData(res, datum);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
+
+app_api.post('/getData', function(req, res) {
+	console.log('------------------------');
+	console.log('Request: get data');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		var datum = ('file' in req.body) ? req.body.file : null;
+		if (datum == null) return Promise.reject('parameters');
+		
+		// Convert callback into promise
+		return new Promise( (resolve, reject) => {
+			getData(datum, (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
 })
-app_api.get('/getData', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			var datum = req.param("file");
-			getData(res, datum);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
-async function getData1(result, datum) {
+async function getData1(datum, callback) {
 	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
-
+	
 	LogBase.get(evidencija, (err, row) => {
 		if (err) {
-			console.error(err.message);
+			callback(err.message);
 		} else {
 			if (row == undefined) {
-				console.log("Tabela ne postoji");
-				result.end("Tabela ne postoji");
+				callback('undefined table');
 			} else {
 				var sadrzaj = `SELECT * FROM `+row.name;
 
 				LogBase.all(sadrzaj, (err, row) => {
 					if (err) {
-						console.error(err.message);
+						callback(err.message);
 					} else {
 						//console.log(row);
 						/***************************************************/
@@ -426,14 +428,14 @@ async function getData1(result, datum) {
 							{
 								regListDict[row1[i].Mac] = row1[i].Ime + "|" + row1[i].Prezime + "|" + row1[i].Id;
 							}
-						
+							
 							var odgovor = "";
 							for (var i = 0; i < row.length; i++) {
 								var imePrezime = regListDict[row[i].Mac];
 								odgovor += regListDict[row[i].Mac]+'|'+row[i].Ulaz+'|'+row[i].Izlaz+';';
 							}
 							console.log("response: " + odgovor);
-							result.end(odgovor);
+							callback(null, odgovor);
 						/***************************************************/
 						});
 						//odgovor = odgovor.substring(0,odgovor.length - 1);
@@ -443,48 +445,50 @@ async function getData1(result, datum) {
 		}
 	});
 }
-app_api.post('/postGetData1', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			console.log("getData1");
-			var datum = req.param("file");
-			getData1(res, datum);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-})
-app_api.get('/getData1', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			console.log("getData1");
-			var datum = req.param("file");
-			getData1(res, datum);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
-async function deleteData(result, dates) {
+app_api.post('/getData1', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: get data 1');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		var datum = ('file' in req.body) ? req.body.file : null;
+		if (datum == null) return Promise.reject('parameters');
+		
+		return new Promise( (resolve, reject) => {
+			getData1(datum, (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
+})
+
+async function deleteData(dates, callback) {
 	/************************/
 	var tableList = dates.split(',');
 	console.log("table lista: " , tableList);
@@ -500,7 +504,6 @@ async function deleteData(result, dates) {
 			} else {
 				if (row == undefined) {
 					console.log("Tabela ne postoji");
-					result.end("Tabela ne postoji");
 				} else {
 					var brisi = `DROP TABLE `+row.name;
 					LogBase.run(brisi, (er, row) => {
@@ -508,140 +511,106 @@ async function deleteData(result, dates) {
 							console.error(er.message);
 						} else {
 							console.log("Uspesno obrisana tabela");
-							result.end("Uspesno obrisana tabela");
+							//result.end("Uspesno obrisana tabela");
 						}
 					});
 				}
 			}
 		});
 	}
+	callback(null);
 }
-app_api.post('/postDeleteData', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			var dates = req.param("file");
-			deleteData(res, dates);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/deleteData', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			var dates = req.param("file");
-			deleteData(res, dates);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
-async function apiTest(result) {
-	return Promise.resolve("1");
-}
-app_api.post('/tokenApiTest', function(req, res) {
-	console.log('Request: tokenApiTest');
-	var token;
-	try {
-		token = req.body.token;
-	} catch(err) {
-		token = null;
-	}
+app_api.post('/deleteData', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: delete data');
+	var token = ('token' in req.body) ? req.body.token : null;
 	console.log('Token:', token);
 	
 	authenticateToken(token)
 	.then( newToken => {
-		console.log('Token authentication successful.');
+		console.log('Token authenticated.');
 		res.setHeader('token', newToken);
-		return apiTest();
+		var dates = ('file' in req.body) ? req.body.file : null;
+		if (dates == null) return Promise.reject('parameters');
+		return new Promise( (resolve, reject) => {
+			deleteData(dates, (err) => {
+				if (err)
+					reject(err);
+				else
+					resolve();
+			})
+		})
 	}, err => {
-		console.log('Token authentication failed');
+		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( value => {
-		console.log('Request successful.');
-		console.log('Sending response.');
+	.then( () => {
+		console.log('Request completed.');
 		res.setHeader('error', 'ok');
-		res.end(value);
+		res.end();
 	}, err => {
 		console.log('Request failed.');
-		console.log('Sending failure.');
 		console.error('> Error:', err);
 		res.setHeader('error', err);
 		res.end();
 	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
 })
 
-app_api.post('/PostApiTest', function(req, res) {
-	console.log("pozvana PostApi metoda...")
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	console.log("code: " + code);
-	console.log("timestamp: " + timestamp);
-	console.log("-------------------------");
+async function apiTest(callback) {
+	callback(null, "1");
+}
+app_api.post('/apiTest', function(req, res) {
+	console.log('------------------------');
+	console.log('Request: API test');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
 	
-	switch(checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash api-test.");
-			apiTest(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
-app_api.get('/apiTest', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	console.log("code: " + code);
-	console.log("timestamp: " + timestamp);
-	console.log("-------------------------");
-	
-	switch(checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash api-test.");
-			apiTest(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		return new Promise( (resolve, reject) => {
+			apiTest( (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
+})
 
-async function listData(result) {
+async function listData(callback) {
 	var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
+	
 	LogBase.all(tabele, (err, row) => {
 		if (err) {
 			console.error(err.message);
+			callback(err.message);
 		} else {
 			console.log(row);
 			var odgovor = "";
@@ -649,62 +618,71 @@ async function listData(result) {
 				odgovor += row[i].name+';';
 			}
 			odgovor = odgovor.substring(0,odgovor.length - 1);
-			result.end(odgovor);
+			callback(null, odgovor);
 		}
 	});
 }
-app_api.post('/postListData', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			listData(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
+
+app_api.post('/listData', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: list data');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		return new Promise( (resolve, reject) => {
+			listData( (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
 })
-app_api.get('/listData', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			listData(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
 app_api.get('/getTimestamp', function(req, res) {
-	console.log("method: getTimestamp");
-	tStamp = new Date().toISOString().replace(/\..+/,'');
-	res.end(tStamp);
+	console.log('------------------------');
+	console.log('Request: get timestamp');
+	try {
+		tStamp = new Date().toISOString().replace(/\..+/,'');
+		res.end(tStamp);
+		console.log('Response sent');
+	} catch (err) {
+		console.log('Response sending failed');
+	}
 });
 
-async function getTimeShift(result) {
+async function getTimeShift(callback) {
 	const exec = require('child_process').exec;
 	//var tStamp = new Date(timestamp.replace(/T/, ' '));
-	var yourscript = exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
+	
+	var yourscript = await exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
 		console.log(`${stdout}`);
 		console.log(`${stderr}`);
 		if (error !== null) {
-			console.log(`exec error: ${error}`);
-			result.end(`exec error: ${error}`);
+			callback(`exec error: ${error}`);
 		} else {
 			var strArr = stdout.split('\n');
 			var sysTime = new Date(strArr[0]);
@@ -713,109 +691,114 @@ async function getTimeShift(result) {
 			var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
 			console.log("RTC time" + rtcTime);
 			console.log("shift: " + (sysTime-rtcTime)/1000);
-			result.end(String((sysTime-rtcTime)/1000));
+			callback(null, String((sysTime-rtcTime)/1000));
 		}
 	});
 }
-app_api.post('/postGetTimeShift', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			getTimeShift(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-})
-app_api.get('/getTimeShift', function(req, res) {
-	console.log("method: setAdministratorTimestamp");
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			getTimeShift(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
-async function setSystemTime(result, actionCode, adminTimestamp) {
+app_api.post('/getTimeShift', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: get time shift');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		return new Promise( (resolve, reject) => {
+			getTimeShift( (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
+})
+
+async function setSystemTime(actionCode, adminTimestamp, callback) {
 	const exec = require('child_process').exec;
-	bashProcess = exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
+	
+	bashProcess = await exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
 		console.log(`${stdout}`);
 		console.log(`${stderr}`);
 		if (error !== null) {
-			console.log(`exec error: ${error}`);
-			result.end(`exec error: ${error}`);
+			callback(`exec error: ${error}`);
 		} else {
 			console.log(stdout);
-			result.end(stdout);
+			callback(null, stdout);
 		}
 	});
 }
-app_api.post('/postSetSystemTime', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	var actionCode = req.body.actionCode;
-	var adminTimestamp = req.body.adminTimestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			setSystemTime(res, actionCode, adminTimestamp);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-})
-app_api.get('/setSystemTime', function(req, res) {
-	console.log("method: setAdministratorTimestamp");
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	var actionCode = req.param("actionCode");
-	var adminTimestamp = req.param("adminTimestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash");
-			setSystemTime(res, actionCode, adminTimestamp);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
-async function getRegList(result) {
+app_api.post('/setSystemTime', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: set system time');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		var actionCode = ('actionCode' in req.body) ? req.body.actionCode : null;
+		var adminTimestamp = ('adminTimestamp' in req.body) ? req.body.adminTimestamp : null;
+		if (actionCode == null || adminTimestamp == null)
+			return Promise.reject('parameters');
+		return new Promise( (resolve, reject) => {
+			setSystemTime(actionCode, adminTimestamp, (err, data) => {
+				if (err)
+					reject(err)
+				else
+					resolve(data)
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
+})
+
+async function getRegList() {
 	var lista = `SELECT * FROM regList`;
+	
 	RegBase.all(lista, (err, row) => {
 		if (err) {
-			console.error(err.message);
+			callback(err.message);
 		} else {
 			console.log(row);
 			var odgovor = "";
@@ -823,46 +806,48 @@ async function getRegList(result) {
 				odgovor += row[i].RegId+'|'+row[i].Mac+'|'+row[i].Ime+'|'+row[i].Prezime+'|'+row[i].Id+';';
 			}
 			odgovor = odgovor.substring(0, odgovor.length - 1);
-			result.end(odgovor);
+			callback(null, odgovor);
 		}
 	});
 }
-app_api.post('/postGetRegList', function(req, res) {
-	var code = req.body.code;
-	var timestamp = req.body.timestamp;
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			getRegList(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
+
+app_api.post('/getRegList', (req, res) => {
+	console.log('------------------------');
+	console.log('Request: get reg list');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		return new Promise( (resolve, reject) => {
+			getRegList( (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.then( data => {
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
+	}, err => {
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
+	})
+	.then( () => {
+		console.log('Response sent.');
+	}, err => {
+		console.log('Response sending failed.');
+	})
 })
-app_api.get('/getRegList', function(req, res) {
-	var code = req.param("code");
-	var timestamp = req.param("timestamp");
-	switch (checkCode(code, timestamp)) {
-		case 0:
-			console.log("Wrong hash.");
-			res.end("Wrong hash.");
-			break;
-		case 1:
-			console.log("Right hash.");
-			getRegList(res);
-			break;
-		case 2:
-			console.log("Timeout.");
-			res.end("Timeout.");
-			break;
-	}
-});
 
 https.createServer(https_credentials, app_api).listen(3002);
-//app_api.listen(3002);

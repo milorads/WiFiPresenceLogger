@@ -8,17 +8,17 @@ namespace WiFiPresenceLoggerClassLibrary
 {
     public class ApiResponse
     {
-        public string Status { get; }
+        public string Error { get; }
         public string Text { get; }
 
-        public ApiResponse(string status, string text)
+        public ApiResponse(string error, string text)
         {
-            Status = status;
+            Error = error;
             Text = text;
         }
         public override string ToString()
         {
-            return Status + ": " + Text;
+            return Error + ": " + Text;
         }
     }
 }

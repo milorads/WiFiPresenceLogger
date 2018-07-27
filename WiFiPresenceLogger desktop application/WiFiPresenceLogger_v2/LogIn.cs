@@ -63,6 +63,7 @@ namespace WiFiPresenceLogger_v2
             MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
+        // !!! Neimplementiran metod
         public void AskForCredentials(out string username, out string password)
         {
             username = "lik";
