@@ -35,29 +35,10 @@
             this.passwordTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // ok
-            // 
-            this.ok.Location = new System.Drawing.Point(40, 212);
-            this.ok.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.ok.Name = "ok";
-            this.ok.Size = new System.Drawing.Size(112, 35);
-            this.ok.TabIndex = 0;
-            this.ok.Text = "OK";
-            this.ok.UseVisualStyleBackColor = true;
-            this.ok.Click += new System.EventHandler(this.ok_Click);
-            // 
-            // usernameTextBox
-            // 
-            this.usernameTextBox.Location = new System.Drawing.Point(251, 38);
-            this.usernameTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.usernameTextBox.Name = "usernameTextBox";
-            this.usernameTextBox.Size = new System.Drawing.Size(148, 26);
-            this.usernameTextBox.TabIndex = 1;
-            // 
             // usernameLabel
             // 
             this.usernameLabel.AutoSize = true;
-            this.usernameLabel.Location = new System.Drawing.Point(36, 44);
+            this.usernameLabel.Location = new System.Drawing.Point(20, 32);
             this.usernameLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.usernameLabel.Name = "usernameLabel";
             this.usernameLabel.Size = new System.Drawing.Size(108, 20);
@@ -67,34 +48,53 @@
             // passwordLabel
             // 
             this.passwordLabel.AutoSize = true;
-            this.passwordLabel.Location = new System.Drawing.Point(36, 111);
+            this.passwordLabel.Location = new System.Drawing.Point(70, 96);
             this.passwordLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.passwordLabel.Name = "passwordLabel";
             this.passwordLabel.Size = new System.Drawing.Size(58, 20);
             this.passwordLabel.TabIndex = 16;
             this.passwordLabel.Text = "lozinka";
             // 
+            // usernameTextBox
+            // 
+            this.usernameTextBox.Location = new System.Drawing.Point(144, 29);
+            this.usernameTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.usernameTextBox.Name = "usernameTextBox";
+            this.usernameTextBox.Size = new System.Drawing.Size(220, 26);
+            this.usernameTextBox.TabIndex = 1;
+            // 
             // passwordTextBox
             // 
-            this.passwordTextBox.Location = new System.Drawing.Point(251, 105);
+            this.passwordTextBox.Location = new System.Drawing.Point(144, 93);
             this.passwordTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(148, 26);
+            this.passwordTextBox.Size = new System.Drawing.Size(220, 26);
             this.passwordTextBox.TabIndex = 17;
+            // 
+            // ok
+            // 
+            this.ok.Location = new System.Drawing.Point(136, 160);
+            this.ok.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.ok.Name = "ok";
+            this.ok.Size = new System.Drawing.Size(112, 35);
+            this.ok.TabIndex = 0;
+            this.ok.Text = "OK";
+            this.ok.UseVisualStyleBackColor = true;
+            this.ok.Click += new System.EventHandler(this.ok_Click);
             // 
             // CredForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(729, 506);
-            this.Controls.Add(this.passwordTextBox);
-            this.Controls.Add(this.passwordLabel);
+            this.ClientSize = new System.Drawing.Size(384, 224);
             this.Controls.Add(this.usernameLabel);
+            this.Controls.Add(this.passwordLabel);
             this.Controls.Add(this.usernameTextBox);
+            this.Controls.Add(this.passwordTextBox);
             this.Controls.Add(this.ok);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "CredForm";
-            this.Text = "Unesite korisnicko ime i lozinku";
+            this.Text = "Unesite podatke";
             this.ResumeLayout(false);
             this.PerformLayout();
 

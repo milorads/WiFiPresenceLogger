@@ -60,8 +60,7 @@ namespace WiFiPresenceLogger_v2
             string res = api.apiTest1();
             MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-
-        // !!! Neimplementiran metod
+        
         public void AskForCredentials(out string username, out string password)
         {
             CredForm form = new CredForm();
