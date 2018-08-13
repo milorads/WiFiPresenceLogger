@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WiFiPresenceLoggerClassLibrary;
 
-
-
 namespace WiFiPresenceLogger_v2
 {   
     public partial class LogIn : Form, IUserApplication
@@ -62,12 +60,14 @@ namespace WiFiPresenceLogger_v2
             string res = api.apiTest1();
             MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-
-        // !!! Neimplementiran metod
+        
         public void AskForCredentials(out string username, out string password)
         {
-            username = "lik";
-            password = "lik";
+            CredForm form = new CredForm();
+            form.ShowDialog(this);
+            
+            username = form.Username;
+            password = form.Password;
         }
 
         private void buttonContinue_Click(object sender, EventArgs e)
