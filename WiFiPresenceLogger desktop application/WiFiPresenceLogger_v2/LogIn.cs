@@ -13,7 +13,6 @@ namespace WiFiPresenceLogger_v2
 {   
     public partial class LogIn : Form, IUserApplication
     {
-
         WFPL_Db db;
         DateTime startDate, endDate;
         TableList currentTableListState;
@@ -32,7 +31,6 @@ namespace WiFiPresenceLogger_v2
             }
             catch (Exception e)
             {
-
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
@@ -70,14 +68,21 @@ namespace WiFiPresenceLogger_v2
             password = form.Password;
         }
 
+        //
+        // Korisnik se ulogovao sa vec ulogovanim nalogom
+        //
         private void buttonContinue_Click(object sender, EventArgs e)
         {
-            // Logovanje ponudjenog korisnika
+            Choose.Show();
+            SignUp.Show();
         }
-
+        //
+        // Korisnik je kliknuo da trenutni ulogovani nalog nije njegov
+        //
         private void linkLabelNotYou_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            SignUp.Visible = true;
+            SignUp.Show();
+            Choose.Hide();
 
             var query = from user in db.Users
                         orderby user.ID
@@ -94,7 +99,9 @@ namespace WiFiPresenceLogger_v2
                 y += 30;
             }
         }
-
+        //
+        // Korisnik je izabrao jedan od ponudjenih naloga
+        //
         private void LinkedLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var person = sender.ToString().Substring(38).Split(' ');
@@ -113,10 +120,12 @@ namespace WiFiPresenceLogger_v2
             }
 
             db.SaveChanges();
-            Choose.Visible = true;
+            Choose.Show();
             currentUser = db.getLastUser();
         }
-
+        //
+        // Dodavanje novog naloga u sistem
+        //
         private void buttonDodaj_Click(object sender, EventArgs e)
         {
             var ime = textBoxName.Text;
@@ -131,10 +140,12 @@ namespace WiFiPresenceLogger_v2
             db.Users.Add(user);
             db.SaveChanges();
 
-            SignUp.Visible = false;
+            SignUp.Hide();
             textBoxUser.Text = db.getLastUser().name;
         }
-
+        //
+        // Ispis svih predmeta
+        //
         private void buttonSubjects_Click(object sender, EventArgs e)
         {
             // !!! Nije implementirana do kraja
@@ -144,7 +155,6 @@ namespace WiFiPresenceLogger_v2
 
             foreach (Subject subject in query)
             {
-                // Trebalo bi bolji prikaz predmeta
                 if (DateTime.Parse(subject.startDate) <= DateTime.Now
                     && DateTime.Now <= DateTime.Parse(subject.endDate))
                 {
@@ -155,14 +165,13 @@ namespace WiFiPresenceLogger_v2
                 MessageBox.Show(message);
             }
         }
-
+        //
+        // Ponovno logovanje (iz glavnog prozora)
+        //
         private void buttonLogIn_Click(object sender, EventArgs e)
         {
-            //
-
-            //
-            Choose.Visible = false;
-            SignUp.Visible = false;
+            Choose.Hide();
+            SignUp.Hide();
             textBoxUser.Text = db.getLastUser().name;
         }
 
@@ -170,10 +179,11 @@ namespace WiFiPresenceLogger_v2
         {
 
         }
-
+        //
+        // Pravljenje excel tabele
+        //
         private void button1_Click(object sender, EventArgs e)
         {
-            
             List<string> lista = new List<string>();
 
             //"ana voli milovana"=="ana voli milovana"
@@ -198,7 +208,6 @@ namespace WiFiPresenceLogger_v2
             {
                 string httpResponse = api.getData(item);
                 tableData.Add(item, httpResponse);
-
             }
 
             //upis studenata u db
@@ -257,7 +266,6 @@ namespace WiFiPresenceLogger_v2
             /***************************************************************/
             foreach (var item in dayOFTheWeek)
             {
-
                 //tableListBox.Items.Remove(item);
                 tablesDeleteListBox.Items.Add("T" + item);
                 currentTableListState.ListOfDeletedTables.Add("T" + item.ToString());
@@ -296,7 +304,7 @@ namespace WiFiPresenceLogger_v2
                 }
                 else
                     labelEnd.Text = endDate.ToShortDateString().ToString();
-                    dateOK = true;
+                dateOK = true;
             }
             else
             {
@@ -310,12 +318,13 @@ namespace WiFiPresenceLogger_v2
             }
             dateCnt = !dateCnt;
         }
-
+        //
+        // Prebacivanje iz liste tabela u listu obrisanih tabela
+        //
         private void addToDeleteListBtn_Click(object sender, EventArgs e)
         {
             foreach (var item in tableListBox.SelectedItems)
             {
-
                 //tableListBox.Items.Remove(item);
                 tablesDeleteListBox.Items.Add(item);
                 currentTableListState.ListOfDeletedTables.Add(item.ToString());
@@ -323,6 +332,9 @@ namespace WiFiPresenceLogger_v2
             for (int i = tableListBox.SelectedItems.Count - 1; i >= 0; i--)
                 tableListBox.Items.Remove(tableListBox.SelectedItems[i]);
         }
+        //
+        // Prebacivanje iz liste obrisanih tabela u listu tabela
+        //
         private void removeFromDeleteListBtn_Click(object sender, EventArgs e)
         {
             foreach (var item in tablesDeleteListBox.SelectedItems)
@@ -393,7 +405,6 @@ namespace WiFiPresenceLogger_v2
         {
             var subjectForm = new subjectForm();
             subjectForm.Show();
-            
         }
 
         private void button3_Click(object sender, EventArgs e)

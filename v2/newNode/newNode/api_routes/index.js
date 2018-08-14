@@ -5,7 +5,7 @@ var rsa = require('node-rsa');
 var fs = require('fs');
 
 const token_rsa = new rsa({b: 512});
-const token_header = '{"alg":"rs256"}'.toString('base64');
+const token_header = new Buffer(JSON.stringify({ alg: "rs256" })).toString('base64');
 
 
 var sqlite3 = require('sqlite3').verbose();
@@ -15,6 +15,8 @@ var RegBase = new sqlite3.Database('/home/admin/WiFiPresenceLogger/v2/RegBase.db
 var table_sql = `CREATE TABLE IF NOT EXISTS regList(RegId integer PRIMARY KEY NOT NULL UNIQUE,Mac TEXT,Ime TEXT,Prezime TEXT,Id TEXT)`;
 var reg_sql = `SELECT * FROM regList WHERE Mac = ?`;
 var insert_sql = `INSERT INTO regList (Mac,Ime,Prezime,Id) VALUES(?,?,?,?)`;
+
+var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
 
 function getDateTableName()
 {
@@ -33,15 +35,16 @@ function getDateTableName()
 	return 'Td_m_Y'.replace('Y', yearString).replace('m', monthString).replace('d', dayString);
 }
 
-//function for api methods
-function checkUser(username, password) {
-	// !!! Not implemented
-	// Checks if (username, password) pair is OK
-	// Used for generating tokens
-	if (username == null || password == null) {
-		return Promise.reject('authorization');
+/* U trenutnoj verziji, desktop aplikacija kao password salje
+ * MAC adresu uredjaja, i uredjaj samo to proverava.
+ */
+ 
+function checkUser(username, password, callback) {
+	if (password != deviceCode) {
+		callback('pass');
+	} else {
+		callback(null);
 	}
-	return Promise.resolve();
 }
 
 
@@ -67,7 +70,15 @@ api_router.post('/getToken', function(req, res) {
 	var username = ('usr' in req.body) ? req.body.usr : null;
 	var password = ('pass' in req.body) ? req.body.pass : null;
 	
-	checkUser(username, password)
+	// Convert callback into promise
+	new Promise( (resolve, reject) => {
+		checkUser(username, password, (err) => {
+			if (err)
+				reject(err);
+			else
+				resolve();
+		})
+	})
 	.then( () => {
 		console.log('User authenticated.');
 		return getToken(username);

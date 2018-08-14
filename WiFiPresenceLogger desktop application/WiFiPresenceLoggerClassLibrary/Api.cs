@@ -145,7 +145,10 @@ namespace WiFiPresenceLoggerClassLibrary
             token = null;
             for (int i = 0; token == null && i < numOfTries; ++i)
             {
-                app.AskForCredentials(out string username, out string password);
+                //app.AskForCredentials(out string username, out string password);
+                string username = "lik";
+                string password = deviceCode;
+
                 string parameters = "{\"usr\":\"" + username + "\",\"pass\":\"" + password + "\"}";
                 ApiResponse res = PostApiMethod(gatewayAddr + "getToken", parameters);
 
