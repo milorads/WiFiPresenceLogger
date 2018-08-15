@@ -49,7 +49,7 @@ namespace WiFiPresenceLoggerClassLibrary
         //kodovi za status request-a??
         private ApiResponse PostApiMethod(string url, string jsonParameters)
         {
-            ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.ContentType = "application/json";
             request.Method = "POST";
@@ -86,7 +86,7 @@ namespace WiFiPresenceLoggerClassLibrary
 
         private string ApiMethod(string url)
         {
-            ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);

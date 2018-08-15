@@ -18,6 +18,25 @@ var insert_sql = `INSERT INTO regList (Mac,Ime,Prezime,Id) VALUES(?,?,?,?)`;
 
 var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
 
+Promise.prototype.respond = function(res) {
+	this
+	.then( data => {
+		console.log('Request completed.')
+		res.setHeader('error', 'ok')
+		res.end(data)
+	}, err => {
+		console.log('Request failed.')
+		console.error('> Error:', err)
+		res.setHeader('error', err)
+		res.end()
+	})
+	.then( () => {
+		console.log('Response sent.')
+	}, err => {
+		console.log('Response sending failed.')
+	})
+}
+
 function getDateTableName()
 {
 	var today = new Date();
@@ -47,7 +66,9 @@ function checkUser(username, password, callback) {
 	}
 }
 
-
+/*
+	Generates token 'payload.signature', where signature is encrypted 'header.payload'.
+*/
 async function getToken(username) {
 	try {
 		var exp = new Date().getTime() + 180 * 1000;
@@ -88,19 +109,9 @@ api_router.post('/getToken', function(req, res) {
 	})
 	.then( token => {
 		console.log('New token generated. Token value is:', token);
-		res.setHeader('error', 'ok');
-		res.end(token);
-	}, err => {
-		console.log('Token generating failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
+		return token;
 	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 });
 
 async function authenticateToken(token) {
@@ -118,12 +129,39 @@ async function authenticateToken(token) {
 			return Promise.reject('expired');
 		}
 		// after every action, user gets a new token to extend the duration
-		const newToken = getToken(info.usr);
-		return Promise.resolve(newToken);
+		return getToken(info.usr);
 	} catch (err) {
 		return Promise.reject('format');
 	}
 }
+
+async function apiTest(callback) {
+	callback(null, "1");
+}
+api_router.post('/apiTest', function(req, res) {
+	console.log('------------------------');
+	console.log('Request: API test');
+	var token = ('token' in req.body) ? req.body.token : null;
+	console.log('Token:', token);
+	
+	authenticateToken(token)
+	.then( newToken => {
+		console.log('Token authenticated.');
+		res.setHeader('token', newToken);
+		return new Promise( (resolve, reject) => {
+			apiTest( (err, data) => {
+				if (err)
+					reject(err);
+				else
+					resolve(data);
+			})
+		})
+	}, err => {
+		console.log('Token authentication failed.');
+		return Promise.reject(err);
+	})
+	.respond(res)
+})
 
 async function getData(datum, callback) {
 	var evidencija = `SELECT name FROM sqlite_master WHERE type='table' AND name='` + "T" + datum + `'`;
@@ -181,21 +219,7 @@ api_router.post('/getData', function(req, res) {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 async function getData1(datum, callback) {
@@ -266,21 +290,7 @@ api_router.post('/getData1', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 async function deleteData(dates, callback) {
@@ -295,18 +305,17 @@ async function deleteData(dates, callback) {
 		console.log("upit za brisanje: " + evidencija);
 		LogBase.get(evidencija, (err, row) => {
 			if (err) {
-					console.error(err.message);
+					callback(err.message);
 			} else {
 				if (row == undefined) {
-					console.log("Tabela ne postoji");
+					callback('notexist');
 				} else {
 					var brisi = `DROP TABLE `+row.name;
 					LogBase.run(brisi, (er, row) => {
 						if (er) {
-							console.error(er.message);
+							callback(er.message);
 						} else {
-							console.log("Uspesno obrisana tabela");
-							//result.end("Uspesno obrisana tabela");
+							callback(null, 'ok');
 						}
 					});
 				}
@@ -340,63 +349,7 @@ api_router.post('/deleteData', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( () => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end();
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
-})
-
-async function apiTest(callback) {
-	callback(null, "1");
-}
-api_router.post('/apiTest', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: API test');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
-	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return new Promise( (resolve, reject) => {
-			apiTest( (err, data) => {
-				if (err)
-					reject(err);
-				else
-					resolve(data);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 async function listData(callback) {
@@ -440,21 +393,7 @@ api_router.post('/listData', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 api_router.get('/getTimestamp', function(req, res) {
@@ -513,21 +452,7 @@ api_router.post('/getTimeShift', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 async function setSystemTime(actionCode, adminTimestamp, callback) {
@@ -571,21 +496,7 @@ api_router.post('/setSystemTime', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 })
 
 async function getRegList() {
@@ -628,21 +539,7 @@ api_router.post('/getRegList', (req, res) => {
 		console.log('Token authentication failed.');
 		return Promise.reject(err);
 	})
-	.then( data => {
-		console.log('Request completed.');
-		res.setHeader('error', 'ok');
-		res.end(data);
-	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
-	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.respond(res)
 });
 
 

@@ -75,18 +75,21 @@ namespace WiFiPresenceLogger_v2
 
                     if (itStartTime <= startTime && startTime < itEndTime)
                     {
-                        throw new Exception("Predmet se preklapa u intervalu " + startTime
-                            + " - " + (itEndTime < endTime ? itEndTime : endTime));
+                        throw new Exception("Predmet se preklapa u intervalu ["
+                            + startTime + " - " + (itEndTime < endTime ? itEndTime : endTime)
+                            + "] sa predmetom " + subject.name);
                     }
                     if (itStartTime < endTime && endTime <= itEndTime)
                     {
-                        throw new Exception("Predmet se preklapa u intervalu " + (itStartTime > startTime
-                            ? itStartTime : startTime) + " - " + endTime);
+                        throw new Exception("Predmet se preklapa u intervalu ["
+                            + (itStartTime > startTime ? itStartTime : startTime) + " - " + endTime
+                            + "] sa predmetom " + subject.name);
                     }
                     if (startTime <= itStartTime && itStartTime < endTime)
                     {
-                        throw new Exception("Predmet se preklapa u intervalu " + itStartTime + " - "
-                            + itEndTime);
+                        throw new Exception("Predmet se preklapa u intervalu ["
+                            + itStartTime + " - " + itEndTime
+                            + "] sa predmetom " + subject.name);
                     }
                 }
 

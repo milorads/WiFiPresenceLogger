@@ -34,7 +34,6 @@ namespace WiFiPresenceLogger_v2
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
-
             try
             {
                 if (db.getLastUser() != null)
@@ -58,7 +57,9 @@ namespace WiFiPresenceLogger_v2
             string res = api.apiTest1();
             MessageBox.Show(res, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        
+        //
+        // Forma u kojoj se popunjavaju username i password korisnika
+        //
         public void AskForCredentials(out string username, out string password)
         {
             CredForm form = new CredForm();
@@ -67,7 +68,6 @@ namespace WiFiPresenceLogger_v2
             username = form.Username;
             password = form.Password;
         }
-
         //
         // Korisnik se ulogovao sa vec ulogovanim nalogom
         //
@@ -148,8 +148,6 @@ namespace WiFiPresenceLogger_v2
         //
         private void buttonSubjects_Click(object sender, EventArgs e)
         {
-            // !!! Nije implementirana do kraja
-
             var query = from subject in db.Subjects select subject;
             string message = "";
 
@@ -174,7 +172,9 @@ namespace WiFiPresenceLogger_v2
             SignUp.Hide();
             textBoxUser.Text = db.getLastUser().name;
         }
-
+        //
+        // Poziva se pri Show-ovanju Choose panela
+        //
         private void Choose_Paint(object sender, PaintEventArgs e)
         {
 
@@ -345,6 +345,9 @@ namespace WiFiPresenceLogger_v2
             for (int i = tablesDeleteListBox.SelectedItems.Count - 1; i >= 0; i--)
                 tablesDeleteListBox.Items.Remove(tablesDeleteListBox.SelectedItems[i]);
         }
+        //
+        // Refresh-ovanje lista tabela
+        //
         private void refreshBtn_Click(object sender, EventArgs e)
         {
             currentTableListState.refreshTableState();
@@ -356,7 +359,9 @@ namespace WiFiPresenceLogger_v2
             }
             tablesDeleteListBox.Items.Clear();
         }
-
+        //
+        // Brisanje tabela izabranih za brisanje
+        //
         private void tableDeleteBtn_Click(object sender, EventArgs e)
         {
             currentTableListState.deleteTables();
@@ -364,13 +369,17 @@ namespace WiFiPresenceLogger_v2
             for (int i = tablesDeleteListBox.Items.Count - 1; i >= 0; i--)
                 tablesDeleteListBox.Items.Remove(tablesDeleteListBox.Items[i]);
         }
-
+        //
+        // Broj sekundi za koji kasni vreme na uredjaju
+        //
         private void rtcShiftBtn_Click(object sender, EventArgs e)
         {
             string shiftSeconds = api.getTimeShift();
             rtcShiftLabel.Text = "time shift:" + shiftSeconds + " s";
         }
-
+        //
+        // Set-ovanje vremena na uredjaju
+        //
         private void setTimeBtn_Click(object sender, EventArgs e)
         {
             //exitTime = DateTime.ParseExact(exitTimeStr, "yyyy-MM-dd HH:mm:ss.ffffff", System.Globalization.CultureInfo.InstalledUICulture);
@@ -378,7 +387,9 @@ namespace WiFiPresenceLogger_v2
             string response = api.setSystemTime("0",utcTimestamp.ToString("o"));
             MessageBox.Show("Vreme je setovano na (UTC):" + utcTimestamp.ToString("o"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-
+        //
+        // Menjanje ssid-a pritiskom na 'set WiFi parameters'
+        //
         private void ssidCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (ssidCheckBox.CheckState == CheckState.Checked)
@@ -386,7 +397,9 @@ namespace WiFiPresenceLogger_v2
             else
                 ssidTextBox.Enabled = false;
         }
-
+        //
+        // Menjanje password-a pritiskom na 'set WiFi parameters'
+        //
         private void passwordCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (passwordCheckBox.CheckState == CheckState.Checked)
@@ -394,19 +407,25 @@ namespace WiFiPresenceLogger_v2
             else
                 passwordTextBox.Enabled = false;
         }
-
+        //
+        // 'set WiFI parameters' dugme
+        //
         private void button2_Click(object sender, EventArgs e)
         {
             api.wifiSetting(ssidTextBox.Text, passwordTextBox.Text);
             MessageBox.Show("Connect again to WiFi network", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-
+        //
+        //
+        //
         private void subjectAddBtn_Click(object sender, EventArgs e)
         {
             var subjectForm = new subjectForm();
             subjectForm.Show();
         }
-
+        //
+        // API test dugme
+        //
         private void button3_Click(object sender, EventArgs e)
         {
             MessageBox.Show(api.apiTest1(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
