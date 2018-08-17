@@ -4,7 +4,7 @@ import sqlite3
 import os
 from datetime import datetime
 
-
+# Logging class
 class LoggerLevel:
     def __init__(self):
         pass
@@ -15,13 +15,13 @@ class LoggerLevel:
         # 1 - Trace, 2 - Info, 3 - Warning, 4 - Error
         return global_severity
 
-
+#presence check exception class
 class PresenceCheckerException(Exception):
     def __init__(self, msg, original_exception):
         super(PresenceCheckerException, self).__init__(msg + (": %s" % original_exception))
         self.original_exception = original_exception
 
-
+# Model for oe record
 class ArpModel(object):
     # Attributes:
     # hostName: name of the device that is connected to the ap
@@ -48,14 +48,14 @@ class ArpModel(object):
 
     pass
 
-
+# method for logging
 def log(severity, message, exception = None):
     if severity >= LoggerLevel.severity():
         print(message)
         if exception is not None:
             print exception.message
 
-
+#method for calling a shell command
 def subprocess_cmd(command):
 	log(2, "Running subprocess command -> "+str(command))
 	try:
