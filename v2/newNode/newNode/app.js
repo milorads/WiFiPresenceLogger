@@ -9,6 +9,10 @@ var bodyParser = require('body-parser');
 const app = express();
 app.set('view engine', 'pug');
 
+//podesavnje default putanja do direktorijuma za pug i css
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(__dirname + '/public'));
+
 app.use(express.static('public'))
 
 app.use(bodyParser.urlencoded({
