@@ -11,8 +11,6 @@ B_PORTS = [26, 21]
 
 PWM_STEP = 1000
 
-did_init = False
-
 def init():
 	init_ports()
 	for i in range(0, NUMBER_OF_LEDS):
@@ -25,6 +23,11 @@ def init_ports():
 		GPIO.setup(R_PORTS[i], GPIO.OUT)
 		GPIO.setup(G_PORTS[i], GPIO.OUT)
 		GPIO.setup(B_PORTS[i], GPIO.OUT)
+		
+def abort():
+	for d in diodes:
+		if d != None:
+			d.off()
 
 class Led:
 	def __init__(self, index = 0):
@@ -61,7 +64,7 @@ class Led:
 			raise ValueError('Intensity not valid')
 		else:
 			self._stop()
-			self._activate_thread(color, freq, intensity)
+			self._activate_blinking(color, freq, intensity)
 	
 	def _activate(self, color, intensity = 100):
 		self._active_thread = Thread(target = Led._activate_thread,
