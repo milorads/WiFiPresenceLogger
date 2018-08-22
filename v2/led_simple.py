@@ -39,19 +39,29 @@ class Led:
 	def _init_ports(self):
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setwarnings(False)
-		GPIO.setup(R_PORTS[self.index], GPIO.OUT)
-		GPIO.setup(G_PORTS[self.index], GPIO.OUT)
-		GPIO.setup(B_PORTS[self.index], GPIO.OUT)
+		self.r_num = R_PORTS[self.index]
+		self.g_num = G_PORTS[self.index]
+		self.b_num = B_PORTS[self.index]
 		
-		self.r = R_PORTS[self.index]
-		self.g = G_PORTS[self.index]
-		self.b = B_PORTS[self.index]
+		GPIO.setup(self.r_num, GPIO.OUT)
+		GPIO.setup(self.g_num, GPIO.OUT)
+		GPIO.setup(self.b_num, GPIO.OUT)
+		
+		self.r_num = R_PORTS[self.index]
+		self.g_num = G_PORTS[self.index]
+		self.b_num = B_PORTS[self.index]
+		
+		self.r = GPIO.PWM(self.r_num, 300)
+		self.g = GPIO.PWM(self.g_num, 300)
+		self.b = GPIO.PWM(self.b_num, 300)
+		
+		self.r.start(0)
+		self.g.start(0)
+		self.b.start(0)
 	
-	def on(self, color = 'green', intensity = 100):
+	def on(self, color = 'green', intensity = 70):
 		if not is_ok_color(color):
 			raise ValueError('Color name not recognized')
-		elif not is_ok_intensity(intensity):
-			raise ValueError('Intensity out of range')
 		else:
 			self._stop()
 			self._activate(color, intensity)
@@ -59,61 +69,24 @@ class Led:
 	def off(self):
 		self._stop()
 	
-	def blink(self, color = 'green', freq = 1, intensity = 100):
+	def blink(self, color = 'green', freq = 1, intensity = 70):
 		if not is_ok_color(color):
 			raise ValueError('Color name not recognized')
 		elif not is_ok_frequency(freq):
 			raise ValueError('Frequency out of range')
-		elif not is_ok_intensity(intensity):
-			raise ValueError('Intensity out of range')
 		else:
 			self._stop()
 			self._activate_blinking(color, freq, intensity)
 	
-	def is_on(self):
-		return self._active_flag
-	def is_off(self):
-		return not self.is_on()
-	
 	def _activate(self, color, intensity):
-		self._active_thread = Thread(target = Led._activate_thread,
-				args = (self, color, intensity, ))
-		self._active_flag = True
-		self._active_thread.start()
-	
-	def _activate_thread(self, color, intensity):
-		step = 100.0 / intensity
-		cnt = 0.0
-		color_cnt = 0
-		
-		ports = self.color_ports(color)
-		sz = len(ports)
-		time_begin = time.time()
-		
-		while self._active_flag:
-			if color_cnt == 0:
-				if cnt >= step:
-					val = 1
-					cnt = cnt - step
-				else:
-					val = 0
-				cnt = cnt + 1
-			time_el = time.time() - time_begin
-			if time_el < 0.001:
-				time.sleep(0.001 - time_el)
-			GPIO.output(ports[color_cnt], val)
-			if sz > 1:
-				GPIO.output(ports[(color_cnt - 1) % sz], 0)
-			time_begin = time.time()
-			color_cnt = (color_cnt + 1) % sz
-		
-		for p in ports:
-			GPIO.output(p, 0)
-	
+		for p in self.color_ports(color):
+			if p == self.r:
+				p.ChangeDutyCycle(intensity * (2.0/3.2))
+			else:
+				p.ChangeDutyCycle(intensity)
 	def _deactivate(self):
-		if self._active_flag:
-			self._active_flag = False
-			self._active_thread.join()
+		for p in [self.r, self.g, self.b]:
+			p.ChangeDutyCycle(0)
 	
 	def _activate_blinking(self, color, freq, intensity):
 		self._blink_thread = Thread(target = Led._blinking_thread,
@@ -138,8 +111,6 @@ class Led:
 	def _stop(self):
 		self._deactivate_blinking()
 		self._deactivate()
-		for p in [self.r, self.g, self.b]:
-			GPIO.output(p, 0)
 	
 	def color_ports(self, c):
 		l = list()
@@ -154,8 +125,6 @@ class Led:
 
 def is_ok_index(i):
 	return 0 <= i and i < NUMBER_OF_LEDS
-def is_ok_intensity(i):
-	return 0 <= i and i <= 100
 def is_ok_frequency(f):
 	return f > 0 and f <= 100
 
