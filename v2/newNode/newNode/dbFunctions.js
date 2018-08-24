@@ -180,6 +180,7 @@ module.exports = {
 				clbckFun("ERROR");
 			}
 			//return [row.Ime,row.Prezime,row.Id]
+			
 			clbckFun([[row.Ime,row.Prezime,row.Id,row.Type]]);
 		});
 	}
