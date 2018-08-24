@@ -37,6 +37,7 @@ router.get('/', function (req, res) {
 					req.session.name = resArr[0];
 					req.session.surname = resArr[1];
 					req.session.index = resArr[2];
+					req.session.type = resArr[3];
 					res.render('message',{
 						text1: res2,
 						option1: 'edit',
@@ -70,13 +71,15 @@ router.get('/student-registration', function (req, res) {
 	req.session.service = "new";
 	res.render('studentForm', { 
 		title: 'Registracija studenta',
+		indexplc1: 'Index'
 	});
 });
 router.get('/profesor-registration', function (req, res) {
 	req.session.type = "profesor";
 	req.session.service = "new";
 	res.render('studentForm', { 
-		title: 'Registracija profesora'
+		title: 'Registracija profesora',
+		indexplc1: 'Indetifikacioni broj'
 	});
 });
 router.get('/edit', function(req,res){
@@ -89,16 +92,24 @@ router.get('/edit', function(req,res){
 		});
 	}
 	req.session.service = "edit";
+	var plcIndexStr = "";
+	if(req.session.type == 'student')
+		plcIndexStr = "Index";
+	else
+		plcIndexStr = "Indetifikacioni broj";
+	
+	
 	res.render('studentForm',{
 		namep: req.session.name.toString(),
 		surnamep: req.session.surname.toString(),
 		indexp: req.session.index.toString(),
 		option1: 'submit',
-		link1: 'submit'
+		link1: 'submit',
+		indexplc1: plcIndexStr
 	});
 });
 router.post('/submit', function (req, res) {
-	if(typeof req.session.name == 'undefined')
+	if((typeof req.session.name == 'undefined') && (typeof req.session.service == 'undefined'))
 	{
 		res.render('message',{
 			text1: 'istekla je vasa sesija, vratite se na pocetnu stranu',
