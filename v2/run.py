@@ -2,8 +2,11 @@ import os
 import time
 import sqlite3
 import subprocess
-#funkcija za proveru iskljucenja
 
+curDir = os.path.dirname(os.path.realpath(__file__))
+subprocess.call(['sudo', curDir + '/ledon', '0', 'y'])
+
+#funkcija za proveru iskljucenja
 def updateTableOutTime(tableNameStr,outTimeStr):
 	conn = sqlite3.connect(curDir + "/LogBase.db")
 	cursor = conn.cursor()
@@ -19,8 +22,7 @@ def updateTableOutTime(tableNameStr,outTimeStr):
 	conn.close()
 	return
 
-curDir = os.path.dirname(os.path.realpath(__file__)) 
-file = open(curDir+ "/shutdown_time.txt","r")
+file = open(curDir + "/shutdown_time.txt","r")
 shutdownTime  =  file.readline()
 if shutdownTime != "":
 	shutdownTime = shutdownTime.split()
@@ -29,13 +31,16 @@ if shutdownTime != "":
 	print tableName
 	print outTime
 	updateTableOutTime(tableName,outTime)
-	time.sleep(20)
-	os.system('sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash 3')
 	time.sleep(10)
+	subprocess.call(['sudo', 'bash', curDir + '/sys_time.bash', '3'])
 	
-	prevTime = ""
-	curTime = ""
-file.close
+prevTime = ""
+curTime = ""
+file.close()
+
+subprocess.call(['sudo', curDir + '/ledon', '0', 'g'])
+subprocess.Popen(['sudo', 'bash', curDir + '/check_connection.bash'])
+
 while True:
 	#######################
 	curTime = subprocess.check_output('sudo date "+%d"', shell=True)
@@ -50,5 +55,5 @@ while True:
 	os.system('sudo date "+T%d_%m_%y %Y-%m-%d %T.%6N" > '+curDir+'/shutdown_time.txt')
 	os.system('sudo python '+ curDir +'/station_check_instance.py')
 	prevTime = subprocess.check_output('sudo date "+%d"', shell=True)
-	time.sleep(30)
+	#time.sleep(10)
 	
