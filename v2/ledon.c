@@ -1,21 +1,26 @@
 #include "led.h"
 
+int SETUP_EXC = -1;
+int ARG_EXC = -2;
+
 int main(int argc, char* argv[]) {
-	int ret;
+	int res;
 	if (wiringPiSetup() != 0) {
-		printf("Setup error!");
-		exit(-1);
+		printf("Setup error!\n");
+		return SETUP_EXC;
 	}
 	if (argc != 3) {
-		printf("Argument number should be 2");
-		exit(-2);
+		printf("Error! Argument number should be 2.\n");
+		return ARG_EXC;
 	}
-	ret = on(atoi(argv[1]), argv[2][0]);
-	if (ret == 1) {
-		printf("Index out of range");
+	res = on(atoi(argv[1]), argv[2][0]);
+	if (res == INDEX_EXC) {
+		printf("Error! Index out of range.\n");
+		return INDEX_EXC;
 	}
-	if (ret == 2) {
-		printf("Color not recognized");
+	if (res == COLOR_EXC) {
+		printf("Error! Color not recognized.\n");
+		return COLOR_EXC;
 	}
-	return ret;
+	return EXIT_SUCCESS;
 }

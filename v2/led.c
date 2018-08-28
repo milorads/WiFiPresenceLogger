@@ -3,6 +3,9 @@
 int NUMBER_OF_LEDS = 2;
 float CYCLE_STEP = 1024.0 / 100;
 
+int INDEX_EXC = -5;
+int COLOR_EXC = -6;
+
 int PINS[][3] = {
 	{23, 24, 25},
 	{27, 28, 29}
@@ -11,20 +14,30 @@ int PINS[][3] = {
 int* get_pins(char color) {
 	int* pins = calloc(3, sizeof(int));
 	switch (color) {
-	case 'r':
-		pins[0] = 75; break;
-	case 'g':
-		pins[1] = 75; break;
-	case 'b':
-		pins[2] = 100; break;
-	case 'y':
-		pins[0] = 85; pins[1] = 100; break;
-	case 'p':
-		pins[0] = 25; pins[2] = 100; break;
-	case 'c':
-		pins[1] = 70; pins[2] = 100; break;
-	case 'w':
-		pins[0] = 60; pins[1] = 100; pins[2] = 100; break;
+	case 'r' :
+		pins[0] = 75;  pins[1] =  0;  pins[2] = 0;
+		break;
+	case 'g' :
+		pins[0] = 0;   pins[1] = 75;  pins[2] = 0;
+		break;
+	case 'b' :
+		pins[0] = 0;   pins[1] = 0;   pins[2] = 100;
+		break;
+	case 'y' :
+		pins[0] = 85;  pins[1] = 100; pins[2] = 0;
+		break;
+	case 'p' :
+		pins[0] = 25;  pins[1] = 0;   pins[2] = 100;
+		break;
+	case 'c' :
+		pins[0] = 0;   pins[1] = 70;  pins[2] = 100;
+		break;
+	case 'w' :
+		pins[0] = 60;  pins[1] = 100; pins[2] = 100;
+		break;
+	default :
+		free(pins);
+		pins = NULL;
 	}
 	return pins;
 }
@@ -33,7 +46,7 @@ int* get_pins(char color) {
 int off(int index) {
 	int i;
 	if (index < 0 || index >= NUMBER_OF_LEDS)
-		return 1;
+		return INDEX_EXC;
 	for (i = 0; i < 3; ++i) {
 		pinMode(PINS[index][i], OUTPUT);
 		digitalWrite(PINS[index][i], 0);
@@ -43,14 +56,15 @@ int off(int index) {
 
 
 int on(int index, char color) {
-	int i, * pins;
+	int * pins;
 	
 	if (index < 0 || index >= NUMBER_OF_LEDS)
-		return 1;
-	if (pins[0] == 0 && pins[1] == 0 && pins[2] == 0)
-		return 2;
-	off(index);
+		return INDEX_EXC;
+	
 	pins = get_pins(color);
+	if (pins == NULL)
+		return COLOR_EXC;
+	off(index);
 	
 	if (pins[0] != 0) {
 		if (pins[0] == 100 || index == 1) {
