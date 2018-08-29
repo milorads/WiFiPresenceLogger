@@ -25,13 +25,16 @@ DROP TABLE IF EXISTS `log`;
 CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
+  `sector_id` int(10) DEFAULT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
   KEY `log_student_idx` (`user_id`),
+  KEY `log_sector_idx` (`sector_id`),
+  CONSTRAINT `log_sector` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`sector_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +43,6 @@ CREATE TABLE `log` (
 
 LOCK TABLES `log` WRITE;
 /*!40000 ALTER TABLE `log` DISABLE KEYS */;
-INSERT INTO `log` VALUES (2,2,'2018-08-29 14:22:02.00','2018-08-29 14:22:13.00');
 /*!40000 ALTER TABLE `log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -56,11 +58,15 @@ CREATE TABLE `logger` (
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_tick` datetime DEFAULT NULL,
+  `sector_id` int(10) DEFAULT NULL,
   PRIMARY KEY (`logger_id`),
   UNIQUE KEY `mac_UNIQUE` (`mac`),
   UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
-  UNIQUE KEY `ip_UNIQUE` (`ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
+  UNIQUE KEY `ip_UNIQUE` (`ip`),
+  UNIQUE KEY `sector_id_UNIQUE` (`sector_id`),
+  KEY `logger_sector_idx` (`sector_id`),
+  CONSTRAINT `logger_sector` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`sector_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +75,6 @@ CREATE TABLE `logger` (
 
 LOCK TABLES `logger` WRITE;
 /*!40000 ALTER TABLE `logger` DISABLE KEYS */;
-INSERT INTO `logger` VALUES (2,'123',NULL,'2018-08-29 14:21:33');
 /*!40000 ALTER TABLE `logger` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -100,6 +105,31 @@ LOCK TABLES `proffessor` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sector`
+--
+
+DROP TABLE IF EXISTS `sector`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sector` (
+  `sector_id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`sector_id`),
+  UNIQUE KEY `sector_id_UNIQUE` (`sector_id`),
+  UNIQUE KEY `name_UNIQUE` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sector`
+--
+
+LOCK TABLES `sector` WRITE;
+/*!40000 ALTER TABLE `sector` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sector` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `student`
 --
 
@@ -122,7 +152,6 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (2,'20150210');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -141,7 +170,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `mac_UNIQUE` (`mac`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A user registered on the system.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A user registered on the system.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,7 +179,6 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,'Aleksa','Brkic','omg');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -197,9 +225,21 @@ BEGIN
 	DECLARE `threshold` DATETIME(2);
     SET `threshold` = SUBTIME(NOW(), "0:01:00.00");
     
-	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP'
+	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', s.`name` AS 'Sector'
+		FROM `logger` l, `sector` s
+        WHERE (
+			l.`last_tick` < `threshold`
+            OR l.`last_tick` IS NULL
+		)
+        AND l.`sector_id` = s.`sector_id`
+	UNION
+    SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', 'Unknown' AS 'Sector'
 		FROM `logger` l
-        WHERE l.`last_tick` < `threshold`
+        WHERE (
+			l.`last_tick` < `threshold`
+            OR l.`last_tick` IS NULL
+		)
+        AND l.`sector_id` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -244,12 +284,40 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProffessor`(
 	IN `identification_number_arg` varchar(45)
 )
 BEGIN
-	DELETE FROM `wifi_presence_logger`.`user`
+	DELETE FROM `user`
 		WHERE `user`.`user_id` = (
 			SELECT p.`user_id`
 				FROM `proffessor` p
                 WHERE p.`identification_number` = `identification_number_arg`
 		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `deleteSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSector`(
+	IN `name_arg` varchar(45)
+)
+BEGIN
+	DELETE FROM `sector`
+		WHERE `sector`.`name` = `name_arg`
+	;
+    
+    SELECT l.`mac` AS 'Free-hanging loggers'
+		FROM `logger` l
+        WHERE l.`sector_id` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -295,12 +363,13 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `endLog`(
+	IN `logger_mac_arg` varchar(45),
 	IN `mac_arg` varchar(45),
     IN `end_time_arg` datetime(2)
 )
 BEGIN
 	DECLARE `user_id_arg` INT(10) DEFAULT 0;
-    DECLARE `start_time_arg` DATETIME(2);
+    DECLARE `start_time_arg` DATETIME(2) DEFAULT NOW();
     
     SELECT u.`user_id` INTO `user_id_arg`
 		FROM `user` u, `student` s
@@ -316,6 +385,11 @@ BEGIN
 	UPDATE `log`
 		SET `log`.`end_time` = `end_time_arg`
 		WHERE `log`.`user_id` = `user_id_arg`
+        AND `log`.`sector_id` = (
+			SELECT l.`sector_id`
+				FROM `logger` l
+				WHERE l.`mac` = `logger_mac_arg`
+		)
 		AND `log`.`start_time` = `start_time_arg`
 	;
 END ;;
@@ -342,6 +416,46 @@ BEGIN
 	UPDATE `logger`
 		SET `logger`.`ip` = `ip_arg`
         WHERE `logger`.`mac` = `mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertLog` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
+	IN `logger_mac_arg` varchar(45),
+	IN `mac_arg` varchar(45),
+	IN `start_time_arg` varchar(45),
+    IN `end_time_arg` varchar(45)
+)
+BEGIN
+	INSERT INTO `log`
+		(`log_id`, `user_id`, `sector_id`, `start_time`, `end_time`)
+        VALUES (
+			NULL,
+            (
+				SELECT u.`user_id`
+					FROM `user` u
+                    WHERE u.`mac` = `mac_arg`
+			), (
+				SELECT l.`sector_id`
+					FROM `logger` l
+                    WHERE l.`mac` = `logger_mac_arg`
+			),
+            `start_time_arg`,
+            `end_time_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -405,6 +519,30 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSector`(
+	IN `name_arg` varchar(45)
+)
+BEGIN
+	INSERT INTO `sector`
+		(`sector_id`, `name`)
+        VALUES (NULL, `name_arg`)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `insertStudent` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -437,6 +575,59 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `putLoggerIntoSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `putLoggerIntoSector`(
+	IN `sector_name_arg` varchar(45),
+    IN `logger_mac_arg` varchar(45)
+)
+BEGIN
+	UPDATE `logger`
+		SET `logger`.`sector_id` = (
+			SELECT s.`sector_id`
+				FROM `sector` s
+                WHERE s.`name` = `sector_name_arg`
+		)
+        WHERE `logger`.`mac` = `logger_mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `removeLoggerFromSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `removeLoggerFromSector`(
+	IN `mac_arg` varchar(45)
+)
+BEGIN
+	UPDATE `logger`
+		SET `logger`.`sector_id` = NULL
+        WHERE `logger`.`mac` = `mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `startLog` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -448,12 +639,13 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `startLog`(
+	IN `logger_mac_arg` varchar(45),
 	IN `mac_arg` varchar(45),
     IN `start_time_arg` datetime(2)
 )
 BEGIN
 	INSERT INTO `log`
-		(`log_id`, `user_id`, `start_time`)
+		(`log_id`, `user_id`, `sector_id`, `start_time`)
 		VALUES (
 			NULL,
 			(
@@ -461,6 +653,10 @@ BEGIN
 					FROM `user` u, `student` s
 					WHERE u.`user_id` = s.`user_id`
 					AND u.`mac` = `mac_arg`
+			), (
+				SELECT l.`sector_id`
+					FROM `logger` l
+                    WHERE l.`mac` = `logger_mac_arg`
 			),
 			`start_time_arg`
 		);
@@ -528,4 +724,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-29 14:28:27
+-- Dump completed on 2018-08-29 15:49:04
