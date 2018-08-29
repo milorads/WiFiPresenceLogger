@@ -23,14 +23,14 @@ DROP TABLE IF EXISTS `log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `id_student` int(10) unsigned NOT NULL,
+  `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
   `start_time` datetime(2) NOT NULL,
-  `end_time` datetime(2) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `id_student_UNIQUE` (`id_student`),
-  CONSTRAINT `student_log` FOREIGN KEY (`id_student`) REFERENCES `student` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `end_time` datetime(2) DEFAULT NULL,
+  PRIMARY KEY (`log_id`),
+  UNIQUE KEY `log_id_UNIQUE` (`log_id`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -51,12 +51,12 @@ DROP TABLE IF EXISTS `logger`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `logger` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `logger_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
+  PRIMARY KEY (`logger_id`),
   UNIQUE KEY `mac_UNIQUE` (`mac`),
+  UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
   UNIQUE KEY `ip_UNIQUE` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -78,12 +78,12 @@ DROP TABLE IF EXISTS `proffessor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `proffessor` (
-  `id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `identification_number` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`user_id`),
   UNIQUE KEY `identification_number_UNIQUE` (`identification_number`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  CONSTRAINT `user_proffessor` FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `user_proffessor` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -104,11 +104,12 @@ DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `student` (
-  `id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `index` varchar(45) CHARACTER SET latin1 NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `index_UNIQUE` (`index`)
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `index_UNIQUE` (`index`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `student_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -129,11 +130,13 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `surname` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+  `mac_address` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  UNIQUE KEY `mac_address_UNIQUE` (`mac_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A user registered on the system.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -155,4 +158,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-27 15:26:06
+-- Dump completed on 2018-08-29  9:37:57
