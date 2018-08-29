@@ -29,8 +29,8 @@ CREATE TABLE `log` (
   `end_time` datetime(2) DEFAULT NULL,
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
-  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
-  CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `log_student_idx` (`user_id`),
+  CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -109,7 +109,7 @@ CREATE TABLE `student` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `index_UNIQUE` (`index`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
-  CONSTRAINT `student_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `student_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -158,4 +158,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-29  9:37:57
+-- Dump completed on 2018-08-29 10:41:21
