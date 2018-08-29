@@ -31,7 +31,7 @@ CREATE TABLE `log` (
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
   KEY `log_student_idx` (`user_id`),
   CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,6 +40,7 @@ CREATE TABLE `log` (
 
 LOCK TABLES `log` WRITE;
 /*!40000 ALTER TABLE `log` DISABLE KEYS */;
+INSERT INTO `log` VALUES (2,2,'2018-08-29 14:22:02.00','2018-08-29 14:22:13.00');
 /*!40000 ALTER TABLE `log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,7 +60,7 @@ CREATE TABLE `logger` (
   UNIQUE KEY `mac_UNIQUE` (`mac`),
   UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
   UNIQUE KEY `ip_UNIQUE` (`ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,6 +69,7 @@ CREATE TABLE `logger` (
 
 LOCK TABLES `logger` WRITE;
 /*!40000 ALTER TABLE `logger` DISABLE KEYS */;
+INSERT INTO `logger` VALUES (2,'123',NULL,'2018-08-29 14:21:33');
 /*!40000 ALTER TABLE `logger` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,6 +122,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
+INSERT INTO `student` VALUES (2,'20150210');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -137,8 +140,8 @@ CREATE TABLE `user` (
   `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
-  UNIQUE KEY `mac_address_UNIQUE` (`mac`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A user registered on the system.';
+  UNIQUE KEY `mac_UNIQUE` (`mac`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A user registered on the system.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,6 +150,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (2,'Aleksa','Brkic','omg');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,8 +168,8 @@ UNLOCK TABLES;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeMac`(
-	IN user_id_arg INT(10),
-	IN mac_arg varchar(45)
+	IN `user_id_arg` INT(10),
+	IN `mac_arg` varchar(45)
 )
 BEGIN
 	UPDATE `user`
@@ -190,9 +194,12 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkLoggerTicks`()
 BEGIN
+	DECLARE `threshold` DATETIME(2);
+    SET `threshold` = SUBTIME(NOW(), "0:01:00.00");
+    
 	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP'
 		FROM `logger` l
-        WHERE l.`last_tick` < SUBTIME(NOW(), "0:01:00.00")
+        WHERE l.`last_tick` < `threshold`
 	;
 END ;;
 DELIMITER ;
@@ -211,7 +218,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogger`(
-	IN mac_arg varchar(45)
+	IN `mac_arg` varchar(45)
 )
 BEGIN
 	DELETE FROM `logger`
@@ -234,7 +241,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProffessor`(
-	IN identification_number_arg varchar(45)
+	IN `identification_number_arg` varchar(45)
 )
 BEGIN
 	DELETE FROM `wifi_presence_logger`.`user`
@@ -261,7 +268,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteStudent`(
-	IN index_arg varchar(45)
+	IN `index_arg` varchar(45)
 )
 BEGIN
 	DELETE FROM `user`
@@ -288,18 +295,18 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `endLog`(
-	IN mac_arg varchar(45),
-    IN end_time_arg datetime(2)
+	IN `mac_arg` varchar(45),
+    IN `end_time_arg` datetime(2)
 )
 BEGIN
-	DECLARE user_id_arg INT(10) DEFAULT 0;
-    DECLARE start_time_arg DATETIME(2);
+	DECLARE `user_id_arg` INT(10) DEFAULT 0;
+    DECLARE `start_time_arg` DATETIME(2);
     
     SELECT u.`user_id` INTO `user_id_arg`
 		FROM `user` u, `student` s
 		WHERE u.`user_id` = s.`user_id`
-        AND u.`mac` = `mac_arg`
-	;
+		AND u.`mac` = `mac_arg`
+    ;
     
     SELECT MAX(l.`start_time`) INTO `start_time_arg`
 		FROM `log` l
@@ -310,6 +317,31 @@ BEGIN
 		SET `log`.`end_time` = `end_time_arg`
 		WHERE `log`.`user_id` = `user_id_arg`
 		AND `log`.`start_time` = `start_time_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `giveIpAddress` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `giveIpAddress`(
+	IN `mac_arg` varchar(45),
+    IN `ip_arg` varchar(45)
+)
+BEGIN
+	UPDATE `logger`
+		SET `logger`.`ip` = `ip_arg`
+        WHERE `logger`.`mac` = `mac_arg`
 	;
 END ;;
 DELIMITER ;
@@ -328,7 +360,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLogger`(
-	IN mac_arg varchar(45)
+	IN `mac_arg` varchar(45)
 )
 BEGIN
 	INSERT INTO `logger`
@@ -352,10 +384,10 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
-	IN name_arg varchar(45),
-    IN surname_arg varchar(45),
-    IN identification_number_arg varchar(45),
-    IN mac_arg varchar(45)
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `identification_number_arg` varchar(45),
+    IN `mac_arg` varchar(45)
 )
 BEGIN
 	INSERT INTO `user`
@@ -384,10 +416,10 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
-	IN name_arg varchar(45),
-    IN surname_arg varchar(45),
-    IN index_arg varchar(45),
-    IN mac_arg varchar(45)
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `index_arg` varchar(45),
+    IN `mac_arg` varchar(45)
 )
 BEGIN
 	INSERT INTO `user`
@@ -416,8 +448,8 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `startLog`(
-	IN mac_arg varchar(45),
-    IN start_time_arg datetime(2)
+	IN `mac_arg` varchar(45),
+    IN `start_time_arg` datetime(2)
 )
 BEGIN
 	INSERT INTO `log`
@@ -438,6 +470,30 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `takeIpAddress` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `takeIpAddress`(
+	IN `mac_arg` varchar(45)
+)
+BEGIN
+	UPDATE `logger`
+		SET `logger`.`ip` = NULL
+        WHERE `logger`.`mac` = `mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `tickLogger` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -449,7 +505,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `tickLogger`(
-	IN mac_arg varchar(45)
+	IN `mac_arg` varchar(45)
 )
 BEGIN
 	UPDATE `logger`
@@ -472,4 +528,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-29 13:33:11
+-- Dump completed on 2018-08-29 14:28:27
