@@ -226,20 +226,10 @@ BEGIN
     SET `threshold` = SUBTIME(NOW(), "0:01:00.00");
     
 	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', s.`name` AS 'Sector'
-		FROM `logger` l, `sector` s
-        WHERE (
-			l.`last_tick` < `threshold`
-            OR l.`last_tick` IS NULL
-		)
-        AND l.`sector_id` = s.`sector_id`
-	UNION
-    SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', 'Unknown' AS 'Sector'
 		FROM `logger` l
-        WHERE (
-			l.`last_tick` < `threshold`
-            OR l.`last_tick` IS NULL
-		)
-        AND l.`sector_id` IS NULL
+        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+        WHERE l.`last_tick` < `threshold`
+		OR l.`last_tick` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -261,9 +251,43 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogger`(
 	IN `mac_arg` varchar(45)
 )
 BEGIN
+	DECLARE `old_sector_id` INT(10) DEFAULT 0;
+    SELECT l.`sector_id` INTO `old_sector_id`
+		FROM `logger` l
+        WHERE l.`mac` = `mac_arg`
+	;
+	
 	DELETE FROM `logger`
 		WHERE `logger`.`mac` = `mac_arg`
 	;
+    
+    SELECT s.`name` AS 'Sector name',
+		COUNT(l.`logger_id`) AS 'No. of remaining loggers'
+		FROM `sector` s
+        LEFT JOIN `logger` l
+			ON s.`sector_id` = l.`sector_id`
+		WHERE s.`sector_id` = `old_sector_id`
+        GROUP BY s.`name`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `deleteLogs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogs`()
+BEGIN
+	DELETE FROM `log`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -288,7 +312,8 @@ BEGIN
 		WHERE `user`.`user_id` = (
 			SELECT p.`user_id`
 				FROM `proffessor` p
-                WHERE p.`identification_number` = `identification_number_arg`
+                WHERE p.`identification_number`
+					= `identification_number_arg`
 		)
 	;
 END ;;
@@ -315,7 +340,7 @@ BEGIN
 		WHERE `sector`.`name` = `name_arg`
 	;
     
-    SELECT l.`mac` AS 'Free-hanging loggers'
+    SELECT l.`mac` AS 'Free loggers'
 		FROM `logger` l
         WHERE l.`sector_id` IS NULL
 	;
@@ -352,6 +377,29 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `deleteUser` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUser`(in
+	`mac_arg` varchar(45)
+)
+BEGIN
+	DELETE FROM `user`
+		WHERE `user`.`mac` = `mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `endLog` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -369,28 +417,215 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `endLog`(
 )
 BEGIN
 	DECLARE `user_id_arg` INT(10) DEFAULT 0;
+    DECLARE `sector_id_arg` INT(10) DEFAULT 0;
     DECLARE `start_time_arg` DATETIME(2) DEFAULT NOW();
     
     SELECT u.`user_id` INTO `user_id_arg`
-		FROM `user` u, `student` s
-		WHERE u.`user_id` = s.`user_id`
-		AND u.`mac` = `mac_arg`
+		FROM `user` u
+        INNER JOIN `student` s ON u.`user_id` = s.`user_id`
+		WHERE u.`mac` = `mac_arg`
     ;
     
-    SELECT MAX(l.`start_time`) INTO `start_time_arg`
+    SELECT l.`sector_id` INTO `sector_id_arg`
+		FROM `logger` l
+        WHERE l.`mac` = `logger_mac_arg`
+	;
+    
+    SELECT MIN(l.`start_time`) INTO `start_time_arg`
 		FROM `log` l
-        WHERE l.`user_id` = `user_id_arg`
+        WHERE l.`sector_id` = `sector_id_arg`
+        AND l.`user_id` = `user_id_arg`
+        AND l.`end_time` IS NULL
 	;
 	
 	UPDATE `log`
 		SET `log`.`end_time` = `end_time_arg`
 		WHERE `log`.`user_id` = `user_id_arg`
-        AND `log`.`sector_id` = (
-			SELECT l.`sector_id`
-				FROM `logger` l
-				WHERE l.`mac` = `logger_mac_arg`
-		)
+        AND `log`.`sector_id` = `sector_id_arg`
+        AND `log`.`end_time` IS NULL
 		AND `log`.`start_time` = `start_time_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getFreeLoggers` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getFreeLoggers`()
+BEGIN
+	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP'
+		FROM `logger` l
+        WHERE l.`sector_id` IS NULL
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getLoggers` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLoggers`()
+BEGIN
+	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', s.`name` AS 'Sector'
+		FROM `logger` l
+        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getLoggersForSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLoggersForSector`(
+	IN `name_arg` varchar(45)
+)
+BEGIN
+	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP'
+		FROM `logger` l
+        INNER JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+        WHERE s.`name` = `name_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getLogs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs`()
+BEGIN
+	SELECT
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
+        st.`index` AS 'Index',
+        s.`name` AS 'Sector',
+        l.`start_time` AS 'Entry time',
+        l.`end_time` AS 'Leaving time'
+        FROM `log` l
+        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+	;
+        
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getLogsForSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogsForSector`(
+	IN `name_arg` varchar(45)
+)
+BEGIN
+	SELECT
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
+        st.`index` AS 'Index',
+        l.`start_time` AS 'Entry time',
+        l.`end_time` AS 'Leaving time'
+        FROM `sector` s
+        INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
+        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        WHERE s.`name` = `name_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getProffessors` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getProffessors`()
+BEGIN
+	SELECT
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
+        p.`identification_number` AS 'ID'
+        FROM `user` u
+        INNER JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getStudents` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getStudents`()
+BEGIN
+	SELECT
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
+        s.`index` AS 'index'
+        FROM `user` u
+        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
 	;
 END ;;
 DELIMITER ;
@@ -440,23 +675,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
     IN `end_time_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `log`
-		(`log_id`, `user_id`, `sector_id`, `start_time`, `end_time`)
-        VALUES (
-			NULL,
-            (
-				SELECT u.`user_id`
-					FROM `user` u
-                    WHERE u.`mac` = `mac_arg`
-			), (
-				SELECT l.`sector_id`
-					FROM `logger` l
-                    WHERE l.`mac` = `logger_mac_arg`
-			),
-            `start_time_arg`,
-            `end_time_arg`
-		)
-	;
+	DECLARE `user_id_arg` INT(10) DEFAULT 0;
+    SELECT u.`user_id`
+		FROM `user` u
+		INNER JOIN `student` s ON s.`user_id` = u.`user_id`
+		WHERE u.`mac` = `mac_arg`
+    ;
+    
+    IF `user_id_arg` IS NOT NULL THEN
+		INSERT INTO `log` (`log_id`, `user_id`, `sector_id`,
+			`start_time`, `end_time`)
+			VALUES (
+				NULL,
+				`user_id_arg`,
+                (
+					SELECT l.`sector_id`
+						FROM `logger` l
+						WHERE l.`mac` = `logger_mac_arg`
+				),
+				`start_time_arg`,
+				`end_time_arg`
+			)
+		;
+	END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -586,17 +827,17 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `putLoggerIntoSector`(
-	IN `sector_name_arg` varchar(45),
-    IN `logger_mac_arg` varchar(45)
+	IN `mac_arg` varchar(45),
+    IN `name_arg` varchar(45)
 )
 BEGIN
 	UPDATE `logger`
 		SET `logger`.`sector_id` = (
 			SELECT s.`sector_id`
 				FROM `sector` s
-                WHERE s.`name` = `sector_name_arg`
+                WHERE s.`name` = `name_arg`
 		)
-        WHERE `logger`.`mac` = `logger_mac_arg`
+        WHERE `logger`.`mac` = `mac_arg`
 	;
 END ;;
 DELIMITER ;
@@ -618,9 +859,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `removeLoggerFromSector`(
 	IN `mac_arg` varchar(45)
 )
 BEGIN
+	DECLARE `old_sector_id` INT(10) DEFAULT 0;
+    SELECT l.`sector_id` INTO `old_sector_id`
+		FROM `logger` l
+        WHERE l.`mac` = `mac_arg`
+	;
+	
 	UPDATE `logger`
 		SET `logger`.`sector_id` = NULL
         WHERE `logger`.`mac` = `mac_arg`
+	;
+    
+    SELECT s.`name` AS 'Sector name',
+		COUNT(l.`logger_id`) AS 'No. of remaining loggers'
+		FROM `sector` s
+        LEFT JOIN `logger` l
+			ON s.`sector_id` = l.`sector_id`
+		WHERE s.`sector_id` = `old_sector_id`
+        GROUP BY s.`name`
 	;
 END ;;
 DELIMITER ;
@@ -644,22 +900,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `startLog`(
     IN `start_time_arg` datetime(2)
 )
 BEGIN
-	INSERT INTO `log`
-		(`log_id`, `user_id`, `sector_id`, `start_time`)
-		VALUES (
-			NULL,
-			(
-				SELECT u.`user_id`
-					FROM `user` u, `student` s
-					WHERE u.`user_id` = s.`user_id`
-					AND u.`mac` = `mac_arg`
-			), (
-				SELECT l.`sector_id`
-					FROM `logger` l
-                    WHERE l.`mac` = `logger_mac_arg`
-			),
-			`start_time_arg`
-		);
+	DECLARE `user_id_arg` INT(10) DEFAULT 0;
+    SELECT u.`user_id` INTO `user_id_arg`
+		FROM `user` u
+        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
+		WHERE u.`mac` = `mac_arg`
+	;
+    
+	IF `user_id_arg` IS NOT NULL THEN
+		INSERT INTO `log`
+			(`log_id`, `user_id`, `sector_id`, `start_time`)
+			VALUES (
+				NULL,
+				`user_id_arg`,
+				(
+					SELECT l.`sector_id`
+						FROM `logger` l
+						WHERE l.`mac` = `logger_mac_arg`
+				),
+				`start_time_arg`
+			)
+		;
+	END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -724,4 +986,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-29 15:49:04
+-- Dump completed on 2018-08-30 12:02:55
