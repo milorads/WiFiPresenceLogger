@@ -30,10 +30,10 @@ CREATE TABLE `log` (
   `end_time` datetime(2) DEFAULT NULL,
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
-  KEY `log_student_idx` (`user_id`),
   KEY `log_sector_idx` (`sector_id`),
+  KEY `log_user_idx` (`user_id`),
   CONSTRAINT `log_sector` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`sector_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `log_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `log_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -63,7 +63,6 @@ CREATE TABLE `logger` (
   UNIQUE KEY `mac_UNIQUE` (`mac`),
   UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
   UNIQUE KEY `ip_UNIQUE` (`ip`),
-  UNIQUE KEY `sector_id_UNIQUE` (`sector_id`),
   KEY `logger_sector_idx` (`sector_id`),
   CONSTRAINT `logger_sector` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`sector_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Device which logs the presence of students. All these devices should be connected to the server. Server has a table of all devices which are configured to this exact server.';
@@ -222,7 +221,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkLoggerTicks`()
 BEGIN
-	DECLARE `threshold` DATETIME(2);
+	DECLARE `threshold` DATETIME(2) DEFAULT NULL;
     SET `threshold` = SUBTIME(NOW(), "0:01:00.00");
     
 	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', s.`name` AS 'Sector'
@@ -400,57 +399,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `endLog` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `endLog`(
-	IN `logger_mac_arg` varchar(45),
-	IN `mac_arg` varchar(45),
-    IN `end_time_arg` datetime(2)
-)
-BEGIN
-	DECLARE `user_id_arg` INT(10) DEFAULT 0;
-    DECLARE `sector_id_arg` INT(10) DEFAULT 0;
-    DECLARE `start_time_arg` DATETIME(2) DEFAULT NOW();
-    
-    SELECT u.`user_id` INTO `user_id_arg`
-		FROM `user` u
-        INNER JOIN `student` s ON u.`user_id` = s.`user_id`
-		WHERE u.`mac` = `mac_arg`
-    ;
-    
-    SELECT l.`sector_id` INTO `sector_id_arg`
-		FROM `logger` l
-        WHERE l.`mac` = `logger_mac_arg`
-	;
-    
-    SELECT MIN(l.`start_time`) INTO `start_time_arg`
-		FROM `log` l
-        WHERE l.`sector_id` = `sector_id_arg`
-        AND l.`user_id` = `user_id_arg`
-        AND l.`end_time` IS NULL
-	;
-	
-	UPDATE `log`
-		SET `log`.`end_time` = `end_time_arg`
-		WHERE `log`.`user_id` = `user_id_arg`
-        AND `log`.`sector_id` = `sector_id_arg`
-        AND `log`.`end_time` IS NULL
-		AND `log`.`start_time` = `start_time_arg`
-	;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `getFreeLoggers` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -533,18 +481,27 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs`()
 BEGIN
 	SELECT
+		CASE WHEN st.`index` IS NULL
+			THEN 'Prof'
+            ELSE 'Student'
+		END
+			AS 'Type',
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        st.`index` AS 'Index',
+        CASE WHEN st.`index` IS NULL
+			THEN p.`identification_number`
+			ELSE st.`index`
+		END
+			AS 'ID',
         s.`name` AS 'Sector',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
-        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
-        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `student` st ON st.`user_id` = u.`user_id`
+        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
         LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
 	;
-        
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -566,15 +523,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogsForSector`(
 )
 BEGIN
 	SELECT
+		CASE WHEN st.`index` IS NULL
+			THEN 'Prof'
+            ELSE 'Student'
+		END
+			AS 'Type',
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        st.`index` AS 'Index',
+        CASE WHEN st.`index` IS NULL
+			THEN p.`identification_number`
+            ELSE st.`index`
+		END
+			AS 'ID',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `sector` s
         INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
-        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
-        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `student` st ON st.`user_id` = u.`user_id`
+        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
         WHERE s.`name` = `name_arg`
 	;
 END ;;
@@ -601,6 +568,68 @@ BEGIN
         p.`identification_number` AS 'ID'
         FROM `user` u
         INNER JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getStudentLogs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getStudentLogs`()
+BEGIN
+	SELECT
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
+        st.`index` AS 'ID',
+        s.`name` AS 'Sector',
+        l.`start_time` AS 'Entry time',
+        l.`end_time` AS 'Leaving time'
+        FROM `log` l
+        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getStudentLogsForSector` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getStudentLogsForSector`(
+	IN `name_arg` varchar(45)
+)
+BEGIN
+	SELECT
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
+        st.`index` AS 'ID',
+        l.`start_time` AS 'Entry time',
+        l.`end_time` AS 'Leaving time'
+        FROM `sector` s
+        INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
+        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        WHERE s.`name` = `name_arg`
 	;
 END ;;
 DELIMITER ;
@@ -675,29 +704,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
     IN `end_time_arg` varchar(45)
 )
 BEGIN
-	DECLARE `user_id_arg` INT(10) DEFAULT 0;
-    SELECT u.`user_id`
-		FROM `user` u
-		INNER JOIN `student` s ON s.`user_id` = u.`user_id`
-		WHERE u.`mac` = `mac_arg`
-    ;
-    
-    IF `user_id_arg` IS NOT NULL THEN
-		INSERT INTO `log` (`log_id`, `user_id`, `sector_id`,
-			`start_time`, `end_time`)
-			VALUES (
-				NULL,
-				`user_id_arg`,
-                (
-					SELECT l.`sector_id`
-						FROM `logger` l
-						WHERE l.`mac` = `logger_mac_arg`
-				),
-				`start_time_arg`,
-				`end_time_arg`
-			)
-		;
-	END IF;
+	INSERT INTO `log` (`log_id`, `user_id`, `sector_id`,
+		`start_time`, `end_time`)
+		VALUES (
+			NULL,
+			(
+				SELECT u.`user_id`
+					FROM `user` u
+					WHERE u.`mac` = `mac_arg`
+            ), (
+				SELECT l.`sector_id`
+					FROM `logger` l
+					WHERE l.`mac` = `logger_mac_arg`
+			),
+			`start_time_arg`,
+			`end_time_arg`
+		)
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -884,50 +907,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `startLog` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `startLog`(
-	IN `logger_mac_arg` varchar(45),
-	IN `mac_arg` varchar(45),
-    IN `start_time_arg` datetime(2)
-)
-BEGIN
-	DECLARE `user_id_arg` INT(10) DEFAULT 0;
-    SELECT u.`user_id` INTO `user_id_arg`
-		FROM `user` u
-        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
-		WHERE u.`mac` = `mac_arg`
-	;
-    
-	IF `user_id_arg` IS NOT NULL THEN
-		INSERT INTO `log`
-			(`log_id`, `user_id`, `sector_id`, `start_time`)
-			VALUES (
-				NULL,
-				`user_id_arg`,
-				(
-					SELECT l.`sector_id`
-						FROM `logger` l
-						WHERE l.`mac` = `logger_mac_arg`
-				),
-				`start_time_arg`
-			)
-		;
-	END IF;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `takeIpAddress` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -986,4 +965,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-30 12:02:55
+-- Dump completed on 2018-08-30 15:32:00
