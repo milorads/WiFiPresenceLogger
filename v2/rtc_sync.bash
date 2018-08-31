@@ -1,5 +1,7 @@
 #!/bin/bash
-
+#stara skripta za setovanje vremena, ako ima konekcije, setuje RTC sa Sistemskog vremena, pod pretpostavkom da je ono apdejtovano sa NTP servera,
+# u suprotnom, setuje Sys vreme sa RTC-a
+#Zamenjena sa sys_time.bash skriptom
 msgNoConnection="No connection to NTP time-server"
 msgConnection="Connection to NTP time-server"
 

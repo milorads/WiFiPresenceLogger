@@ -3,6 +3,9 @@ import re
 import sqlite3
 import os
 from datetime import datetime
+#Skripta koja se periodicno izvrsava na odredjeni vremenski period  unutar run.py skripte
+#Evidentira kada su klijenti pristupili mrezi, kada su izasli iz mreze
+#Evidencija se vrsi bez obzira da li je klijet registrovan na mrezu
 
 # Logging class
 class LoggerLevel:
@@ -55,7 +58,8 @@ def log(severity, message, exception = None):
         if exception is not None:
             print exception.message
 
-#method for calling a shell command
+#metoda za izvrsenje zadate shell komande. Prima kao argument string koji predstavlja
+#komandu, vraca rezultat te komande ili "null" u slucaju greske
 def subprocess_cmd(command):
 	log(2, "Running subprocess command -> "+str(command))
 	try:
@@ -65,7 +69,16 @@ def subprocess_cmd(command):
 	except Exception:
 		return "null"
 
+#metoda check_base - utvrdjuje koji su novi klijenti, kojih nije bilo u prethodnoj iteraciji
+# i kojih vise nema. Nove upisuje u bazu, dok starima upisuje vreme izlaska u kolonu Izlaz
+#ulazni argumenti: mac_arp_pair - kolekcija Mac adresa klijenata koji su povezani na uredjaj
+#Napomena: vise se ne proverava preko arp tabele vec preko wlan0 komande za izlistavanje poveyanih klijenata
 
+#database_records - kolekcija klijenata koji su upisani u bazu da su usli, a nisu izasli
+#mac_arp_pair - kolekcija Mac adresa klijenata koji su povezani na uredjaj, dakle koji su trenutno povezani
+#presek dve kolekcije su klijenti koji nisu jos uvek izasli iz mreze
+#klijeti koji su u bazi, a nisu u mac_arp_pair su izasli
+#kljenti koji su u mac_arp_pair a nisu u bazi su novi koje treba upisati
 def check_base(mac_arp_pair, table_name):
     log(2, "Check base function")
     log(1, "Connecting to base")
@@ -112,7 +125,11 @@ def check_base(mac_arp_pair, table_name):
     log(1, "Closing database connection")
     log(2, "Finished check base function")
 
-
+#funkcija za dodavanje novog rekorda u LogBase.db
+#ova funkcija ne popunjava ceo rekord, vec samo za one klijente 
+#koji su usli u tekucoj iteraciji skripte, dakle, ne upisuje se kolona Izlaz
+#ulazni argumenti su mac_arp_pair - kolekcija ArpModel instanci
+#ime tabele gde se upisuju rekordi
 def add_to_base(mac_arp_pair, table_name):
     log(2, "Add to base function")
     log(1, "Connecting to base")
@@ -138,15 +155,11 @@ def add_to_base(mac_arp_pair, table_name):
 
 try:
     try:
-        ##log(2, "Calling arp -a command")
-        ##arp_call = subprocess_cmd("arp -a")
-		##log(1, str(arp_call))
+		#poziv komande koja izlistava Mac adrese svih klijenata
 		log(2,"Calling iw dev wlan0 station dump | grep wlan0")
 		stat_call = subprocess_cmd('iw dev wlan0 station dump | grep "wlan0"')
 		log(1,str(stat_call))
     except Exception, e:
-        ##log(3, "Error in arp table fetching")
-        ##raise PresenceCheckerException("Error in arp table fetching", e)
 		log(3,"Error in station dump fetching")
 		raise PresenceCheckerException("Error in arp table fetching",e)
 	##regular_expression = r'(?P<host>([^\s]+))[\s][(](?P<ip>\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b)[)][\s][aA][tT][\s](?P<mac>((\d|([a-f]|[A-F])){2}:){5}(\d|([a-f]|[A-F])){2})(([\s][\[][eE][tT][hH][eE][rR][\]][\s][oO][nN][\s])|([\s][oO][nN][\s]))(?P<iface>.*)'
@@ -162,6 +175,12 @@ try:
          ##       continue
          ##   pairOfMacArpModel[re_found_object["mac"]] = ArpModel(re_found_object["ip"], re_found_object["mac"],re_found_object["host"])
         ##log(2, "Successfully finished regex parsing to objects")
+		
+		#rezultat komande je string sa mac adresama odvojenim '\n', pa se parsira
+		#svaka se upisuje u ArpModel instancu
+		#Napomena: u ArpModel se upisuje Mac i Ip adresa 1.1.1.1, jer u prethodnoj verziji skripte,
+		#izlistavanje je islo preko ARP tabele, koja je davala podatke i o Ip adresi, sada se prilikom regitrovanja klijenata
+		#povezuje Ip i Mac ARP tabelom.
 		if(stat_call != "null"):
 			deviceRows = stat_call.split('\n')
 			del deviceRows[-1]
@@ -173,6 +192,7 @@ try:
         log(3, "Error in RegEx matching")
         raise PresenceCheckerException("Error in RegEx matching", e)
     try:
+		#Kreiranje Imena tabele danasnjeg dana, ako ne postoji, kreira se
         log(2, "Looking for database tables")
         current_table_name = "T" + datetime.now().strftime('%d_%m_%y')
         main_connection = sqlite3.connect(os.path.dirname(os.path.realpath(__file__)) +"/LogBase.db")
@@ -198,6 +218,7 @@ try:
     else:
         log(2, "Table for today's log exists")
         try:
+			#izvrsava se provera prisutnosti klijenata u odnosu na prethodu instancu poziva skripte
             main_connection.close()
             check_base(pairOfMacArpModel, current_table_name)
         except Exception, e:

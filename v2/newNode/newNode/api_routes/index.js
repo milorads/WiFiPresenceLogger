@@ -1,4 +1,5 @@
 const express = require('express');
+//Definisanje instnce rutera metoda za api
 const api_router = express.Router();
 
 var rsa = require('node-rsa');
@@ -12,10 +13,13 @@ var sqlite3 = require('sqlite3').verbose();
 var LogBase = new sqlite3.Database('/home/admin/WiFiPresenceLogger/v2/LogBase.db');
 var RegBase = new sqlite3.Database('/home/admin/WiFiPresenceLogger/v2/RegBase.db');
 
+
+
 var table_sql = `CREATE TABLE IF NOT EXISTS regList(RegId integer PRIMARY KEY NOT NULL UNIQUE,Mac TEXT,Ime TEXT,Prezime TEXT,Id TEXT)`;
 var reg_sql = `SELECT * FROM regList WHERE Mac = ?`;
 var insert_sql = `INSERT INTO regList (Mac,Ime,Prezime,Id) VALUES(?,?,?,?)`;
 
+//Hardkodovan QR kod za Uredjaj
 var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
 
 Promise.prototype.respond = function(res) {
@@ -135,9 +139,14 @@ async function authenticateToken(token) {
 	}
 }
 
+
 async function apiTest(callback) {
 	callback(null, "1");
 }
+/* 
+	Post metoda apiTest - metoda za testiranje ispravne konekcije izmedju klijenta i servera
+	Vraca "1" ako je sve ispravno
+*/
 api_router.post('/apiTest', function(req, res) {
 	console.log('------------------------');
 	console.log('Request: API test');
@@ -192,7 +201,9 @@ async function getData(datum, callback) {
 		}
 	});
 }
-
+/* 
+	Post metoda getData - vraca podatke iz odgovarajuce tabele za zadati datum
+*/
 api_router.post('/getData', function(req, res) {
 	console.log('------------------------');
 	console.log('Request: get data');
@@ -264,7 +275,10 @@ async function getData1(datum, callback) {
 		}
 	});
 }
-
+/* 
+	Post metoda getData1 - vraca podatke iz odgovarajuce tabele za zadati datum
+	Sa drugacijem formatom
+*/
 api_router.post('/getData1', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: get data 1');
@@ -292,6 +306,7 @@ api_router.post('/getData1', (req, res) => {
 	})
 	.respond(res)
 })
+
 
 async function deleteData(dates, callback) {
 	/************************/
@@ -324,7 +339,10 @@ async function deleteData(dates, callback) {
 	}
 	callback(null);
 }
-
+/* 
+	Post metoda deleteData - brise tabele koje su zadateparametrom dates
+	prametar dates je string koji u sebi ima nazive tabela odvojene zarezom
+*/
 api_router.post('/deleteData', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: delete data');
@@ -352,6 +370,7 @@ api_router.post('/deleteData', (req, res) => {
 	.respond(res)
 })
 
+
 async function listData(callback) {
 	var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
 	
@@ -370,7 +389,9 @@ async function listData(callback) {
 		}
 	});
 }
-
+/* 
+	Post metoda listData - kao rezultat vraca klijentu sve tabele evidencije koje se nalaze u bazi
+*/
 api_router.post('/listData', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: list data');
@@ -396,6 +417,9 @@ api_router.post('/listData', (req, res) => {
 	.respond(res)
 })
 
+/* 
+	Get metoda getTimestamp - kao rezultat vraca trenutno sistemsko vreme na uredjaju
+*/
 api_router.get('/getTimestamp', function(req, res) {
 	console.log('------------------------');
 	console.log('Request: get timestamp');
@@ -429,7 +453,9 @@ async function getTimeShift(callback) {
 		}
 	});
 }
-
+/* 
+	Post metoda getTimeShift - kao rezultat razliku timestampova u sekundama izmedju sistemskog vremena na raspberriju i vremena na hardverskom RTC-u
+*/
 api_router.post('/getTimeShift', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: get time shift');
@@ -469,7 +495,11 @@ async function setSystemTime(actionCode, adminTimestamp, callback) {
 		}
 	});
 }
-
+/*
+	Post metoda - setSystemTime - Podesavanje sistemskog i RTC vremena sa aplikacije
+	Parametri su adminTimestamp - sistemsko vreme na Adminskoj host racunaru (podeseno u odnosu na vremnsku zonu i racunanja vremena)
+	i actionCode - nacin podesavanja vremena (vise o tome u komentarima unutar sys_time.bash skripti)
+*/
 api_router.post('/setSystemTime', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: set system time');
@@ -516,7 +546,9 @@ async function getRegList() {
 		}
 	});
 }
-
+/* 
+	Post metoda getRegList - vraca listu svih rekorda registrovanih korisnika
+*/
 api_router.post('/getRegList', (req, res) => {
 	console.log('------------------------');
 	console.log('Request: get reg list');

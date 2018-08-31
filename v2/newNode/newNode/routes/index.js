@@ -1,19 +1,31 @@
 const express = require('express');
-const router = express.Router();
+
 var dbFun = require('../dbFunctions')
 var session = require('express-session');
+
+//definsianje timeout-a sesije jednog klijenta
 var timeoutTime = 120000;
+
+//definisanje instance router
+const router = express.Router();
+
+//setovanje session funkcionalnosti u objektu router
 router.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 
+/* Root Get metoda - poziva se prilikom pristupa home stranici aplikacije (http://192.168.4.1 ili http://prijava.prisustva) */
+/* Proverava da li je klijent koji je poslao zahtev za stranicom registrovan ili ne */
+/* Ako je registrovan, Prikazuje mu njegove unete podatke i opciju za izmenu tih podataka */
+/* Ako ne, interfejs za unos podataka radi registracije */
 router.get('/', function (req, res) {
 	
-	//var result = dbFun.clientRegistrationCheck(req.connection.remoteAddress);
+	//Provera registracije klijenta
 	dbFun.clientRegistrationCheck(req.connection.remoteAddress,function(result){
 		if(result[0] != "undefined")
 		{
-			//req.session.cookie.maxAge = timeoutTime;
+			//Pamcenje mac adrese klijenta u memoriji njegove sesije
 			req.session.mac = result[0];
 			console.log("session.mac: " + req.session.mac);
+			// Nije registrovan: renderuje se dinamicka stranica za biranje Tipa korisnika (student ili profesor)
 			if(result[1] === "ne_postoji")
 			{
 				console.log("ne postoji");
@@ -25,6 +37,7 @@ router.get('/', function (req, res) {
 					link2: '/profesor-registration'
 				})		
 			}
+			// Registrovan: renderuje se stranica sa podacima o korisniku i opcija za editovanje
 			else if(result[1] === "postoji")
 			{
 				console.log("sada ne puca ;)");
@@ -45,6 +58,7 @@ router.get('/', function (req, res) {
 					});
 				});
 			}
+			//U slucaju nedefinisanog klijenta, renderuje se stranica saporukom o gresci i ponovnom ucitavanju pocetne stranice
 			else
 			{
 				delete req.session.mac;
@@ -55,6 +69,8 @@ router.get('/', function (req, res) {
 				});
 			}
 		}
+		//greska zbog nedefinisane Mac adrese, greska u ARP tabeli (Nema mrezne konekcije izmedju Default Gateway-a i Klijenta)
+		//renderuje se stranica sa porukom o gresci
 		else
 		{
 			res.render('message',{
@@ -65,6 +81,8 @@ router.get('/', function (req, res) {
 		}
 	});
 });
+
+/* Get Metoda /student-registration - registracija studenta, renderuje se stranica sa formom za unos podataka studenta */
 router.get('/student-registration', function (req, res) {
 	
 	req.session.type = "student";
@@ -74,6 +92,7 @@ router.get('/student-registration', function (req, res) {
 		indexplc1: 'Index'
 	});
 });
+/* Get Metoda /profesor-registration - registracija profesora, renderuje se stranica sa formom za unos podataka profesora */
 router.get('/profesor-registration', function (req, res) {
 	req.session.type = "profesor";
 	req.session.service = "new";
@@ -82,7 +101,10 @@ router.get('/profesor-registration', function (req, res) {
 		indexplc1: 'Indetifikacioni broj'
 	});
 });
+
+/* Get Metoda /edit - Izmena postojeceg registrovanog korisnika*/
 router.get('/edit', function(req,res){
+	//ako je istekla sesija, renderuje se poruka o tome i opcija za povratak na pocetnu stranu
 	if(typeof req.session.name == 'undefined')
 	{
 		res.render('message',{
@@ -91,6 +113,7 @@ router.get('/edit', function(req,res){
 			link1: '/'
 		});
 	}
+	//pamti se radnja o editovanju u sesiji
 	req.session.service = "edit";
 	var plcIndexStr = "";
 	if(req.session.type == 'student')
@@ -98,7 +121,7 @@ router.get('/edit', function(req,res){
 	else
 		plcIndexStr = "Indetifikacioni broj";
 	
-	
+	//renderuje se forma za unos podataka, sa vec unetim podacima koji se menjaju
 	res.render('studentForm',{
 		namep: req.session.name.toString(),
 		surnamep: req.session.surname.toString(),
@@ -108,7 +131,11 @@ router.get('/edit', function(req,res){
 		indexplc1: plcIndexStr
 	});
 });
+
+/* Post Metoda - /submit Funkcija za upis unetih podataka sa forme u bazu*/
 router.post('/submit', function (req, res) {
+	
+	//ako je istekla sesija, renderuje se poruka kao odgovor korisniku o tome
 	if((typeof req.session.name == 'undefined') && (typeof req.session.service == 'undefined'))
 	{
 		res.render('message',{
@@ -119,12 +146,16 @@ router.post('/submit', function (req, res) {
 	}
 	else
 	{
+		//Unos podataka u sesiju
 		req.session.name = req.body.name;
 		req.session.surname = req.body.surname;
 		req.session.index = req.body.index;
+		
+		//poziv funkcije za unos podataka u bazu
 		dbFun.insUpdRecord(req.session.name,req.session.surname,req.session.index,req.session.mac,req.session.type,req.session.service,function(reslt){
 			if(reslt == "success")
 			{
+				//ako je unos uspesan, renderuje se stranica sa novim unetim podacima
 				var str = "Ulogovani ste kao:" + req.session.name + " " + req.session.surname + ", " + req.session.index;
 				console.log("success");
 				console.log(str);
@@ -136,6 +167,7 @@ router.post('/submit', function (req, res) {
 			}
 			else
 			{
+				//u slucaju greske pri unosu, renderuje se poruka o greski
 				console.log("somthing else");
 				res.render('message',{
 					text1: reslt,

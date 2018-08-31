@@ -1,5 +1,6 @@
 #!/bin/bash
-
+#Stara skripta za setovanje RTC vremena sa google-ovog servisa
+#Zamenjena sa sys_time.bash skriptom
 sudo date -s "$(wget -qSO- --max-redirect=0 google.com 2>&1 | grep Date: | cut -d' ' -f5-8)Z"
 echo "Setovanje vremena"
 i2cset -y -f 1 0x68 0x00 0x$(date +"%S") b

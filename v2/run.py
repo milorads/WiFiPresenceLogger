@@ -3,6 +3,7 @@ import time
 import sqlite3
 import subprocess
 
+#Definisanje trenutne apsolutne putanje direktorijuma u kojem se izvrsava skripta
 curDir = os.path.dirname(os.path.realpath(__file__))
 subprocess.call(['sudo', curDir + '/ledon', '0', 'y'])
 
