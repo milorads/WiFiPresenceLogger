@@ -33,7 +33,8 @@ if shutdownTime != "":
 	print outTime
 	updateTableOutTime(tableName,outTime)
 	time.sleep(10)
-	subprocess.call(['sudo', 'bash', curDir + '/sys_time.bash', '3'])
+
+subprocess.call(['sudo', 'bash', curDir + '/sys_time.bash', '3'])
 	
 prevTime = ""
 curTime = ""
