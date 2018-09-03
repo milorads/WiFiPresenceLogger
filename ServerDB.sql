@@ -24,8 +24,9 @@ DROP TABLE IF EXISTS `log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
   `sector_id` int(10) DEFAULT NULL,
+  `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
   PRIMARY KEY (`log_id`),
@@ -872,7 +873,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
 )
 BEGIN
 	INSERT INTO `log` (
-			`log_id`, `user_id`, `sector_id`,
+			`log_id`, `user_id`, `sector_id`, `mac`,
             `start_time`, `end_time`
         ) VALUES (
 			NULL,
@@ -885,6 +886,7 @@ BEGIN
 					FROM `logger` l
 					WHERE l.`mac` = `logger_mac_arg`
 			),
+            `mac_arg`,
             `start_time_arg`,
 			`end_time_arg`
 		)
@@ -951,6 +953,12 @@ BEGIN
 			LAST_INSERT_ID(), `identification_number_arg`
 		)
 	;
+    
+	UPDATE `log`
+		SET `log`.`user_id` = LAST_INSERT_ID()
+        WHERE `mac` = `mac_arg`
+        AND `user_id` IS NULL
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1012,6 +1020,12 @@ BEGIN
 		) VALUES (
 			LAST_INSERT_ID(), `index_arg`
 		)
+	;
+    
+    UPDATE `log`
+		SET `log`.`user_id` = LAST_INSERT_ID()
+        WHERE `mac` = `mac_arg`
+        AND `user_id` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -1145,4 +1159,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 15:26:33
+-- Dump completed on 2018-09-03 15:57:01
