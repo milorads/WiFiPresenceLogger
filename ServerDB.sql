@@ -166,8 +166,10 @@ CREATE TABLE `synched_user` (
   `user_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`logger_id`,`user_id`),
   UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
-  UNIQUE KEY `user_id_UNIQUE` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `synched_user_logger` FOREIGN KEY (`logger_id`) REFERENCES `logger` (`logger_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `synched_user_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -768,6 +770,90 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `importProffessor` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `importProffessor`(
+	IN `logger_mac_arg` varchar(45),
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `identification_number_arg` varchar(45),
+    IN `mac_arg` varchar(45)
+)
+BEGIN
+	CALL `insertProffessor`(
+		`name_arg`,
+        `surname_arg`,
+        `identification_number_arg`,
+        `mac_arg`
+	);
+    
+    INSERT INTO `synched_user` (
+			`logger_id`, `user_id`
+        ) VALUES (
+			(
+				SELECT l.`logger_id`
+					FROM `logger` l
+					WHERE l.`mac` = `logger_mac_arg`
+			),
+            LAST_INSERT_ID()
+		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `importStudent` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `importStudent`(
+	IN `logger_mac_arg` varchar(45),
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `index_arg` varchar(45),
+    IN `mac_arg` varchar(45)
+)
+BEGIN
+	CALL `insertStudent`(
+		`name_arg`,
+        `surname_arg`,
+        `index_arg`,
+        `mac_arg`
+	);
+    
+    INSERT INTO `synched_user` (
+			`logger_id`, `user_id`
+        ) VALUES (
+			(
+				SELECT l.`logger_id`
+					FROM `logger` l
+					WHERE l.`mac` = `logger_mac_arg`
+			),
+            LAST_INSERT_ID()
+		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `insertLog` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1059,4 +1145,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 14:38:42
+-- Dump completed on 2018-09-03 15:26:33
