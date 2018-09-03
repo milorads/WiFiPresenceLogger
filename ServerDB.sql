@@ -155,6 +155,31 @@ LOCK TABLES `student` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `synched_user`
+--
+
+DROP TABLE IF EXISTS `synched_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `synched_user` (
+  `logger_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`logger_id`,`user_id`),
+  UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `synched_user`
+--
+
+LOCK TABLES `synched_user` WRITE;
+/*!40000 ALTER TABLE `synched_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `synched_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user`
 --
 
@@ -392,6 +417,62 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUser`(in
 BEGIN
 	DELETE FROM `user`
 		WHERE `user`.`mac` = `mac_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `exportUsers` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `exportUsers`(
+	IN `mac_arg` varchar(45)
+)
+BEGIN
+	DECLARE `logger_id_arg` INT(10) DEFAULT NULL;
+    SELECT l.`logger_id` INTO `logger_id_arg`
+		FROM `logger` l
+        WHERE l.`mac` = `mac_arg`
+	;
+    
+	SELECT
+		CASE WHEN s.`index` IS NULL
+			THEN 'p'
+            ELSE 's'
+		END
+			AS 'type',
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
+        CASE WHEN s.`index` IS NULL
+			THEN p.`identification_number`
+            ELSE s.`index`
+		END
+			AS 'id',
+		u.`mac` AS 'mac'
+        FROM `user` u
+        LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
+        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        LEFT JOIN `synched_user` su
+			ON su.`user_id` = u.`user_id`
+			AND su.`logger_id` = `logger_id_arg`
+        WHERE su.`user_id` IS NULL
+	;
+    
+    INSERT INTO `synched_user` (`logger_id`, `user_id`)
+        SELECT `logger_id_arg`, u.`user_id`
+				FROM `user` u
+                LEFT JOIN `synched_user` su
+					ON su.`user_id` = u.`user_id`
+				WHERE su.`user_id` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -978,4 +1059,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 11:39:44
+-- Dump completed on 2018-09-03 14:38:42

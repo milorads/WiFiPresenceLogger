@@ -269,7 +269,8 @@ BEGIN
 			THEN p.`identification_number`
             ELSE s.`index`
 		END
-			AS 'id'
+			AS 'id',
+		u.`mac` AS 'mac'
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
@@ -352,6 +353,78 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertProffessor` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `identification_number_arg` varchar(45),
+    IN `mac_arg` varchar(45)
+)
+BEGIN
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `mac`
+		) VALUES (
+			NULL, `name_arg`, `surname_arg`, `mac_arg`
+		)
+	;
+	
+    INSERT INTO `proffessor` (
+			`user_id`, `identification_number`
+		) VALUES (
+			LAST_INSERT_ID(), `identification_number_arg`
+		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertStudent` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `index_arg` varchar(45),
+    IN `mac_arg` varchar(45)
+)
+BEGIN
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `mac`
+		) VALUES (
+			NULL, `name_arg`, `surname_arg`, `mac_arg`
+		)
+	;
+	
+    INSERT INTO `student` (
+			`user_id`, `index`
+		) VALUES (
+			LAST_INSERT_ID(), `index_arg`
+		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `startLog` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -379,9 +452,11 @@ BEGIN
 		AND `log`.`end_time` IS NULL
 	;
         
-	INSERT INTO `log`
-		(`log_id`, `user_id`, `start_time`)
-		VALUES (NULL, `user_id_arg`, `start_time_arg`)
+	INSERT INTO `log` (
+			`log_id`, `user_id`, `start_time`
+		) VALUES (
+			NULL, `user_id_arg`, `start_time_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -399,4 +474,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-30 15:40:11
+-- Dump completed on 2018-09-03 13:02:31
