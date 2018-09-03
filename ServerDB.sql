@@ -563,8 +563,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getProffessors`()
 BEGIN
 	SELECT
-		u.`name` AS 'name',
-        u.`surname` AS 'surname',
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
         p.`identification_number` AS 'ID'
         FROM `user` u
         INNER JOIN `proffessor` p ON p.`user_id` = u.`user_id`
@@ -595,8 +595,8 @@ BEGIN
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
-        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
-        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        INNER JOIN `student` st ON st.`user_id` = u.`user_id`
         LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
 	;
 END ;;
@@ -627,8 +627,8 @@ BEGIN
         l.`end_time` AS 'Leaving time'
         FROM `sector` s
         INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
-        INNER JOIN `student` st ON st.`user_id` = l.`user_id`
-        INNER JOIN `user` u ON u.`user_id` = st.`user_id`
+        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        INNER JOIN `student` st ON st.`user_id` = u.`user_id`
         WHERE s.`name` = `name_arg`
 	;
 END ;;
@@ -650,9 +650,9 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getStudents`()
 BEGIN
 	SELECT
-		u.`name` AS 'name',
-        u.`surname` AS 'surname',
-        s.`index` AS 'index'
+		u.`name` AS 'Name',
+        u.`surname` AS 'Surname',
+        s.`index` AS 'Index'
         FROM `user` u
         INNER JOIN `student` s ON s.`user_id` = u.`user_id`
 	;
@@ -704,11 +704,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
     IN `end_time_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `log` (`log_id`, `user_id`, `sector_id`,
-		`start_time`, `end_time`)
-		VALUES (
+	INSERT INTO `log` (
+			`log_id`, `user_id`, `sector_id`,
+            `start_time`, `end_time`
+        ) VALUES (
 			NULL,
-			(
+            (
 				SELECT u.`user_id`
 					FROM `user` u
 					WHERE u.`mac` = `mac_arg`
@@ -717,7 +718,7 @@ BEGIN
 					FROM `logger` l
 					WHERE l.`mac` = `logger_mac_arg`
 			),
-			`start_time_arg`,
+            `start_time_arg`,
 			`end_time_arg`
 		)
 	;
@@ -741,9 +742,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLogger`(
 	IN `mac_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `logger`
-		(`logger_id`, `mac`)
-		VALUES (NULL, `mac_arg`)
+	INSERT INTO `logger` (
+			`logger_id`, `mac`
+		) VALUES (
+			NULL, `mac_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -768,14 +771,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
     IN `mac_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `user`
-		(`user_id`, `name`, `surname`, `mac`)
-		VALUES (NULL, `name_arg`, `surname_arg`, `mac_arg`)
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `mac`
+		) VALUES (
+			NULL, `name_arg`, `surname_arg`, `mac_arg`
+		)
 	;
 	
-    INSERT INTO `proffessor`
-		(`user_id`, `identification_number`)
-		VALUES (LAST_INSERT_ID(), `identification_number_arg`)
+    INSERT INTO `proffessor` (
+			`user_id`, `identification_number`
+		) VALUES (
+			LAST_INSERT_ID(), `identification_number_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -797,9 +804,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSector`(
 	IN `name_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `sector`
-		(`sector_id`, `name`)
-        VALUES (NULL, `name_arg`)
+	INSERT INTO `sector` (
+			`sector_id`, `name`
+		) VALUES (
+			NULL, `name_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -824,14 +833,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
     IN `mac_arg` varchar(45)
 )
 BEGIN
-	INSERT INTO `user`
-		(`user_id`, `name`, `surname`, `mac`)
-		VALUES (NULL, `name_arg`, `surname_arg`, `mac_arg`)
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `mac`
+		) VALUES (
+			NULL, `name_arg`, `surname_arg`, `mac_arg`
+		)
 	;
 	
-    INSERT INTO `student`
-		(`user_id`, `index`)
-		VALUES (LAST_INSERT_ID(), `index_arg`)
+    INSERT INTO `student` (
+			`user_id`, `index`
+		) VALUES (
+			LAST_INSERT_ID(), `index_arg`
+		)
 	;
 END ;;
 DELIMITER ;
@@ -965,4 +978,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-30 15:32:00
+-- Dump completed on 2018-09-03 11:39:44
