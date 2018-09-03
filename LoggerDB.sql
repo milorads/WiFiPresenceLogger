@@ -24,7 +24,8 @@ DROP TABLE IF EXISTS `log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log` (
   `log_id` int(10) NOT NULL,
-  `user_id` int(10) NOT NULL,
+  `user_id` int(10) DEFAULT NULL,
+  `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
   `is_synched` tinyint(1) NOT NULL DEFAULT '0',
@@ -187,11 +188,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `endLog`(
 BEGIN
 	UPDATE `log`
 		SET `log`.`end_time` = `end_time_arg`
-		WHERE `log`.`user_id` = (
-			SELECT u.`user_id`
-				FROM `user` u
-				WHERE u.`mac` = `mac_arg`
-		)
+		WHERE `log`.`mac` = `mac_arg`
         AND `log`.`end_time` IS NULL
 	;
 END ;;
@@ -225,6 +222,7 @@ BEGIN
             ELSE s.`index`
 		END
 			AS 'id',
+		l.`mac` AS 'mac',
         l.`start_time` AS 's_time',
         l.`end_time` AS 'e_time'
         FROM `log` l
@@ -312,6 +310,7 @@ BEGIN
             ELSE s.`index`
 		END
 			AS 'ID',
+		l.`mac` AS 'MAC',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
@@ -341,6 +340,7 @@ BEGIN
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
         s.`index` AS 'ID',
+        l.`mac` AS 'MAC',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
@@ -383,6 +383,12 @@ BEGIN
 			LAST_INSERT_ID(), `identification_number_arg`
 		)
 	;
+    
+	UPDATE `log`
+		SET `log`.`user_id` = LAST_INSERT_ID()
+        WHERE `mac` = `mac_arg`
+        AND `user_id` IS NULL
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -419,6 +425,12 @@ BEGIN
 			LAST_INSERT_ID(), `index_arg`
 		)
 	;
+    
+	UPDATE `log`
+		SET `log`.`user_id` = LAST_INSERT_ID()
+        WHERE `mac` = `mac_arg`
+        AND `user_id` IS NULL
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -448,14 +460,17 @@ BEGIN
     
     UPDATE `log`
 		SET `log`.`end_time` = `start_time_arg`
-		WHERE `log`.`user_id` = `user_id_arg`
+		WHERE (
+			`log`.`user_id` = `user_id_arg`
+            OR `log`.`mac` = `mac_arg`
+		)
 		AND `log`.`end_time` IS NULL
 	;
         
 	INSERT INTO `log` (
-			`log_id`, `user_id`, `start_time`
+			`log_id`, `user_id`, `mac`, `start_time`
 		) VALUES (
-			NULL, `user_id_arg`, `start_time_arg`
+			NULL, `user_id_arg`, `mac_arg`, `start_time_arg`
 		)
 	;
 END ;;
@@ -474,4 +489,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 13:02:31
+-- Dump completed on 2018-09-03 16:00:53
