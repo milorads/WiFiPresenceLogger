@@ -23,16 +23,17 @@ DROP TABLE IF EXISTS `log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log` (
-  `log_id` int(10) NOT NULL,
-  `user_id` int(10) DEFAULT NULL,
-  `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
   `is_synched` tinyint(1) NOT NULL DEFAULT '0',
+  `is_present` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
   KEY `log_user_idx` (`user_id`),
-  CONSTRAINT `log_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `log_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -53,12 +54,12 @@ DROP TABLE IF EXISTS `proffessor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `proffessor` (
-  `user_id` int(10) NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `identification_number` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `identification_number_UNIQUE` (`identification_number`),
-  CONSTRAINT `proffessor_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `proffessor_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -79,7 +80,7 @@ DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `student` (
-  `user_id` int(10) NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `index` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
@@ -105,7 +106,7 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
-  `user_id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `surname` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
@@ -197,6 +198,29 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `exportAndDeleteLogs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `exportAndDeleteLogs`()
+BEGIN
+	CALL exportLogs;
+    
+    DELETE FROM `log`
+		WHERE `log`.`is_synched` = 1
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `exportLogs` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -236,6 +260,7 @@ BEGIN
     UPDATE `log`
 		SET `log`.`is_synched` = 1
         WHERE `log`.`is_synched` = 0
+		AND `log`.`end_time` IS NOT NULL
 	;
 END ;;
 DELIMITER ;
@@ -278,6 +303,31 @@ BEGIN
     UPDATE `user`
 		SET `user`.`is_synched` = 1
         WHERE `user`.`is_synched` = 0
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `finishLogging` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `finishLogging`(
+	`time_arg` datetime(2)
+)
+BEGIN
+	UPDATE `log`
+		SET `log`.`end_time` = `time_arg`
+        WHERE `log`.`is_present` = 0
+        AND `log`.`end_time` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -373,7 +423,7 @@ BEGIN
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`, `mac`
 		) VALUES (
-			NULL, `name_arg`, `surname_arg`, `mac_arg`
+			0, `name_arg`, `surname_arg`, `mac_arg`
 		)
 	;
 	
@@ -415,7 +465,7 @@ BEGIN
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`, `mac`
 		) VALUES (
-			NULL, `name_arg`, `surname_arg`, `mac_arg`
+			0, `name_arg`, `surname_arg`, `mac_arg`
 		)
 	;
 	
@@ -431,6 +481,58 @@ BEGIN
         WHERE `mac` = `mac_arg`
         AND `user_id` IS NULL
 	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `logDevice` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `logDevice`(
+	IN `mac_arg` varchar(45),
+	IN `time_arg` datetime(2)
+)
+BEGIN
+	DECLARE `log_id_arg` INT(10) DEFAULT NULL;
+    SELECT l.`log_id` INTO `log_id_arg`
+		FROM `log` l
+        WHERE l.`mac` = `mac_arg`
+        AND l.`end_time` IS NULL
+	;
+    
+    IF `log_id_arg` IS NULL
+		THEN
+			INSERT INTO `log` (
+					`log_id`,
+                    `user_id`,
+                    `mac`,
+                    `start_time`
+				) VALUES (
+					0,
+					(
+						SELECT u.`user_id`
+							FROM `user` u
+							WHERE u.`mac` = `mac_arg`
+					),
+					`mac_arg`,
+					`time_arg`
+				)
+			;
+		ELSE
+			UPDATE `log`
+				SET `log`.`is_present` = 1
+                WHERE `log`.`log_id` = `log_id_arg`
+		;
+	END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -470,8 +572,30 @@ BEGIN
 	INSERT INTO `log` (
 			`log_id`, `user_id`, `mac`, `start_time`
 		) VALUES (
-			NULL, `user_id_arg`, `mac_arg`, `start_time_arg`
+			0, `user_id_arg`, `mac_arg`, `start_time_arg`
 		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `startLogging` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `startLogging`()
+BEGIN
+	UPDATE `log`
+		SET `log`.`is_present` = 0
+        WHERE `log`.`end_time` IS NULL
 	;
 END ;;
 DELIMITER ;
@@ -489,4 +613,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 16:00:53
+-- Dump completed on 2018-09-05 15:18:44

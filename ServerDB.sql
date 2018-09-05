@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `log`;
 CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned DEFAULT NULL,
-  `sector_id` int(10) DEFAULT NULL,
+  `sector_id` int(10) unsigned DEFAULT NULL,
   `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE `logger` (
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_tick` datetime DEFAULT NULL,
-  `sector_id` int(10) DEFAULT NULL,
+  `sector_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`logger_id`),
   UNIQUE KEY `mac_UNIQUE` (`mac`),
   UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
@@ -112,7 +112,7 @@ DROP TABLE IF EXISTS `sector`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sector` (
-  `sector_id` int(10) NOT NULL AUTO_INCREMENT,
+  `sector_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`sector_id`),
   UNIQUE KEY `sector_id_UNIQUE` (`sector_id`),
@@ -873,10 +873,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
 )
 BEGIN
 	INSERT INTO `log` (
-			`log_id`, `user_id`, `sector_id`, `mac`,
-            `start_time`, `end_time`
+			`log_id`, `user_id`, `sector_id`,
+            `mac`, `start_time`, `end_time`
         ) VALUES (
-			NULL,
+			0,
             (
 				SELECT u.`user_id`
 					FROM `user` u
@@ -914,7 +914,7 @@ BEGIN
 	INSERT INTO `logger` (
 			`logger_id`, `mac`
 		) VALUES (
-			NULL, `mac_arg`
+			0, `mac_arg`
 		)
 	;
 END ;;
@@ -943,7 +943,7 @@ BEGIN
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`, `mac`
 		) VALUES (
-			NULL, `name_arg`, `surname_arg`, `mac_arg`
+			0, `name_arg`, `surname_arg`, `mac_arg`
 		)
 	;
 	
@@ -982,7 +982,7 @@ BEGIN
 	INSERT INTO `sector` (
 			`sector_id`, `name`
 		) VALUES (
-			NULL, `name_arg`
+			0, `name_arg`
 		)
 	;
 END ;;
@@ -1011,7 +1011,7 @@ BEGIN
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`, `mac`
 		) VALUES (
-			NULL, `name_arg`, `surname_arg`, `mac_arg`
+			0, `name_arg`, `surname_arg`, `mac_arg`
 		)
 	;
 	
@@ -1159,4 +1159,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-03 15:57:01
+-- Dump completed on 2018-09-05 15:18:04
