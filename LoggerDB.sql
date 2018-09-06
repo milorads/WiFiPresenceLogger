@@ -85,7 +85,7 @@ CREATE TABLE `student` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `index_UNIQUE` (`index`),
-  CONSTRAINT `student_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `student_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -142,6 +142,29 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogs`()
 BEGIN
 	DELETE FROM `log`;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `deleteLogs_byDate` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogs_byDate`(
+	IN `date_arg` date
+)
+BEGIN
+	DELETE FROM `log`
+		WHERE CAST(l.`start_time` AS DATE) = `date_arg`
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -374,6 +397,48 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getLogs_byDate` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs_byDate`(
+	IN `date_arg` date
+)
+BEGIN
+	SELECT
+		CASE WHEN s.`index` IS NULL
+			THEN 'p'
+            ELSE 's'
+		END
+			AS 'type',
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
+        CASE WHEN s.`index` IS NULL
+			THEN p.`identification_number`
+            ELSE s.`index`
+		END
+			AS 'id',
+		l.`mac` AS 'mac',
+        l.`start_time` AS 'stime',
+        l.`end_time` AS 'etime'
+        FROM `log` l
+        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
+        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+		WHERE CAST(l.`start_time` AS DATE) = `date_arg`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `getStudentLogs` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -396,6 +461,44 @@ BEGIN
         FROM `log` l
         INNER JOIN `user` u ON u.`user_id` = l.`user_id`
         INNER JOIN `student` s ON s.`user_id` = u.`user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `getUser_byMac` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getUser_byMac`(
+	IN `mac_arg` varchar(45)
+)
+BEGIN
+	SELECT
+		CASE WHEN s.`index` IS NULL
+			THEN 'p'
+            ELSE 's'
+		END
+			AS 'type',
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
+        CASE WHEN s.`index` IS NULL
+			THEN p.`identification_number`
+            ELSE s.`index`
+		END
+			AS 'id'
+        FROM `user` u
+        LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
+        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        WHERE u.`mac` = `mac_arg`
 	;
 END ;;
 DELIMITER ;
@@ -613,4 +716,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-05 15:18:44
+-- Dump completed on 2018-09-06 15:05:57
