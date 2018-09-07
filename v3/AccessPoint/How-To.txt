@@ -1,0 +1,7 @@
+Make sure to use sudo. Use following command to make script executable:
+chmod +x install.sh 
+
+After done, run script
+./install.sh 
+
+Script not tested yet.
