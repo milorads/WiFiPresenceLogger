@@ -565,26 +565,30 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs`()
 BEGIN
 	SELECT
-		CASE WHEN st.`index` IS NULL
-			THEN 'Prof'
-            ELSE 'Student'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 'Student'
+            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            ELSE 'Unregistered'
 		END
 			AS 'Type',
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        CASE WHEN st.`index` IS NULL
-			THEN p.`identification_number`
-			ELSE st.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'ID',
-        s.`name` AS 'Sector',
+		l.`mac` AS 'MAC',
+        sec.`name` AS 'Sector',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
-        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
-        LEFT JOIN `student` st ON st.`user_id` = u.`user_id`
+        LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
-        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+        LEFT JOIN `sector` sec ON sec.`sector_id` = l.`sector_id`
 	;
 END ;;
 DELIMITER ;
@@ -607,26 +611,30 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogsForSector`(
 )
 BEGIN
 	SELECT
-		CASE WHEN st.`index` IS NULL
-			THEN 'Prof'
-            ELSE 'Student'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 'Student'
+            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            ELSE 'Unregistered'
 		END
 			AS 'Type',
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        CASE WHEN st.`index` IS NULL
-			THEN p.`identification_number`
-            ELSE st.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'ID',
+		l.`mac` AS 'MAC',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
-        FROM `sector` s
-        INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
-        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
-        LEFT JOIN `student` st ON st.`user_id` = u.`user_id`
+        FROM `log` l
+        LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
-        WHERE s.`name` = `name_arg`
+        INNER JOIN `sector` sec ON sec.`sector_id` = l.`sector_id`
+        WHERE sec.`name` = `name_arg`
 	;
 END ;;
 DELIMITER ;
@@ -674,14 +682,14 @@ BEGIN
 	SELECT
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        st.`index` AS 'ID',
-        s.`name` AS 'Sector',
+        s.`index` AS 'ID',
+        sec.`name` AS 'Sector',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
         INNER JOIN `user` u ON u.`user_id` = l.`user_id`
-        INNER JOIN `student` st ON st.`user_id` = u.`user_id`
-        LEFT JOIN `sector` s ON s.`sector_id` = l.`sector_id`
+        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
+        LEFT JOIN `sector` sec ON sec.`sector_id` = l.`sector_id`
 	;
 END ;;
 DELIMITER ;
@@ -706,14 +714,14 @@ BEGIN
 	SELECT
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        st.`index` AS 'ID',
+        s.`index` AS 'ID',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
-        FROM `sector` s
-        INNER JOIN `log` l ON l.`sector_id` = s.`sector_id`
+        FROM `log` l
         INNER JOIN `user` u ON u.`user_id` = l.`user_id`
-        INNER JOIN `student` st ON st.`user_id` = u.`user_id`
-        WHERE s.`name` = `name_arg`
+        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
+        INNER JOIN `sector` sec ON sec.`sector_id` = l.`sector_id`
+        WHERE sec.`name` = `name_arg`
 	;
 END ;;
 DELIMITER ;
@@ -1159,4 +1167,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-06 15:05:36
+-- Dump completed on 2018-09-07 11:12:17

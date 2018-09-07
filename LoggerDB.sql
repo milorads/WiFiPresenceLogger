@@ -186,7 +186,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `endAllLogs`(
 )
 BEGIN
 	UPDATE `log`
-		SET `log`.`end_time` = `end_time_arg`
+		SET `log`.`end_time` = `end_time_arg`,
+			`log`.`is_present` = 0
         WHERE `log`.`end_time` IS NULL
 	;
 END ;;
@@ -257,23 +258,26 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `exportLogs`()
 BEGIN
 	SELECT
-		CASE WHEN s.`index` IS NULL
-			THEN 'p'
-            ELSE 's'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 's'
+            WHEN p.`user_id` IS NOT NULL THEN 'p'
+            ELSE 'n'
 		END
 			AS 'type',
 		u.`name` AS 'name',
         u.`surname` AS 'surname',
-        CASE WHEN s.`index` IS NULL
-			THEN p.`identification_number`
-            ELSE s.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'id',
 		l.`mac` AS 'mac',
         l.`start_time` AS 's_time',
         l.`end_time` AS 'e_time'
         FROM `log` l
-        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
         WHERE `log`.`is_synched` = 0
@@ -371,23 +375,26 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs`()
 BEGIN
 	SELECT
-		CASE WHEN s.`index` IS NULL
-			THEN 'Prof'
-            ELSE 'Student'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 'Student'
+            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            ELSE 'Unregistered'
 		END
 			AS 'Type',
 		u.`name` AS 'Name',
         u.`surname` AS 'Surname',
-        CASE WHEN s.`index` IS NULL
-			THEN p.`identification_number`
-            ELSE s.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'ID',
 		l.`mac` AS 'MAC',
         l.`start_time` AS 'Entry time',
         l.`end_time` AS 'Leaving time'
         FROM `log` l
-        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
 	;
@@ -412,23 +419,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getLogs_byDate`(
 )
 BEGIN
 	SELECT
-		CASE WHEN s.`index` IS NULL
-			THEN 'p'
-            ELSE 's'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 'Student'
+            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            ELSE 'Unregistered'
 		END
 			AS 'type',
 		u.`name` AS 'name',
         u.`surname` AS 'surname',
-        CASE WHEN s.`index` IS NULL
-			THEN p.`identification_number`
-            ELSE s.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'id',
 		l.`mac` AS 'mac',
         l.`start_time` AS 'stime',
         l.`end_time` AS 'etime'
         FROM `log` l
-        INNER JOIN `user` u ON u.`user_id` = l.`user_id`
+        LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
 		WHERE CAST(l.`start_time` AS DATE) = `date_arg`
@@ -716,4 +726,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-06 15:05:57
+-- Dump completed on 2018-09-07 11:12:37
