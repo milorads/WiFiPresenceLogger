@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: wifi_presence_logger_logs
 -- ------------------------------------------------------
--- Server version	5.7.21
+-- Server version	5.7.20-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -28,7 +28,7 @@ CREATE TABLE `log` (
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `start_time` datetime(2) NOT NULL,
   `end_time` datetime(2) DEFAULT NULL,
-  `is_synched` tinyint(1) NOT NULL DEFAULT '0',
+  `synch_level` tinyint(2) NOT NULL DEFAULT '2',
   `is_present` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
@@ -110,7 +110,8 @@ CREATE TABLE `user` (
   `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `surname` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `is_synched` tinyint(1) NOT NULL DEFAULT '0',
+  `synch_level` tinyint(2) NOT NULL DEFAULT '2',
+  `synch_mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `mac_UNIQUE` (`mac`)
@@ -230,14 +231,14 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `exportAndDeleteLogs`()
 BEGIN
 	CALL exportLogs;
     
     DELETE FROM `log`
-		WHERE `log`.`is_synched` = 1
+		WHERE `log`.`synch_level` = 0
 	;
 END ;;
 DELIMITER ;
@@ -253,7 +254,7 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `exportLogs`()
 BEGIN
@@ -280,13 +281,13 @@ BEGIN
         LEFT JOIN `user` u ON u.`user_id` = l.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
-        WHERE `log`.`is_synched` = 0
+        WHERE `log`.`synch_level` <> 0
         AND `log`.`end_time` IS NOT NULL
 	;
     
     UPDATE `log`
-		SET `log`.`is_synched` = 1
-        WHERE `log`.`is_synched` = 0
+		SET `log`.`synch_level` = 0
+        WHERE `log`.`synch_level` <> 0
 		AND `log`.`end_time` IS NOT NULL
 	;
 END ;;
@@ -303,33 +304,39 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `exportUsers`()
 BEGIN
 	SELECT
-		CASE WHEN s.`index` IS NULL
-			THEN 'p'
-            ELSE 's'
+		CASE
+			WHEN s.`user_id` IS NOT NULL THEN 's'
+            WHEN p.`user_id` IS NOT NULL THEN 'p'
+            ELSE 'n'
 		END
 			AS 'type',
 		u.`name` AS 'name',
         u.`surname` AS 'surname',
-        CASE WHEN s.`index` IS NULL
-			THEN p.`identification_number`
-            ELSE s.`index`
+        CASE
+			WHEN s.`user_id` IS NOT NULL
+				THEN s.`index`
+			WHEN p.`user_id` IS NOT NULL
+				THEN p.`identification_number`
 		END
 			AS 'id',
-		u.`mac` AS 'mac'
+		u.`mac` AS 'mac',
+        u.`synch_level` AS 'synch_level',
+        u.`synch_mac` AS 'synch_mac'
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
-        WHERE `user`.`is_synched` = 0
+        WHERE `user`.`synch_level` <> 0
 	;
     
     UPDATE `user`
-		SET `user`.`is_synched` = 1
-        WHERE `user`.`is_synched` = 0
+		SET `user`.`synch_level` = 0,
+			`user`.`synch_mac` = `user`.`mac`
+        WHERE `user`.`synch_level` <> 0
 	;
 END ;;
 DELIMITER ;
@@ -716,6 +723,42 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `updateUser` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUser`(
+	IN `old_mac_arg` varchar(45),
+	IN `name_arg` varchar(45),
+    IN `surname_arg` varchar(45),
+    IN `mac_arg` varchar(45)
+)
+BEGIN
+	UPDATE `user`
+		SET `user`.`name` = `name_arg`,
+			`user`.`surname` = `surname_arg`,
+            `user`.`mac` = `mac_arg`,
+            `user`.`synch_level` = (
+				CASE WHEN `user`.`synch_level` < 1
+					THEN 1
+                    ELSE `user`.`synch_level`
+				END
+			)
+		WHERE `user`.`mac` = `old_mac_arg`
+        AND `user`.`synch_level` < 1
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -726,4 +769,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-07 11:12:37
+-- Dump completed on 2018-09-17 11:33:32
