@@ -27,8 +27,8 @@ CREATE TABLE `log` (
   `mac_id` int(10) unsigned DEFAULT NULL,
   `sector_id` int(10) unsigned DEFAULT NULL,
   `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `start_time` datetime(2) NOT NULL,
-  `end_time` datetime(2) DEFAULT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
   KEY `log_sector_idx` (`sector_id`),
@@ -89,8 +89,8 @@ CREATE TABLE `mac` (
   `mac_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac_address` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
-  `start_time` datetime(2) NOT NULL,
-  `end_time` datetime(2) DEFAULT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`mac_id`),
   UNIQUE KEY `mac_id_UNIQUE` (`mac_id`),
@@ -335,12 +335,12 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkLoggerTicks`()
 BEGIN
-	DECLARE `threshold` DATETIME(2) DEFAULT NULL;
-    SET `threshold` = SUBTIME(NOW(), "0:01:00.00");
+	DECLARE `threshold` DATETIME DEFAULT NULL;
+    SET `threshold` = SUBTIME(NOW(), "0:01:00");
     
 	SELECT l.`mac` AS 'MAC', l.`ip` AS 'IP', s.`name` AS 'Sector'
 		FROM `logger` l
@@ -1436,7 +1436,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertMac`(
     IN `_mac` varchar(45)
 )
 BEGIN
-	DECLARE `_now` DATETIME(2) DEFAULT NULL;
+	DECLARE `_now` DATETIME DEFAULT NULL;
 	SET `_now` = NOW();
 	
     UPDATE `mac_synch`
@@ -1543,4 +1543,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-18 13:43:52
+-- Dump completed on 2018-09-18 14:22:32

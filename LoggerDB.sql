@@ -26,8 +26,8 @@ CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac_id` int(10) unsigned DEFAULT NULL,
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `start_time` datetime(2) NOT NULL,
-  `end_time` datetime(2) DEFAULT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
   `synch_level` tinyint(2) NOT NULL DEFAULT '2',
   `is_present` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`log_id`),
@@ -57,8 +57,8 @@ CREATE TABLE `mac` (
   `mac_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac_address` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
-  `start_time` datetime(2) NOT NULL,
-  `end_time` datetime(2) DEFAULT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `synch_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   PRIMARY KEY (`mac_id`),
@@ -270,7 +270,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `endAllLogs`(
-	IN `_end_time` DATETIME(2)
+	IN `_end_time` DATETIME
 )
 BEGIN
 	UPDATE `log`
@@ -378,14 +378,12 @@ BEGIN
 	;
     
     UPDATE `user`
-		SET `user`.`synch_level` = 's',
-			`user`.`synch_mac` = `user`.`mac`
+		SET `user`.`synch_level` = 's'
         WHERE `user`.`synch_level` NOT IN ('s', 'x')
 	;
     
     UPDATE `user`
-		SET `user`.`synch_level` = 'k',
-			`user`.`synch_mac` = `user`.`mac`
+		SET `user`.`synch_level` = 'k'
         WHERE `user`.`synch_level` IN ('x')
 	;
 END ;;
@@ -405,7 +403,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `finishLogging`(
-	`_time` datetime(2)
+	`_time` datetime
 )
 BEGIN
 	UPDATE `log`
@@ -593,7 +591,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `importServerId`(
 )
 BEGIN
 	UPDATE `user`
-		SET `user`.`server_id` = `_server_id`
+		SET `user`.`server_id` = `_server_id`,
+			`user`.`synch_level` = 's'
 		WHERE `user`.`user_id` = (
 			SELECT m.`user_id`
 				FROM `mac` m
@@ -695,7 +694,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `logDevice`(
 	IN `_mac` varchar(45),
-	IN `_time` datetime(2)
+	IN `_time` datetime
 )
 BEGIN
 	DECLARE `_log_id` INT(10) DEFAULT NULL;
@@ -977,7 +976,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertMac`(
     IN `_mac` varchar(45)
 )
 BEGIN
-	DECLARE `_now` DATETIME(2) DEFAULT NULL;
+	DECLARE `_now` DATETIME DEFAULT NULL;
 	SET `_now` = NOW();
     
     UPDATE `mac`
@@ -1017,4 +1016,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-18 13:44:16
+-- Dump completed on 2018-09-18 14:22:54
