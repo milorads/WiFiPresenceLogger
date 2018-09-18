@@ -327,14 +327,46 @@ BEGIN
         FROM `log` l
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
-        WHERE `log`.`synch_level` <> 's'
+        WHERE `log`.`synch_level` NOT IN ('s')
         AND `log`.`end_time` IS NOT NULL
 	;
     
     UPDATE `log`
 		SET `log`.`synch_level` = 's'
-        WHERE `log`.`synch_level` <> 's'
+        WHERE `log`.`synch_level` NOT IN ('s')
 		AND `log`.`end_time` IS NOT NULL
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `exportMacs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `exportMacs`()
+BEGIN
+	SELECT
+		m.`mac_address` AS 'mac',
+        m.`synch_level` AS 'synch_level',
+        u.`server_id` AS 'server_id'
+        FROM `mac` m
+        INNER JOIN `user` u ON u.`user_id` = m.`user_id`
+        WHERE u.`synch_level` IN ('s', 'n')
+        AND m.`synch_level` NOT IN ('s')
+	;
+    
+    UPDATE `mac`
+		SET `mac`.`synch_level` = 's'
+        WHERE `mac`.`synch_level` NOT IN ('s')
 	;
 END ;;
 DELIMITER ;
@@ -374,12 +406,12 @@ BEGIN
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
-        WHERE u.`synch_level` NOT IN ('s', 'k')
+        WHERE u.`synch_level` IN ('n', 'x')
 	;
     
     UPDATE `user`
 		SET `user`.`synch_level` = 's'
-        WHERE `user`.`synch_level` NOT IN ('s', 'x')
+        WHERE `user`.`synch_level` IN ('n')
 	;
     
     UPDATE `user`
@@ -499,36 +531,6 @@ BEGIN
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
 		WHERE CAST(l.`start_time` AS DATE) = `_date`
-	;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `getStudentLogs` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getStudentLogs`()
-BEGIN
-	SELECT
-		u.`name` AS 'Name',
-        u.`surname` AS 'Surname',
-        s.`index` AS 'ID',
-        l.`mac` AS 'MAC',
-        l.`start_time` AS 'Entry time',
-        l.`end_time` AS 'Leaving time'
-        FROM `log` l
-        INNER JOIN `mac` m ON m.`mac_id` = l.`mac_id`
-        INNER JOIN `user` u ON u.`user_id` = m.`user_id`
-        INNER JOIN `student` s ON s.`user_id` = u.`user_id`
 	;
 END ;;
 DELIMITER ;
@@ -757,7 +759,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `updateUser` */;
+/*!50003 DROP PROCEDURE IF EXISTS `updateProffessor` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -767,32 +769,69 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUser`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProffessor`(
+	IN `_mac` varchar(45),
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_identification_number` varchar(45)
 )
 BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     CALL __getMacsUserId(`_user_id`, `_mac`);
     
-	IF (
+    IF (
 			SELECT u.`synch_level`
 				FROM `user` u
                 WHERE u.`user_id` = `_user_id`
 		) NOT IN ('k')
         THEN BEGIN
-			UPDATE `user`
-				SET `user`.`name` = `_name`,
-					`user`.`surname` = `_surname`,
-					`user`.`synch_level` = (
-						CASE
-							WHEN `user`.`synch_level` = 'x' THEN 'x'
-							ELSE 'n'
-						END
-					)
-				WHERE `user`.`user_id` = `_user_id`
+			UPDATE `proffessor`
+				SET `proffessor`.`identification_number`
+					= COALESCE(`_identification_number`,
+					`proffessor`.`identification_number`)
+                WHERE `proffessor`.`user_id` = `_user_id`
 			;
+            CALL __updateUser(`_user_id`, `_name`, `_surname`);
+		END;
+	END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `updateStudent` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateStudent`(
+	IN `_mac` varchar(45),
+	IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_index` varchar(45)
+)
+BEGIN
+	DECLARE `_user_id` INT(10) DEFAULT NULL;
+    CALL __getMacsUserId(`_user_id`, `_mac`);
+    
+    IF (
+			SELECT u.`synch_level`
+				FROM `user` u
+                WHERE u.`user_id` = `_user_id`
+		) NOT IN ('k')
+        THEN BEGIN
+			UPDATE `student`
+				SET `student`.`index` = COALESCE(`_index`,
+					`student`.`index`)
+                WHERE `student`.`user_id` = `_user_id`
+			;
+            CALL __updateUser(`_user_id`, `_name`, `_surname`);
 		END;
 	END IF;
 END ;;
@@ -1006,6 +1045,39 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `__updateUser` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `__updateUser`(
+	IN `_user_id` int(10),
+    IN `_name` varchar(45),
+    IN `_surname` varchar(45)
+)
+BEGIN
+	UPDATE `user`
+		SET `user`.`name` = COALESCE(`_name`, `user`.`name`),
+			`user`.`surname` = COALESCE(`_surname`, `user`.`surname`),
+			`user`.`synch_level` = (
+				CASE
+					WHEN `user`.`synch_level` = 'x' THEN 'x'
+					ELSE 'n'
+				END
+			)
+		WHERE `user`.`user_id` = `_user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1016,4 +1088,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-18 14:22:54
+-- Dump completed on 2018-09-18 15:44:01
