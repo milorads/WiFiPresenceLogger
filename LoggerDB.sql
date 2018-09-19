@@ -28,7 +28,7 @@ CREATE TABLE `log` (
   `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
-  `synch_level` tinyint(2) NOT NULL DEFAULT '2',
+  `synch_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   `is_present` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
@@ -170,18 +170,15 @@ UNLOCK TABLES;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeProffessorMac`(
-	IN `_logger_mac` varchar(45),
 	IN `_identification_number` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
-    DECLARE `_logger_id` INT(10) DEFAULT NULL;
     DECLARE `_user_id` INT(10) DEFAULT NULL;
-    
-    CALL __getLoggerId(`_logger_id`, `_logger_mac`);
     CALL __getProffessorId(`_user_id`, `_identification_number`);
     
-	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`);
+	CALL __changeUserMac(`_user_id`, `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -199,18 +196,15 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeStudentMac`(
-	IN `_logger_mac` varchar(45),
 	IN `_index` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
-    DECLARE `_logger_id` INT(10) DEFAULT NULL;
     DECLARE `_user_id` INT(10) DEFAULT NULL;
-    
-    CALL __getLoggerId(`_logger_id`, `_logger_mac`);
     CALL __getStudentId(`_user_id`, `_index`);
     
-	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`);
+	CALL __changeUserMac(`_user_id`, `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -356,17 +350,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `exportMacs`()
 BEGIN
 	SELECT
 		m.`mac_address` AS 'mac',
-        m.`synch_level` AS 'synch_level',
+        m.`start_time` AS 'time',
         u.`server_id` AS 'server_id'
         FROM `mac` m
         INNER JOIN `user` u ON u.`user_id` = m.`user_id`
         WHERE u.`synch_level` IN ('s', 'n')
         AND m.`synch_level` NOT IN ('s')
+        ORDER BY m.`start_time` ASC
 	;
     
     UPDATE `mac`
 		SET `mac`.`synch_level` = 's'
         WHERE `mac`.`synch_level` NOT IN ('s')
+        AND `mac`.`user_id` IN (
+			SELECT u.`user_id`
+				FROM `user` u
+                WHERE u.`synch_level` IN ('s', 'n')
+		)
 	;
 END ;;
 DELIMITER ;
@@ -622,7 +622,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
     IN `_identification_number` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
 	INSERT INTO `user` (
@@ -639,7 +640,7 @@ BEGIN
 		)
 	;
     
-    CALL __insertMac(LAST_INSERT_ID(), `_mac`);
+    CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -660,7 +661,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
     IN `_index` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
 	INSERT INTO `user` (
@@ -677,7 +679,7 @@ BEGIN
 		)
 	;
     
-    CALL __insertMac(LAST_INSERT_ID(), `_mac`);
+    CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -851,9 +853,9 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__changeUserMac`(
-	IN `_logger_id` int(10),
     IN `_user_id` int(10),
-    IN `_mac` int(10)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
 	IF (
@@ -862,7 +864,7 @@ BEGIN
 				WHERE u.`user_id` = `_user_id`
 		) IN ('s', 'n', 'x')
 		THEN BEGIN
-			CALL __insertMac(`_logger_id`, `_user_id`, `_mac`);
+			CALL __insertMac(`_user_id`, `_mac`, `_time`);
 		END;
 	END IF;
 END ;;
@@ -1012,25 +1014,21 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertMac`(
 	IN `_user_id` int(10),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
-	DECLARE `_now` DATETIME DEFAULT NULL;
-	SET `_now` = NOW();
-    
-    UPDATE `mac`
-		SET `mac`.`synch_level` = 'n',
-			`mac`.`is_active` = 0,
-			`mac`.`end_time` = `_now`
+	UPDATE `mac`
+		SET `mac`.`is_active` = 0,
+			`mac`.`end_time` = `_time`
 		WHERE `mac`.`user_id` = `_user_id`
-		AND `mac`.`synch_level` <> 'x'
         AND `mac`.`is_active` = 1
 	;
     
 	INSERT INTO `mac` (
 			`mac_id`, `mac_address`, `user_id`, `start_time`
 		) VALUES (
-			0, `_mac`, `_user_id`, `_now`
+			0, `_mac`, `_user_id`, `_time`
 		)
 	;
     
@@ -1088,4 +1086,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-18 15:44:01
+-- Dump completed on 2018-09-19 10:44:36

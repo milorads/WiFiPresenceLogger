@@ -282,7 +282,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeProffessorMac`(
 	IN `_logger_mac` varchar(45),
 	IN `_identification_number` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
     DECLARE `_logger_id` INT(10) DEFAULT NULL;
@@ -291,7 +292,7 @@ BEGIN
     CALL __getLoggerId(`_logger_id`, `_logger_mac`);
     CALL __getProffessorId(`_user_id`, `_identification_number`);
     
-	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`);
+	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -311,7 +312,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeStudentMac`(
 	IN `_logger_mac` varchar(45),
 	IN `_index` varchar(45),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
     DECLARE `_logger_id` INT(10) DEFAULT NULL;
@@ -320,7 +322,7 @@ BEGIN
     CALL __getLoggerId(`_logger_id`, `_logger_mac`);
     CALL __getStudentId(`_user_id`, `_index`);
     
-	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`);
+	CALL __changeUserMac(`_logger_id`, `_user_id`, `_mac`, `_time`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -455,10 +457,7 @@ BEGIN
 		WHERE `sector`.`name` = `_name`
 	;
     
-    SELECT l.`mac` AS 'Free loggers'
-		FROM `logger` l
-        WHERE l.`sector_id` IS NULL
-	;
+    CALL getFreeLoggers;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -536,19 +535,20 @@ BEGIN
     
 	SELECT
         m.`mac_address` AS 'mac',
-        ms.`synch_level` AS 'synch_level',
+        m.`start_time` AS 'time',
         m.`user_id` AS 'server_id'
         FROM `mac` m
         INNER JOIN `mac_synch` ms
 			ON ms.`mac_id` = m.`mac_id`
 			AND ms.`logger_id` = `_logger_id`
-        WHERE ms.`synch_level` <> 's'
+        WHERE ms.`synch_level` NOT IN ('s')
+        ORDER BY m.`start_time` ASC
 	;
     
     UPDATE `mac_synch`
         SET `mac_synch`.`synch_level` = 's'
 		WHERE `mac_synch`.`logger_id` = `_logger_id`
-        AND `mac_synch`.`synch_level` <> 's'
+        AND `mac_synch`.`synch_level` NOT IN ('s')
 	;
 END ;;
 DELIMITER ;
@@ -987,35 +987,23 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMac`(
 	IN `_logger_id` int(10),
 	IN `_user_id` int(10),
-    IN `_mac` varchar(45)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
-	DECLARE `_now` DATETIME DEFAULT NULL;
-	SET `_now` = NOW();
-	
-    UPDATE `mac_synch`
-		SET `mac_synch`.`synch_level` = 'n'
-        WHERE `mac_synch`.`mac_id` IN (
-			SELECT m.`mac_id`
-				FROM `mac` m
-                WHERE m.`user_id` = `_user_id`
-                AND m.`is_active` = 1
-		)
-        AND `mac_synch`.`logger_id` <> `_logger_id`
-        AND `mac_synch`.`synch_level` <> 'x'
-	;
+    DECLARE `_mac_id` INT(10) DEFAULT NULL;
+    CALL getActiveMacId(`_mac_id`, `_user_id`);
     
 	UPDATE `mac`
 		SET `mac`.`is_active` = 0,
-			`mac`.`end_time` = `_now`
-		WHERE `mac`.`user_id` = `_user_id`
-		AND `mac`.`is_active` = 1
+			`mac`.`end_time` = `_time`
+		WHERE `mac`.`mac_id` = `_mac_id`
 	;
     
     INSERT INTO `mac` (
 			`mac_id`, `mac_address`, `user_id`, `start_time`
 		) VALUES (
-			0, `_mac`, `_user_id`, `_now`
+			0, `_mac`, `_user_id`, `_time`
 		)
 	;
     
@@ -1360,7 +1348,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__changeUserMac`(
 	IN `_logger_id` int(10),
     IN `_user_id` int(10),
-    IN `_mac` int(10)
+    IN `_mac` varchar(45),
+    IN `_time` datetime
 )
 BEGIN
 	DECLARE `_mac_id` INT(10) DEFAULT NULL;
@@ -1377,9 +1366,10 @@ BEGIN
 				FROM `mac_synch` ms
                 WHERE ms.`logger_id` = `_logger_id`
                 AND ms.`mac_id` = `_mac_id`
-		)
+		) IN ('s')
 		THEN BEGIN
-			CALL insertMac(`_logger_id`, `_user_id`, `_mac`);
+			CALL insertMac(`_logger_id`, `_user_id`,
+				`_mac`, `_time`);
 		END;
 	END IF;
 END ;;
@@ -1425,13 +1415,13 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__getLoggerId`(
-	OUT `_logger_id` int(10),
-	IN `_logger_mac` varchar(45)
+	OUT `_id` int(10),
+	IN `_mac` varchar(45)
 )
 BEGIN
-	SELECT l.`logger_id` INTO `_logger_id`
+	SELECT l.`logger_id` INTO `_id`
 		FROM `logger` l
-		WHERE l.`mac` = `_logger_mac`
+		WHERE l.`mac` = `_mac`
 	;
 END ;;
 DELIMITER ;
@@ -1450,11 +1440,11 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__getProffessorId`(
-	OUT `_user_id` int(10),
+	OUT `_id` int(10),
 	IN `_identication_number` varchar(45)
 )
 BEGIN
-	SELECT u.`user_id` INTO `_user_id`
+	SELECT u.`user_id` INTO `_id`
 		FROM `user` u
         INNER JOIN `proffessor` p ON p.`user_id` = u.`user_id`
         WHERE p.`identication_number` = `_identication_number`
@@ -1476,11 +1466,11 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__getStudentId`(
-	OUT `_user_id` int(10),
+	OUT `_id` int(10),
 	IN `_index` varchar(45)
 )
 BEGIN
-	SELECT u.`user_id` INTO `_user_id`
+	SELECT u.`user_id` INTO `_id`
 		FROM `user` u
         INNER JOIN `student` s ON s.`user_id` = u.`user_id`
         WHERE s.`index` = `_index`
@@ -1502,11 +1492,11 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__getUserId`(
-	OUT `_user_id` int(10),
+	OUT `_id` int(10),
 	IN `_mac` varchar(45)
 )
 BEGIN
-	SELECT u.`user_id` INTO `_user_id`
+	SELECT u.`user_id` INTO `_id`
 		FROM `user` u
         INNER JOIN `mac` m ON m.`user_id` = u.`user_id`
         WHERE m.`mac_address` = `_mac`
@@ -1586,7 +1576,8 @@ BEGIN
 		THEN BEGIN
 			
 			UPDATE `user`
-				SET `user`.`name` = COALESCE(`_name`, `user`.`name`),
+				SET `user`.`name` = COALESCE(`_name`,
+						`user`.`name`),
 					`user`.`surname` = COALESCE(`_surname`,
 						`user`.`surname`)
 				WHERE `user`.`user_id` = `_user_id`
@@ -1616,4 +1607,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-18 15:43:36
+-- Dump completed on 2018-09-19 10:25:27
