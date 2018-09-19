@@ -26,7 +26,7 @@ CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac_id` int(10) unsigned DEFAULT NULL,
   `sector_id` int(10) unsigned DEFAULT NULL,
-  `mac` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
   PRIMARY KEY (`log_id`),
@@ -94,7 +94,6 @@ CREATE TABLE `mac` (
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`mac_id`),
   UNIQUE KEY `mac_id_UNIQUE` (`mac_id`),
-  UNIQUE KEY `mac_address_UNIQUE` (`mac_address`),
   KEY `mac_user_idx` (`user_id`),
   CONSTRAINT `mac_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -250,8 +249,7 @@ CREATE TABLE `user_synch` (
   `user_id` int(10) unsigned NOT NULL,
   `synch_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   PRIMARY KEY (`logger_id`,`user_id`),
-  UNIQUE KEY `logger_id_UNIQUE` (`logger_id`),
-  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  KEY `user_synch_user_idx` (`user_id`),
   CONSTRAINT `user_synch_logger` FOREIGN KEY (`logger_id`) REFERENCES `logger` (`logger_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_synch_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -968,6 +966,16 @@ BEGIN
 			0, `_mac`
 		)
 	;
+    
+    INSERT INTO `user_synch` (`logger_id`, `user_id`)
+		SELECT LAST_INSERT_ID(), u.`user_id`
+			FROM `user` u
+	;
+    
+    INSERT INTO `mac_synch` (`logger_id`, `mac_id`)
+		SELECT LAST_INSERT_ID(), m.`mac_id`
+			FROM `mac` m
+	;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -992,7 +1000,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMac`(
 )
 BEGIN
     DECLARE `_mac_id` INT(10) DEFAULT NULL;
-    CALL getActiveMacId(`_mac_id`, `_user_id`);
+    CALL __getActiveMacId(`_mac_id`, `_user_id`);
     
 	UPDATE `mac`
 		SET `mac`.`is_active` = 0,
@@ -1607,4 +1615,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-19 10:25:27
+-- Dump completed on 2018-09-19 11:26:38
