@@ -577,7 +577,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `importServerId` */;
+/*!50003 DROP PROCEDURE IF EXISTS `importUser` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -587,19 +587,108 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `importServerId`(
-	IN `_server_id` int(10),
-    IN `_mac` varchar(45)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `importUser`(
+	IN `_type` char,
+    IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_id` varchar(45),
+    IN `_synch_level` char,
+    IN `_server_id` int(10)
 )
 BEGIN
-	UPDATE `user`
-		SET `user`.`server_id` = `_server_id`,
-			`user`.`synch_level` = 's'
-		WHERE `user`.`user_id` = (
-			SELECT m.`user_id`
-				FROM `mac` m
-                WHERE m.`mac_address` = `_mac`
-                AND m.`is_active` = 1
+	IF `_type` = 'p' THEN
+		IF `_synch_level` = 'x' THEN CALL insertImportedProffessor(
+			`_server_id`, `_name`, `_surname`, `_id`);
+		ELSE
+        IF `_synch_level` = 'n' THEN CALL updateImportedProffessor(
+			`_server_id`, `_name`, `_surname`, `_id`);
+		END IF;
+        END IF;
+	ELSE
+    IF `_type` = 's' THEN
+		IF `_synch_level` = 'x' THEN CALL insertImportedStudent(
+			`_server_id`, `_name`, `_surname`, `_id`);
+		ELSE
+        IF `_synch_level` = 'x' THEN CALL updateImportedStudent(
+			`_server_id`, `_name`, `_surname`, `_id`);
+		END IF;
+        END IF;
+	END IF;
+    END IF;
+    
+    IF `_type` = 'k' THEN
+		CALL setUserServerId(`_type`, `_id`, `_server_id`);
+	END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertImportedProffessor` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertImportedProffessor`(
+	IN `_server_id` int(10),
+    IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_identification_number` varchar(45)
+)
+BEGIN
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `synch_level`, `server_id`
+		) VALUES (
+			0, `_name`, `_surname`, 's', `_server_id`
+		)
+	;
+	
+    INSERT INTO `proffessor` (
+			`user_id`, `identification_number`
+		) VALUES (
+			LAST_INSERT_ID(), `_identification_number`
+		)
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertImportedStudent` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertImportedStudent`(
+	IN `_server_id` int(10),
+    IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_index` varchar(45)
+)
+BEGIN
+	INSERT INTO `user` (
+			`user_id`, `name`, `surname`, `synch_level`, `server_id`
+		) VALUES (
+			0, `_name`, `_surname`, 's', `_server_id`
+		)
+	;
+	
+    INSERT INTO `student` (
+			`user_id`, `index`
+		) VALUES (
+			LAST_INSERT_ID(), `_index`
 		)
 	;
 END ;;
@@ -739,6 +828,38 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `setUserServerId` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `setUserServerId`(
+	IN `_type` char,
+    IN `_id` varchar(45),
+    IN `_server_id` int(10)
+)
+BEGIN
+	DECLARE `_user_id` INT(10) DEFAULT NULL;
+    
+	IF `_type` = 's'
+		THEN CALL __getStudentId(`_user_id`, `_id`);
+	ELSE IF `_type` = 'p'
+		THEN CALL __getProffessorId(`_user_id`, `_id`);
+	END IF;
+    END IF;
+    
+    CALL __importServerId(`_user_id`, `_server_id`);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `startLogging` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -755,6 +876,75 @@ BEGIN
 		SET `log`.`is_present` = 0
         WHERE `log`.`end_time` IS NULL
 	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `updateImportedProffessor` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateImportedProffessor`(
+	IN `_server_id` varchar(45),
+	IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_identification_number` varchar(45)
+)
+BEGIN    
+	UPDATE `proffessor`
+		SET `proffessor`.`identification_number`
+			= COALESCE(`_identification_number`,
+			`proffessor`.`identification_number`)
+		WHERE `proffessor`.`user_id` = (
+			SELECT u.`user_id`
+				FROM `user` u
+                WHERE u.`server_id` = `_server_id`
+		)
+	;
+    
+    CALL __updateImportedUser(`_user_id`, `_name`, `_surname`);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `updateImportedStudent` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateImportedStudent`(
+	IN `_server_id` varchar(45),
+	IN `_name` varchar(45),
+    IN `_surname` varchar(45),
+    IN `_index` varchar(45)
+)
+BEGIN    
+	UPDATE `student`
+		SET `student`.`index` = COALESCE(`_index`,
+			`student`.`index`)
+		WHERE `student`.`user_id` = (
+			SELECT u.`user_id`
+				FROM `user` u
+                WHERE u.`server_id` = `_server_id`
+		)
+	;
+    
+    CALL __updateImportedUser(`_user_id`, `_name`, `_surname`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1043,6 +1233,60 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `__setServerId` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `__setServerId`(
+	IN `_user_id` int(10),
+    IN `_server_id` varchar(45)
+)
+BEGIN
+	UPDATE `user`
+		SET `user`.`server_id` = `_server_id`,
+			`user`.`synch_level` = 's'
+		WHERE `user`.`user_id` = `_user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `__updateImportedUser` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `__updateImportedUser`(
+	IN `_user_id` int(10),
+    IN `_name` varchar(45),
+    IN `_surname` varchar(45)
+)
+BEGIN
+	UPDATE `user`
+		SET `user`.`name` = COALESCE(`_name`, `user`.`name`),
+			`user`.`surname` = COALESCE(`_surname`, `user`.`surname`),
+			`user`.`synch_level` = 's'
+		WHERE `user`.`user_id` = `_user_id`
+	;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `__updateUser` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1086,4 +1330,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-19 10:44:36
+-- Dump completed on 2018-09-20 10:28:51

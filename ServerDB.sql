@@ -856,6 +856,50 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `importMac` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `importMac`(
+	IN `_logger_mac` int(10),
+	IN `_user_id` int(10),
+    IN `_mac` varchar(45),
+    IN `_time` datetime
+)
+BEGIN
+    DECLARE `_logger_id` INT(10) DEFAULT NULL;
+    DECLARE `_mac_id` INT(10) DEFAULT NULL;
+    CALL __getLoggerId(`_logger_id`, `_logger_mac`);
+    CALL __getActiveMacId(`_mac_id`, `_user_id`);
+    
+    IF (
+			SELECT us.`synch_level`
+				FROM `user_synch` us
+				WHERE us.`logger_id` = `_logger_id`
+				AND us.`user_id` = `_user_id`
+		) IN ('s', 'n')
+        AND (
+			SELECT ms.`synch_level`
+				FROM `mac_synch` ms
+                WHERE ms.`logger_id` = `_logger_id`
+                AND ms.`mac_id` = `_mac_id`
+		) IN ('s')
+		
+        THEN CALL insertMac(`_logger_id`, `_user_id`,
+			`_mac`, `_time`);
+	END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `importUser` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -876,26 +920,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `importUser`(
     IN `_server_id` int
 )
 BEGIN
-	IF `_type` = 'p'
-		THEN
-			IF `_synch_level` = 'n'
-				THEN CALL updateProffessor(`_logger_mac`,
-					`_server_id`, `_name`, `_surname`, `_id`);
-            ELSE IF `_synch_level` = 'x'
-				THEN CALL insertProffessor(`_logger_mac`,
-					`_name`, `_surname`, `_id`);
-			END IF;
-            END IF;
-    ELSE IF `_type` = 's'
-		THEN
-			IF `synch_level` = 'n'
-				THEN CALL updateStudent(`_logger_mac`,
-					`_server_id`, `_name`, `_surname`, `_id`);
-			ELSE IF `synch_level` = 'x'
-				THEN CALL insertStudent(`_logger_mac`,
-					`_name`, `_surname`, `_id`);
-			END IF;
-            END IF;
+	IF `_type` = 'p' THEN
+		IF `_synch_level` = 'n' THEN CALL updateProffessor(
+			`_logger_mac`, `_server_id`, `_name`, `_surname`, `_id`);
+		ELSE
+		IF `_synch_level` = 'x' THEN CALL insertProffessor(
+			`_logger_mac`, `_name`, `_surname`, `_id`);
+		END IF;
+		END IF;
+    ELSE
+    IF `_type` = 's' THEN
+		IF `synch_level` = 'n' THEN CALL updateStudent(
+			`_logger_mac`, `_server_id`, `_name`, `_surname`, `_id`);
+		ELSE
+        IF `synch_level` = 'x' THEN CALL insertStudent(
+			`_logger_mac`, `_name`, `_surname`, `_id`);
+		END IF;
+        END IF;
 	END IF;
     END IF;
 END ;;
@@ -1615,4 +1656,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-19 11:26:38
+-- Dump completed on 2018-09-20 10:28:29
