@@ -148,9 +148,8 @@ async function importUsers(users, callback) {
 	
 	for (user in users) {
 		con.query('CALL importUser(?, ?, ?, ?, ?, ?)', [user.type, user.name, user.surname,
-				user.id, user.sync_level, user.server_id], (err, result) => {
-			if (err) answer += err.message + ';';
-		})
+				user.id, user.sync_level, user.server_id],
+				(err, result) => if (err) answer += err.message + ';')
 	}
 	callback(null, answer);
 }
@@ -211,7 +210,8 @@ async function importMacs(macs, callback) {
 	var answer = '';
 	
 	for (mac in macs) {
-		// do something
+		con.query('CALL importMac(?, ?, ?)', [mac.mac, mac.time, mac.server_id],
+				(err, result) => if (err) answer += err.message + ';' )
 	}
 	callback(null, answer);
 }

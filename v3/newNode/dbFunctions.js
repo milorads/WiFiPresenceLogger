@@ -73,24 +73,13 @@ module.exports = {
 				})
 			}
 		} else if (service == 'edit') {
-			if (type == 's') {
-						// Nedefinisana procedura
-				con.query('CALL changeStudentInfo(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
-					if (err) {
-						callback('Greska prilikom azuriranja podataka [' + console.error(err.message) + ']');
-					} else {
-						callback('success');
-					}
-				})
-			} else if (type == 'p') {
-				con.query('CALL changeProffessorInfo(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
-					if (err) {
-						callback('Greska prilikom azuriranja podataka [' + console.error(err.message) + ']');
-					} else {
-						callback('success');
-					}
-				})
-			}
+			con.query('CALL updateUser(?, ?, ?, ?)', [mac, name, surname, id], (err, result) => {
+				if (err) {
+					callback('Greska prilikom azuriranja podataka [' + console.error(err.message) + ']');
+				} else {
+					callback('success');
+				}
+			})
 		}
 	},
 	getRecord: function (mac, callback) {

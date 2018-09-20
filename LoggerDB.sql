@@ -172,17 +172,19 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeUserMac`(
     IN `_type` char,
     IN `_id` int(10),
-    IN `_mac` varchar(45),
-    IN `_time` datetime
+    IN `_mac` varchar(45)
 )
 BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
+    DECLARE `_time` DATETIME DEFAULT NULL;
     
     IF `_type` = 'p' THEN CALL __getProffessorId(`_user_id`, `_id`);
 	ELSE
     IF `_type` = 's' THEN CALL __getStudentId(`_user_id`, `_id`);
     END IF;
     END IF;
+    
+    SET `_time` = NOW();
     
     IF (
 			SELECT u.`sync_level`
@@ -567,6 +569,35 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `importMac` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `importMac`(
+	IN `_mac` varchar(45),
+    IN `_time` datetime,
+    IN `_server_id` int(10)
+)
+BEGIN
+	DECLARE `_user_id` INT(10) DEFAULT NULL;
+    SELECT u.`user_id` INTO `_user_id`
+		FROM `user` u
+        WHERE u.`server_id` = `_server_id`
+	;
+    
+    CALL __insertMac(`_user_id`, `_mac`, `_time`);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `importUser` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -617,10 +648,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
     IN `_identification` varchar(45),
-    IN `_mac` varchar(45),
-    IN `_time` datetime
+    IN `_mac` varchar(45)
 )
 BEGIN
+	DECLARE `_time` DATETIME DEFAULT NULL;
+    SET `_time` = NOW();
+    
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`
 		) VALUES (
@@ -656,10 +689,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
     IN `_index` varchar(45),
-    IN `_mac` varchar(45),
-    IN `_time` datetime
+    IN `_mac` varchar(45)
 )
 BEGIN
+	DECLARE `_time` DATETIME DEFAULT NULL;
+    SET `_time` = NOW();
+    
 	INSERT INTO `user` (
 			`user_id`, `name`, `surname`
 		) VALUES (
@@ -1032,7 +1067,7 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertMac`(
 	IN `_user_id` int(10),
     IN `_mac` varchar(45),
-    IN `_time` datetime
+	IN `_time` datetime
 )
 BEGIN
 	UPDATE `mac`
@@ -1154,4 +1189,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-20 14:36:33
+-- Dump completed on 2018-09-20 15:30:01
