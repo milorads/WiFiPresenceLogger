@@ -22,7 +22,7 @@ app.use(routes);
 
 
 app.listen(80, function () {
-	console.log('Example app listening on port 80!');
+	console.log('App listening on port 80!');
 });
 
 /* ========================= api controller ========================= */

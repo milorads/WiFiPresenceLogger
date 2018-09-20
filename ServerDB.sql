@@ -480,14 +480,14 @@ BEGIN
         INNER JOIN `mac_sync` ms
 			ON ms.`mac_id` = m.`mac_id`
 			AND ms.`logger_id` = `_logger_id`
-        WHERE ms.`level` NOT IN ('s')
+        WHERE ms.`level` IN ('x')
         ORDER BY m.`start_time` ASC
 	;
     
     UPDATE `mac_sync`
         SET `mac_sync`.`level` = 's'
 		WHERE `mac_sync`.`logger_id` = `_logger_id`
-        AND `mac_sync`.`level` NOT IN ('s')
+        AND `mac_sync`.`level` IN ('x')
 	;
 END ;;
 DELIMITER ;
@@ -535,13 +535,13 @@ BEGIN
         INNER JOIN `user_sync` us
 			ON us.`user_id` = u.`user_id`
 			AND us.`logger_id` = `_logger_id`
-        WHERE us.`level` <> 's'
+        WHERE us.`level` NOT IN ('s')
 	;
     
     UPDATE `user_sync`
         SET `user_sync`.`level` = 's'
 		WHERE `user_sync`.`logger_id` = `_logger_id`
-        AND `user_sync`.`level` <> 's'
+        AND `user_sync`.`level` NOT IN ('s')
 	;
 END ;;
 DELIMITER ;
@@ -1289,7 +1289,7 @@ BEGIN
 			SET `user_sync`.`level` = 'n'
 			WHERE `user_sync`.`logger_id` <> `_logger_id`
 			AND `user_sync`.`user_id` = `_user_id`
-			AND `user_sync`.`level` = 's'
+			AND `user_sync`.`level` IN ('s')
 		;
             
 		UPDATE `user`
@@ -1554,4 +1554,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-20 13:43:04
+-- Dump completed on 2018-09-20 14:36:06

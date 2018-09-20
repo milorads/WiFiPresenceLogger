@@ -188,7 +188,7 @@ BEGIN
 			SELECT u.`sync_level`
 				FROM `user` u
 				WHERE u.`user_id` = `_user_id`
-		) IN ('s', 'n', 'x')
+		) NOT IN ('k')
 		THEN BEGIN
 			CALL __insertMac(`_user_id`, `_mac`, `_time`);
 		END;
@@ -309,13 +309,13 @@ BEGIN
         FROM `log` l
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
-        WHERE l.`sync_level` NOT IN ('s')
+        WHERE l.`sync_level` IN ('x')
         AND l.`end_time` IS NOT NULL
 	;
     
     UPDATE `log`
 		SET `log`.`sync_level` = 's'
-        WHERE `log`.`sync_level` NOT IN ('s')
+        WHERE `log`.`sync_level` IN ('x')
 		AND `log`.`end_time` IS NOT NULL
 	;
 END ;;
@@ -343,13 +343,13 @@ BEGIN
         FROM `mac` m
         INNER JOIN `user` u ON u.`user_id` = m.`user_id`
         WHERE u.`sync_level` IN ('s', 'n')
-        AND m.`sync_level` NOT IN ('s')
+        AND m.`sync_level` IN ('x')
         ORDER BY m.`start_time` ASC
 	;
     
     UPDATE `mac`
 		SET `mac`.`sync_level` = 's'
-        WHERE `mac`.`sync_level` NOT IN ('s')
+        WHERE `mac`.`sync_level` IN ('x')
         AND `mac`.`user_id` IN (
 			SELECT u.`user_id`
 				FROM `user` u
@@ -814,7 +814,7 @@ BEGIN
 					`user`.`surname` = COALESCE(`_surname`,
                     `user`.`surname`),
 					`user`.`sync_level` = (
-						CASE WHEN `user`.`sync_level` = 'x'
+						CASE WHEN `user`.`sync_level` IN ('x')
 							THEN 'x'
 							ELSE 'n'
 						END
@@ -1154,4 +1154,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-20 13:41:22
+-- Dump completed on 2018-09-20 14:36:33

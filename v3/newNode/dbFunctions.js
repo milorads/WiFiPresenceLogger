@@ -75,7 +75,7 @@ module.exports = {
 		} else if (service == 'edit') {
 			if (type == 's') {
 						// Nedefinisana procedura
-				con.query('CALL changeDeviceOwner(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
+				con.query('CALL changeStudentInfo(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
 					if (err) {
 						callback('Greska prilikom azuriranja podataka [' + console.error(err.message) + ']');
 					} else {
@@ -83,7 +83,7 @@ module.exports = {
 					}
 				})
 			} else if (type == 'p') {
-				con.query('CALL changeDeviceOwner(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
+				con.query('CALL changeProffessorInfo(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
 					if (err) {
 						callback('Greska prilikom azuriranja podataka [' + console.error(err.message) + ']');
 					} else {
