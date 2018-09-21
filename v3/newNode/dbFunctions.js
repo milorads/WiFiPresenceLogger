@@ -13,7 +13,6 @@ module.exports = {
 	clientRegistrationCheck: function (ipv6, callback) {
 		var ip = ipv6.replace(/^.*:/, '')
 		console.log(ip);
-		var tableName = getDateTableName();
 		var arp_ip;
 		var mac = 'undefined';
 		

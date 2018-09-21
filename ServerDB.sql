@@ -898,10 +898,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
 )
 BEGIN
 	INSERT INTO `log` (
-			`log_id`, `mac_id`, `sector_id`,
-            `mac`, `start_time`, `end_time`
-        ) VALUES (
-			0, (
+			`mac_id`, `sector_id`, `mac`,
+            `start_time`, `end_time`
+        ) VALUES ( (
 				SELECT m.`mac_id`
 					FROM `mac` m
                     WHERE m.`mac_address` = `_mac`
@@ -936,12 +935,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLogger`(
 	IN `_mac` varchar(45)
 )
 BEGIN
-	INSERT INTO `logger` (
-			`logger_id`, `mac`
-		) VALUES (
-			0, `_mac`
-		)
-	;
+	INSERT INTO `logger` (`mac`) VALUES (`_mac`);
     
     INSERT INTO `user_sync` (`logger_id`, `user_id`)
 		SELECT LAST_INSERT_ID(), u.`user_id`
@@ -985,9 +979,9 @@ BEGIN
 	;
     
     INSERT INTO `mac` (
-			`mac_id`, `mac_address`, `user_id`, `start_time`
+			`mac_address`, `user_id`, `start_time`
 		) VALUES (
-			0, `_mac`, `_user_id`, `_time`
+			`_mac`, `_user_id`, `_time`
 		)
 	;
     
@@ -1066,12 +1060,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSector`(
 	IN `_name` varchar(45)
 )
 BEGIN
-	INSERT INTO `sector` (
-			`sector_id`, `name`
-		) VALUES (
-			0, `_name`
-		)
-	;
+	INSERT INTO `sector` (`name`) VALUES (`_name`);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1520,9 +1509,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertUser`(
 )
 BEGIN
 	INSERT INTO `user` (
-			`user_id`, `name`, `surname`
+			`name`, `surname`
 		) VALUES (
-			0, `_name`, `_surname`
+			`_name`, `_surname`
 		)
 	;
     SET `_user_id` = LAST_INSERT_ID();
@@ -1554,4 +1543,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-20 14:36:06
+-- Dump completed on 2018-09-21 14:27:43

@@ -457,19 +457,19 @@ BEGIN
             WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
             ELSE 'Unregistered'
 		END
-			AS 'Type',
-		u.`name` AS 'Name',
-        u.`surname` AS 'Surname',
+			AS 'type',
+		u.`name` AS 'name',
+        u.`surname` AS 'surname',
         CASE
 			WHEN s.`user_id` IS NOT NULL
 				THEN s.`index`
 			WHEN p.`user_id` IS NOT NULL
 				THEN p.`identification`
 		END
-			AS 'ID',
-		l.`mac` AS 'MAC',
-        l.`start_time` AS 'Entry time',
-        l.`end_time` AS 'Leaving time'
+			AS 'id',
+		l.`mac` AS 'mac',
+        l.`start_time` AS 'stime',
+        l.`end_time` AS 'etime'
         FROM `log` l
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
@@ -655,9 +655,9 @@ BEGIN
     SET `_time` = NOW();
     
 	INSERT INTO `user` (
-			`user_id`, `name`, `surname`
+			`name`, `surname`
 		) VALUES (
-			0, `_name`, `_surname`
+			`_name`, `_surname`
 		)
 	;
 	
@@ -696,9 +696,9 @@ BEGIN
     SET `_time` = NOW();
     
 	INSERT INTO `user` (
-			`user_id`, `name`, `surname`
+			`name`, `surname`
 		) VALUES (
-			0, `_name`, `_surname`
+			`_name`, `_surname`
 		)
 	;
 	
@@ -741,13 +741,10 @@ BEGIN
     IF `_log_id` IS NULL
 		THEN
 			INSERT INTO `log` (
-					`log_id`,
                     `mac_id`,
                     `mac`,
                     `start_time`
-				) VALUES (
-					0,
-					(
+				) VALUES ( (
 						SELECT m.`mac_id`
 							FROM `mac` m
 							WHERE m.`mac_address` = `_mac`
@@ -1025,9 +1022,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertImportedUser`(
 )
 BEGIN
 	INSERT INTO `user` (
-			`user_id`, `name`, `surname`, `sync_level`, `server_id`
+			`name`, `surname`, `sync_level`, `server_id`
 		) VALUES (
-			0, `_name`, `_surname`, 's', `_server_id`
+			`_name`, `_surname`, 's', `_server_id`
 		)
 	;
 	
@@ -1078,9 +1075,9 @@ BEGIN
 	;
     
 	INSERT INTO `mac` (
-			`mac_id`, `mac_address`, `user_id`, `start_time`
+			`mac_address`, `user_id`, `start_time`
 		) VALUES (
-			0, `_mac`, `_user_id`, `_time`
+			`_mac`, `_user_id`, `_time`
 		)
 	;
     
@@ -1189,4 +1186,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-20 15:30:01
+-- Dump completed on 2018-09-21 14:28:01

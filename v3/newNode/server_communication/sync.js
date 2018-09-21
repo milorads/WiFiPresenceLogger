@@ -20,4 +20,4 @@ var https_cert = fs.readFileSync('/home/admin/WiFiPresenceLogger/v2/newNode/prim
 var https_credentials = {key: https_key, cert: https_cert};
 
 app_sync.use(sync_routes);
-https.createServer(https_credentials, app_sync).listen(80);
+https.createServer(https_credentials, app_sync).listen(80, () => console.log('OK'));

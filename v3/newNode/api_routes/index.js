@@ -147,18 +147,21 @@ api_router.post('/apiTest', function(req, res) {
 })
 
 async function getData(datum, callback) {
+	console.log(datum);
 	con.query('CALL getLogs_byDate(?)', [datum], (err, result) => {
 		if (err) {
 			callback('err.message');
 		} else if (result == undefined) {
 			callback('undefined table');
 		} else {
-			var odgovor = '';
-			for (row in result) {
-				odgovor += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
+			var res = '';
+			result[0].forEach((row, index) => {
+				console.log(row);
+				res += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
 						+ '|' + row.stime + '|' + row.etime + ';';
-			}
-			callback(null, odgovor.substring(0, odgovor.length - 1));
+			})
+			console.log(res);
+			callback(null, res.substring(0, res.length - 1));
 		}
 	})
 }
@@ -197,12 +200,12 @@ async function getData1(datum, callback) {
 		if (err) {
 			callback('err.message');
 		} else {
-			var odgovor = '';
-			for (row in result) {
-				odgovor += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
+			var res = '';
+			result[0].forEach((row, index) => {
+				res += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
 						+ '|' + row.stime + '|' + row.etime + ';';
-			}
-			callback(null, odgovor.substring(0, odgovor.length - 1));
+			})
+			callback(null, res.substring(0, res.length - 1));
 		}
 	})
 }
@@ -237,17 +240,17 @@ api_router.post('/getData1', (req, res) => {
 
 async function deleteData(dates, callback) {
 	/************************/
-	var tableList = dates.split(',');
-	console.log("table lista: " , tableList);
+	var datesList = dates.split(',');
+	console.log("datumi:" , datesList);
 	console.log("-----");
 	/************************/
-	for (var datum in tableList) {
-		con.query('CALL deleteLogs_byDate(?)', [datum], function (err, result) {
+	datesList.forEach((date, index) => {
+		con.query('CALL deleteLogs_byDate(?)', [date], function (err, result) {
 			if (err) {
 				console.error(err.message);
 			}
 		})
-	}
+	})
 	callback(null, 'ok');
 }
 
@@ -287,12 +290,12 @@ async function listData(callback) {
 			callback(err.message);
 		} else {
 			console.log(row);
-			var odgovor = "";
+			var res = "";
 			for (var i = 0; i < row.length; i++) {
-				odgovor += row[i].name+';';
+				res += row[i].name+';';
 			}
-			odgovor = odgovor.substring(0,odgovor.length - 1);
-			callback(null, odgovor);
+			res = res.substring(0, res.length - 1);
+			callback(null, res);
 		}
 	});
 }
@@ -425,18 +428,18 @@ api_router.post('/setSystemTime', (req, res) => {
 	.respond(res)
 })
 
-async function getRegList() {
+async function getRegList(callback) {
 	con.query('CALL getLogs', (err, result) => {
 		if (err) {
 			callback(err.message);
 		} else {
-			console.log(result);
-			var odgovor = '';
-			for (row in result) {
-				odgovor += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
-						 + '|' + row.stime + '|' + row.etime + ';';
-			}
-			callback(null, odgovor.substring(0, odgovor.length - 1));
+			var res = '';
+			result[0].forEach((row, index) => {
+				console.log(row);
+				res += row.type + '|' + row.name + '|' + row.surname + '|' + row.id + '|' + row.mac
+						+ '|' + row.stime + '|' + row.etime + ';';
+			})
+			callback(null, res.substring(0, res.length - 1));
 		}
 	})
 }

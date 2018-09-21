@@ -21,9 +21,9 @@ app.use(express['static'](__dirname ));
 app.use(routes);
 
 
-app.listen(80, function () {
+/*app.listen(80, function () {
 	console.log('App listening on port 80!');
-});
+});*/
 
 /* ========================= api controller ========================= */
 
