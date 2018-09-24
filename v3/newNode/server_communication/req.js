@@ -9,13 +9,13 @@ var con = mysql.createConnection({
 	database: 'wifi_presence_logger_logs'
 })
 
-var url = 'http://213.199.130.8:80';
+var url = 'http://168.63.6.115:80';
 
 
 new Promise( (resolve, reject) => {
 	console.log('---------------------------');
-	console.log('--- Communication started.');
-	console.log(' >  Exporting users from database...');
+	console.log('----- Communication started.');
+	console.log('  >   Exporting users from database...');
 	
 	con.query('CALL exportUsers', (err, result) => {
 		if (err)
@@ -24,8 +24,9 @@ new Promise( (resolve, reject) => {
 			resolve(result[0]);
 	})
 })
-.then( rowsOfUsers => {
-	console.log('----- Users exported from database.');
+.then( users => {
+	console.log('----- Users exported from database:');
+	console.log(users);
 	console.log('  >   Sending to server...');
 	
 	return new Promise( (resolve, reject) => {
@@ -34,7 +35,7 @@ new Promise( (resolve, reject) => {
 				json: {
 					token: 'ok',
 					mac: 'lmac',
-					rows: rowsOfUsers
+					rows: users
 				}
 			}, function (err, response, body) {
 				if (err)
@@ -44,12 +45,12 @@ new Promise( (resolve, reject) => {
 		})
 	})
 })
-.then( rowsOfUsers => {
+.then( users => {
 	console.log('----- Users sent to server. New users received.');
 	console.log('  >   Importing new users into database...');
 	
 	return new Promise( (resolve, reject) => {
-		rowsOfUsers.forEach( row => {
+		users.forEach( row => {
 			con.query('CALL importUser(?, ?, ?, ?, ?, ?)', row, (err, result) => {
 			})
 		})
@@ -69,17 +70,17 @@ new Promise( (resolve, reject) => {
 		})
 	})
 })
-.then( rowsOfMacs => {
+.then( macs => {
 	console.log('----- MACs exported from database.');
 	console.log('  >   Sending to server...');
 	
 	return new Promise( (resolve, reject) => {
-		request.post(url + 'importMacs',
+		request.post(url + '/importMacs',
 			{
 				json: {
 					token: 'ok',
 					mac: 'lmac',
-					rows: rowsOfMacs
+					rows: macs
 				}
 			}, function (err, response, body) {
 				if (err)
@@ -89,12 +90,12 @@ new Promise( (resolve, reject) => {
 		})
 	})
 })
-.then( rowsOfMacs => {
+.then( macs => {
 	console.log('----- MACs sent to server. New MACs received.');
 	console.log('  >   Importing new MACs into database...');
 	
 	return new Promise( (resolve, reject) => {
-		rowsOfMacs.forEach( row => {
+		macs.forEach( row => {
 			con.query('CALL importMacs(?, ?, ?)', row, (err, result) => {
 			})
 		})
@@ -105,14 +106,16 @@ new Promise( (resolve, reject) => {
 	console.log('----- MACs imported into database.');
 	console.log('  >   Exporting logs from database...');
 	
-	con.query('CALL exportLogs', (err, result) => {
-		if (err)
-			reject(err);
-		else
-			resolve(result[0]);
+	return new Promise( (resolve, reject) => {
+		con.query('CALL exportLogs', (err, result) => {
+			if (err)
+				reject(err);
+			else
+				resolve(result[0]);
+		})
 	})
 })
-.then( rowsOfLogs => {
+.then( logs => {
 	console.log('----- Logs exported from database.');
 	console.log('  >   Sending to server...');
 	
@@ -122,7 +125,7 @@ new Promise( (resolve, reject) => {
 				json: {
 					token: 'ok',
 					mac: 'lmac',
-					rows: rowsOfLogs
+					rows: logs
 				}
 			}, function (err, response, body) {
 				if (err)
