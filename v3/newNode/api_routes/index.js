@@ -387,7 +387,7 @@ api_router.post('/getTimeShift', (req, res) => {
 async function setSystemTime(actionCode, adminTimestamp, callback) {
 	const exec = require('child_process').exec;
 	
-	bashProcess = await exec("sudo bash /home/admin/WiFiPresenceLogger/v2/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
+	bashProcess = await exec("sudo bash /home/admin/WiFiPresenceLogger/v3/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
 		console.log(`${stdout}`);
 		console.log(`${stderr}`);
 		if (error !== null) {

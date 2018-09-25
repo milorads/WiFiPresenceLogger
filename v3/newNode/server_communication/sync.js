@@ -15,8 +15,8 @@ app_sync.use(bodyParser.urlencoded({ extended: true }));
 app_sync.use(bodyParser.json());
 app_sync.use(express['static'](__dirname ));
 
-var https_key = fs.readFileSync('/home/admin/WiFiPresenceLogger/v2/newNode/private.key');
-var https_cert = fs.readFileSync('/home/admin/WiFiPresenceLogger/v2/newNode/primary.crt');
+var https_key = fs.readFileSync('/home/admin/WiFiPresenceLogger/v3/newNode/private.key');
+var https_cert = fs.readFileSync('/home/admin/WiFiPresenceLogger/v3/newNode/primary.crt');
 var https_credentials = {key: https_key, cert: https_cert};
 
 app_sync.use(sync_routes);

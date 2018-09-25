@@ -17,9 +17,9 @@ case "$1" in
 		
 	1)
 		echo "code 1: setovanje sistemskog vremena sa rtc-a"
-		i2cdump -r 0-6 -y 1 0x68 b | grep -A10 : > /home/admin/WiFiPresenceLogger/v2/rtc_dump.txt
-		awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < /home/admin/WiFiPresenceLogger/v2/rtc_dump.txt > /home/admin/WiFiPresenceLogger/v2/rtc_time.txt
-		date -s $(date +'%Y-%m-%dT%H:%M:%S' -f /home/admin/WiFiPresenceLogger/v2/rtc_time.txt)
+		i2cdump -r 0-6 -y 1 0x68 b | grep -A10 : > /home/admin/WiFiPresenceLogger/v3/rtc_dump.txt
+		awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < /home/admin/WiFiPresenceLogger/v3/rtc_dump.txt > /home/admin/WiFiPresenceLogger/v2/rtc_time.txt
+		date -s $(date +'%Y-%m-%dT%H:%M:%S' -f /home/admin/WiFiPresenceLogger/v3/rtc_time.txt)
 		;;
 	2)
 		echo "code 2: setovanje rtc-a sa sistemskog vremena"
@@ -52,9 +52,9 @@ case "$1" in
 		else
 			#nema konekcije
 			echo $msgNoConnection
-			i2cdump -r 0-6 -y 1 0x68 b | grep 00: > /home/admin/WiFiPresenceLogger/v2/rtc_dump.txt
-			awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < /home/admin/WiFiPresenceLogger/v2/rtc_dump.txt > /home/admin/WiFiPresenceLogger/v2/rtc_time.txt
-			date -s $(date +'%Y-%m-%dT%H:%M:%S' -f /home/admin/WiFiPresenceLogger/v2/rtc_time.txt)
+			i2cdump -r 0-6 -y 1 0x68 b | grep 00: > /home/admin/WiFiPresenceLogger/v3/rtc_dump.txt
+			awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < /home/admin/WiFiPresenceLogger/v3/rtc_dump.txt > /home/admin/WiFiPresenceLogger/v2/rtc_time.txt
+			date -s $(date +'%Y-%m-%dT%H:%M:%S' -f /home/admin/WiFiPresenceLogger/v3/rtc_time.txt)
 		fi
 		;;
 	*)

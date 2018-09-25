@@ -20,27 +20,27 @@ sudo apt-get install -y dnsmasq hostapd dhcpd dhcpcd5
 echo "[*INFO] Checking for existing interfaces configuration and backing up if existent"
 sudo mv /etc/network/interfaces /etc/network/interfaces.backup
 echo "[*INFO] Installing required interfaces configuration"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/interfaces /etc/network/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/interfaces /etc/network/
 
 echo "[*INFO] Checking for existing hostapd configuration and backing up if existent"
 sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.backup
 echo "[*INFO] Installing required hostapd configuration"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/hostapd.conf /etc/hostapd/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/hostapd.conf /etc/hostapd/
 
 echo "[*INFO] Checking for existing configuration pointer file and backing up if existent"
 sudo mv /etc/default/hostapd /etc/default/hostapd.backup
 echo "[*INFO] Installing required conf pointer configuration"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/hostapd /etc/default/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/hostapd /etc/default/
 
 echo "[*INFO] Checking for existing dnsmasq configuration file and backing up if existent"
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
 echo "[*INFO] Installing required conf pointer configuration"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/dnsmasq.conf /etc/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/dnsmasq.conf /etc/
 
 echo "[*INFO] Checking for existing dhcpcd.conf configuration file and backing up if existent"
 sudo mv /etc/dhcpcd.conf /etc/dhcpcd.conf.backup
 echo "[*INFO] Installing required conf pointer configuration"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/dhcpcd.conf /etc/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/dhcpcd.conf /etc/
 
 
 
@@ -58,7 +58,7 @@ sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 echo "[*INFO] Checking for existing rc.local file and backing up if existent"
 sudo mv /etc/rc.local /etc/rc.local.backup
 echo "[*INFO] Installing forwarding on boot"
-sudo cp /home/admin/WiFiPresenceLogger/v2/AccessPoint/rc.local /etc/
+sudo cp /home/admin/WiFiPresenceLogger/v3/AccessPoint/rc.local /etc/
 
 chmod +x /etc/rc.local
 
