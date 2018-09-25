@@ -11,134 +11,90 @@ var con = mysql.createConnection({
 
 var url = 'http://168.63.6.115:80';
 
+async function dbexport(proc_signature) {
+	console.log('  >   Exporting from database:', proc_signature, ' ...')
+	return new Promise( (resolve, reject) => {
+		con.query('CALL ' + proc_signature, (err, result) => {
+			if (err)
+				reject(err)
+			else
+				resolve(result[0])
+		})
+	})
+}
+async function dbimport(proc_signature, instances) {
+	console.log('  >   Importing into database:', proc_signature, ' ...')
+	return new Promise( (resolve, reject) => {
+		var call = 'CALL ' + proc_signature;
+		await instances.forEach( instance => {
+			con.query(call, instance, (err, result) => {
+			})
+		})
+		resolve()
+	})
+}
+async function sendRequest(proc_signature, instances) {
+	console.log('  >   Requesting from server:', proc_signature, ' ...')
+	return new Promise( (resolve, reject) => {
+		request.post(url + '/' + proc_signature, {
+			json: {
+				token: 'ok',
+				mac: 'lmac',
+				rows: instances
+			}
+		}, function (err, response, body) {
+			if (err)
+				reject(err)
+			else
+				resolve(body)
+		})
+	})
+}
 
-new Promise( (resolve, reject) => {
-	console.log('---------------------------');
-	console.log('----- Communication started.');
-	console.log('  >   Exporting users from database...');
-	
-	con.query('CALL exportUsers', (err, result) => {
-		if (err)
-			reject(err);
-		else
-			resolve(result[0]);
-	})
-})
-.then( users => {
-	console.log('----- Users exported from database:');
-	console.log(users);
-	console.log('  >   Sending to server...');
-	
-	return new Promise( (resolve, reject) => {
-		request.post(url + '/importUsers',
-			{
-				json: {
-					token: 'ok',
-					mac: 'lmac',
-					rows: users
-				}
-			}, function (err, response, body) {
-				if (err)
-					reject(err);
-				else
-					resolve(body);
+
+module.exports = {
+	synchronize = async function () {
+		console.log('---------------------------');
+		console.log('----- Communication started.');
+		
+		var exportedLogs = dbexport('exportLogs');
+		var exportedUsers = dbexport('exportUsers');
+		
+		var sentMacs = exportedUsers
+		.then( users => {
+			console.log('----- Users exported from database:');
+			console.log(users);
+			return sendRequest('importUsers', users)
 		})
-	})
-})
-.then( users => {
-	console.log('----- Users sent to server. New users received.');
-	console.log('  >   Importing new users into database...');
-	
-	return new Promise( (resolve, reject) => {
-		users.forEach( row => {
-			con.query('CALL importUser(?, ?, ?, ?, ?, ?)', row, (err, result) => {
-			})
+		.then( users => {
+			console.log('----- Users sent to server. New users received:');
+			console.log(users);
+			return dbimport('importUser(?, ?, ?, ?, ?, ?)', users)
 		})
-		resolve();
-	})
-})
-.then( () => {
-	console.log('----- Users imported into database.');
-	console.log('  >   Exporting MACs from database...');
-	
-	return new Promise( (resolve, reject) => {
-		con.query('CALL exportMacs', (err, result) => {
-			if (err)
-				reject(err);
-			else
-				resolve(result[0]);
+		.then( () => {
+			console.log('----- Users imported into database.');
+			return dbexport('exportMacs')
 		})
-	})
-})
-.then( macs => {
-	console.log('----- MACs exported from database.');
-	console.log('  >   Sending to server...');
-	
-	return new Promise( (resolve, reject) => {
-		request.post(url + '/importMacs',
-			{
-				json: {
-					token: 'ok',
-					mac: 'lmac',
-					rows: macs
-				}
-			}, function (err, response, body) {
-				if (err)
-					reject(err);
-				else
-					resolve(body);
+		.then( macs => {
+			console.log('----- MACs exported from database:');
+			console.log(macs);
+			return sendRequest('importMacs', macs)
 		})
-	})
-})
-.then( macs => {
-	console.log('----- MACs sent to server. New MACs received.');
-	console.log('  >   Importing new MACs into database...');
-	
-	return new Promise( (resolve, reject) => {
-		macs.forEach( row => {
-			con.query('CALL importMacs(?, ?, ?)', row, (err, result) => {
-			})
+		sentMacs
+		.then( macs => {
+			console.log('----- MACs sent to server. New MACs received:');
+			console.log(macs);
+			return dbimport('importMacs(?, ?, ?)', macs)
 		})
-		resolve();
-	})
-})
-.then( () => {
-	console.log('----- MACs imported into database.');
-	console.log('  >   Exporting logs from database...');
-	
-	return new Promise( (resolve, reject) => {
-		con.query('CALL exportLogs', (err, result) => {
-			if (err)
-				reject(err);
-			else
-				resolve(result[0]);
+		.then( () => console.log('----- MACs imported into database.'))
+		
+		Promise.all([exportedLogs, sentMacs])
+		.then( values => {
+			var logs = values[0];
+			console.log('----- Logs exported from database:');
+			console.log(logs);
+			return sendRequest('importLogs', logs)
 		})
-	})
-})
-.then( logs => {
-	console.log('----- Logs exported from database.');
-	console.log('  >   Sending to server...');
-	
-	return new Promise( (resolve, reject) => {
-		request.post(url + '/importLogs',
-			{
-				json: {
-					token: 'ok',
-					mac: 'lmac',
-					rows: logs
-				}
-			}, function (err, response, body) {
-				if (err)
-					reject(err);
-				else
-					resolve();
-		})
-	})
-})
-.then( () => {
-	console.log('----- Communication complete!');
-})
-.catch( err => {
-	console.log('----- Communication failed.');
-	console.log('      Error:', err.message);
-})
+		.then( () => console.log('----- Communication complete!'))
+	}
+}
