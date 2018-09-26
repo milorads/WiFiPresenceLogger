@@ -21,19 +21,19 @@ var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
 Promise.prototype.respond = function(res) {
 	this
 	.then( data => {
-		console.log('Request completed.')
-		res.setHeader('error', 'ok')
-		res.end(data)
+		console.log('Request completed.');
+		res.setHeader('error', 'ok');
+		res.end(data);
 	}, err => {
-		console.log('Request failed.')
-		console.error('> Error:', err)
-		res.setHeader('error', err)
-		res.end()
+		console.log('Request failed.');
+		console.error('> Error:', err);
+		res.setHeader('error', err);
+		res.end();
 	})
 	.then( () => {
-		console.log('Response sent.')
+		console.log('Response sent.');
 	}, err => {
-		console.log('Response sending failed.')
+		console.log('Response sending failed.');
 	})
 }
 

@@ -13,7 +13,7 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(__dirname + '/public'));
 
-app.use(express.static('public'))
+app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express['static'](__dirname ));
@@ -21,9 +21,9 @@ app.use(express['static'](__dirname ));
 app.use(routes);
 
 
-/*app.listen(80, function () {
+app.listen(80, function () {
 	console.log('App listening on port 80!');
-});*/
+});
 
 /* ========================= api controller ========================= */
 
