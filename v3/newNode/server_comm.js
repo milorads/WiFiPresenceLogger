@@ -1,4 +1,5 @@
 var http = require('http');
+var exec = require('child_process').exec;
 var request = require('request');
 var mysql = require('mysql');
 
@@ -10,6 +11,7 @@ var con = mysql.createConnection({
 });
 
 var url = 'http://168.63.6.115:80/';
+var local_mac = null;
 
 // Signatures of stored procedures for the local database
 const dbexport_users = 'exportUsers';
@@ -61,7 +63,7 @@ async function sendRequest(req_name, instances) {
 		request.post(url + req_name, {
 			json: {
 				token: 'ok',
-				mac: 'lmac',
+				mac: local_mac,
 				rows: instances
 			}
 		}, function (err, response, body) {
@@ -76,10 +78,31 @@ async function sendRequest(req_name, instances) {
 
 module.exports = {
 	synchronize: async function () {
-		var macs_sent = Promise.resolve()
-		.then( () => {
-			console.log('---------------------------');
+		var ready = new Promise( (resolve, reject) => {
+			if (local_mac != null) {
+				resolve();
+			} else {
+				exec("ifconfig eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'", (err, stdout, stderr) => {
+					if (err)
+						reject('local_mac')
+					else
+						resolve(stdout)
+				})
+			}
+		})
+		.then( stdout => {
+			local_mac = stdout;
+			console.log('--------------------------');
 			console.log('----- Communication started.');
+			return Promise.race([
+				sendRequest('ping', null),
+				new Promise( (resolve, reject) => setTimeout(reject, 10000, 'timeout'))
+			])
+		})
+		
+		var macs_sent = ready
+		.then( () => {
+			console.log('----- Connection established.');
 			return dbexport(dbexport_users)
 		})
 		.then( users => {
@@ -110,7 +133,10 @@ module.exports = {
 		})
 		.then( () => console.log('----- MACs imported into database.'))
 		
-		var logs_sent = Promise.all([dbexport(dbexport_logs), macs_sent])
+		var logs_exported = ready
+		.then( () => dbexport(dbexport_logs) )
+		
+		var logs_sent = Promise.all([logs_exported, macs_sent])
 		.then( values => {
 			var logs = values[0];
 			console.log('----- Logs exported from database:');
@@ -124,6 +150,16 @@ module.exports = {
 			return Promise.resolve()
 		}, err => {
 			return Promise.reject(err)
+		})
+	},
+	synchronize_periodically: async function(period) {
+		synchronize()
+		.then( () => {
+			console.log('Synchronization successful.');
+			setTimeout( () => synchronize_periodically(period), period);
+		}, err => {
+			console.log('Synchronization failed. Attempting again in', period / 100000, 'seconds');
+			setTimeout( () => synchronize_periodically(period), period / 100);
 		})
 	}
 }

@@ -20,7 +20,6 @@ app.use(express['static'](__dirname ));
 
 app.use(routes);
 
-
 app.listen(80, function () {
 	console.log('App listening on port 80!');
 });
@@ -42,3 +41,9 @@ var https_credentials = {key: https_key, cert: https_cert};
 
 app_api.use(api_routes);
 https.createServer(https_credentials,app_api).listen(3002);
+
+/* =========================== server synchronization ===================== */
+
+var server_comm = require('./server_comm');
+
+//server_comm.synchronize_periodically(3600000)
