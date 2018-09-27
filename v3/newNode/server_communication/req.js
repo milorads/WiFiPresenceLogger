@@ -46,11 +46,13 @@ async function dbimport(procedure, instances) {
 	console.log('  >   Importing into database:', procedure, ' ...');
 	return new Promise( (resolve, reject) => {
 		var call = 'CALL ' + procedure;
-		await instances.forEach( instance => {
+		var num = 0;
+		instances.forEach( instance => {
 			con.query(call, instance, (err, result) => {
 			})
+			if (++num == instances.length)
+				resolve()
 		})
-		resolve()
 	})
 }
 async function sendRequest(req_name, instances) {
@@ -73,12 +75,13 @@ async function sendRequest(req_name, instances) {
 
 
 module.exports = {
-	synchronize = async function () {
-		console.log('---------------------------');
-		console.log('----- Communication started.');
-		
-		var macs_sent =
-		dbexport(dbexport_users)
+	synchronize: async function () {
+		var macs_sent = Promise.resolve()
+		.then( () => {
+			console.log('---------------------------');
+			console.log('----- Communication started.');
+			return dbexport(dbexport_users)
+		})
 		.then( users => {
 			console.log('----- Users exported from database:');
 			console.log(users);

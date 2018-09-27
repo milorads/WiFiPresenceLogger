@@ -7,8 +7,10 @@ router.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 
 router.get('/', function (req, res) {
 	dbFun.clientRegistrationCheck(req.connection.remoteAddress)
-	.then( (mac, record) => {
-		req.session.mac = mac;
+	.then( data => {
+		console.log(data);
+		req.session.mac = data[0];
+		var record = data[1];
 		
 		if (record != null) {
 			console.log("sada ne puca ;)");
@@ -88,12 +90,23 @@ router.post('/submit', function (req, res) {
 			link1: '/'
 		})
 	} else {
-		req.session.name = req.body.name;
-		req.session.surname = req.body.surname;
-		req.session.index = req.body.index;
+		if (req.body.name != '') {
+			req.session.name = req.body.name;
+		} else {
+			req.body.name = null;
+		} if (req.body.surname != '') {
+			req.session.surname = req.body.surname;
+		} else {
+			req.body.surname = null;
+		} if (req.body.index != '') {
+			req.session.index = req.body.index;
+		} else {
+			req.body.index = null;
+		}
+		
 		dbFun.insUpdRecord(req.session.name, req.session.surname, req.session.index, req.session.mac, req.session.type, req.session.service)
 		.then( msg => {
-			var str = 'Ulogovani ste kao: ' + req.session.name + ' ' + req.session.surname + ', ' + req.session.type + ': ' + req.session.index);
+			var str = 'Ulogovani ste kao: ' + req.session.name + ' ' + req.session.surname + ', ' + req.session.type + ': ' + req.session.index;
 			console.log(msg);
 			console.log(str);
 			
