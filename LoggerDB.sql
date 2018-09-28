@@ -77,29 +77,29 @@ LOCK TABLES `mac` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `proffessor`
+-- Table structure for table `professor`
 --
 
-DROP TABLE IF EXISTS `proffessor`;
+DROP TABLE IF EXISTS `professor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `proffessor` (
+CREATE TABLE `professor` (
   `user_id` int(10) unsigned NOT NULL,
   `identification` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `identification_UNIQUE` (`identification`),
-  CONSTRAINT `proffessor_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `professor_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `proffessor`
+-- Dumping data for table `professor`
 --
 
-LOCK TABLES `proffessor` WRITE;
-/*!40000 ALTER TABLE `proffessor` DISABLE KEYS */;
-/*!40000 ALTER TABLE `proffessor` ENABLE KEYS */;
+LOCK TABLES `professor` WRITE;
+/*!40000 ALTER TABLE `professor` DISABLE KEYS */;
+/*!40000 ALTER TABLE `professor` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -178,7 +178,7 @@ BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     DECLARE `_time` DATETIME DEFAULT NULL;
     
-    IF `_type` = 'p' THEN CALL __getProffessorId(`_user_id`, `_id`);
+    IF `_type` = 'p' THEN CALL __getProfessorId(`_user_id`, `_id`);
 	ELSE
     IF `_type` = 's' THEN CALL __getStudentId(`_user_id`, `_id`);
     END IF;
@@ -395,7 +395,7 @@ BEGIN
         u.`server_id` AS 'server_id'
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
-        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
         WHERE u.`sync_level` IN ('n', 'x')
 	;
     
@@ -454,7 +454,7 @@ BEGIN
 	SELECT
 		CASE
 			WHEN s.`user_id` IS NOT NULL THEN 'Student'
-            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            WHEN p.`user_id` IS NOT NULL THEN 'Professor'
             ELSE 'Unregistered'
 		END
 			AS 'type',
@@ -474,7 +474,7 @@ BEGIN
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
-        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
 	;
 END ;;
 DELIMITER ;
@@ -499,7 +499,7 @@ BEGIN
 	SELECT
 		CASE
 			WHEN s.`user_id` IS NOT NULL THEN 'Student'
-            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            WHEN p.`user_id` IS NOT NULL THEN 'Professor'
             ELSE 'Unregistered'
 		END
 			AS 'type',
@@ -519,7 +519,7 @@ BEGIN
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
-        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
 		WHERE CAST(l.`start_time` AS DATE) = `_date`
 	;
 END ;;
@@ -545,7 +545,7 @@ BEGIN
 	SELECT
 		CASE
 			WHEN s.`user_id` IS NOT NULL THEN 'Student'
-            WHEN p.`user_id` IS NOT NULL THEN 'Proffessor'
+            WHEN p.`user_id` IS NOT NULL THEN 'Professor'
 		END
 			AS 'type',
 		u.`name` AS 'name',
@@ -559,7 +559,7 @@ BEGIN
 			AS 'id'
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
-        LEFT JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
 		INNER JOIN `mac` m ON m.`user_id` = u.`user_id`
         WHERE m.`mac_address` = `_mac`
 	;
@@ -634,7 +634,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `insertProffessor` */;
+/*!50003 DROP PROCEDURE IF EXISTS `insertProfessor` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -644,7 +644,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProffessor`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProfessor`(
 	IN `_name` varchar(45),
     IN `_surname` varchar(45),
     IN `_identification` varchar(45),
@@ -661,7 +661,7 @@ BEGIN
 		)
 	;
 	
-    INSERT INTO `proffessor` (
+    INSERT INTO `professor` (
 			`user_id`, `identification`
 		) VALUES (
 			LAST_INSERT_ID(), `_identification`
@@ -854,10 +854,10 @@ BEGIN
 				WHERE `user`.`user_id` = `_user_id`
 			;
             
-            UPDATE `proffessor`
-				SET `proffessor`.`identification` = COALESCE(`_id`,
-					`proffessor`.`identification`)
-                WHERE `proffessor`.`user_id` = `_user_id`
+            UPDATE `professor`
+				SET `professor`.`identification` = COALESCE(`_id`,
+					`professor`.`identification`)
+                WHERE `professor`.`user_id` = `_user_id`
 			;
             
             UPDATE `student`
@@ -951,7 +951,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `__getProffessorId` */;
+/*!50003 DROP PROCEDURE IF EXISTS `__getProfessorId` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -961,14 +961,14 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `__getProffessorId`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `__getProfessorId`(
 	OUT `_user_id` int(10),
 	IN `_identication` varchar(45)
 )
 BEGIN
 	SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
-        INNER JOIN `proffessor` p ON p.`user_id` = u.`user_id`
+        INNER JOIN `professor` p ON p.`user_id` = u.`user_id`
         WHERE p.`identication` = `_identication`
 	;
 END ;;
@@ -1029,7 +1029,7 @@ BEGIN
 	;
 	
     IF `_type` = 'p' THEN
-		INSERT INTO `proffessor` (
+		INSERT INTO `professor` (
 				`user_id`, `identification`
 			) VALUES (
 				LAST_INSERT_ID(), `_id`
@@ -1113,7 +1113,7 @@ BEGIN
 	IF `_type` = 's'
 		THEN CALL __getStudentId(`_user_id`, `_id`);
 	ELSE IF `_type` = 'p'
-		THEN CALL __getProffessorId(`_user_id`, `_id`);
+		THEN CALL __getProfessorId(`_user_id`, `_id`);
 	END IF;
     END IF;
     
@@ -1159,10 +1159,10 @@ BEGIN
 		WHERE `user`.`user_id` = `_user_id`
 	;
     
-	UPDATE `proffessor`
-		SET `proffessor`.`identification` = COALESCE(`_id`,
-			`proffessor`.`identification`)
-		WHERE `proffessor`.`user_id` = `_user_id`
+	UPDATE `professor`
+		SET `professor`.`identification` = COALESCE(`_id`,
+			`professor`.`identification`)
+		WHERE `professor`.`user_id` = `_user_id`
 	;
     
     UPDATE `student`
