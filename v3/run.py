@@ -43,8 +43,8 @@ while True:
 		file = open(cur_dir + "/shutdown_time.txt", "r")
 		shutdown_time  =  file.readline()
 		db_end_all_logs(shutdown_time)
+	prev_time = subprocess.check_output('sudo date "+%d"', shell=True)
 	#######################
 	subprocess.call('sudo date "+%Y-%m-%d %T.%2N" > ' + cur_dir + '/shutdown_time.txt', shell=True)
 	subprocess.call(['sudo', 'python', cur_dir + '/station_check_instance.py'])
-	prev_time = subprocess.check_output('sudo date "+%d"', shell=True)
 	time.sleep(30)

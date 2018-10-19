@@ -118,67 +118,82 @@ async function authenticateToken(token) {
 
 async function importLogs(mac, rows) {
 	return new Promise( (resolve, reject) => {
-		var msg = '';
-		rows.forEach( row => {
-			console.log('Row:');
-			console.log(row);
-			
-			con.query('CALL insertLog(?, ?, ?, ?)', [
-				mac,
-				row.mac,
-				row.stime,
-				row.etime
-			], (err, result) => {
-				if (err)
-					msg += err.message + ';';
+		if (rows.length > 0) {
+			var num = 0;
+			var msg = '';
+			rows.forEach( row => {
+				console.log('Row:');
+				console.log(row);
+				
+				con.query('CALL insertLog(?, ?, ?, ?)', [
+					mac,
+					row.mac,
+					row.stime,
+					row.etime
+				], (err, result) => {
+					if (err)
+						msg += err.message + '; ';
+				})
+				if (++num == rows.length) resolve(msg);
 			})
-		})
-		resolve(msg);
+		} else {
+			resolve();
+		}
 	})
 }
 
 async function importUsers(mac, rows) {
 	return new Promise( (resolve, reject) => {
-		var msg = '';
-		rows.forEach( row => {
-			console.log('Row:');
-			console.log(row);
-			
-			con.query('CALL importUser(?, ?, ?, ?, ?, ?, ?)', [
-				mac,
-				row.type,
-				row.name,
-				row.surname,
-				row.id,
-				row.sync_level,
-				row.server_id
-			], (err, result) => {
-				if (err)
-					msg += err.message + ';';
+		if (rows.length > 0) {
+			var num = 0;
+			var msg = '';
+			rows.forEach( row => {
+				console.log('Row:');
+				console.log(row);
+				
+				con.query('CALL importUser(?, ?, ?, ?, ?, ?, ?)', [
+					mac,
+					row.type,
+					row.name,
+					row.surname,
+					row.id,
+					row.sync_level,
+					row.server_id
+				], (err, result) => {
+					if (err)
+						msg += err.message + '; ';
+				})
+				if (++num == rows.length) resolve(msg);
 			})
-		})
-		resolve(msg);
+		} else {
+			resolve();
+		}
 	})
 }
 
 async function importMacs(mac, rows) {
 	return new Promise( (resolve, reject) => {
-		var msg = '';
-		rows.forEach( row => {
-			console.log('Row:');
-			console.log(row);
-			
-			con.query('CALL importMac(?, ?, ?, ?)', [
-				mac,
-				row.server_id,
-				row.mac,
-				row.time
-			], (err, result) => {
-				if (err)
-					msg += err.message + ';';
+		if (rows.length > 0) {
+			var num = 0;
+			var msg = '';
+			rows.forEach( row => {
+				console.log('Row:');
+				console.log(row);
+				
+				con.query('CALL importMac(?, ?, ?, ?)', [
+					mac,
+					row.server_id,
+					row.mac,
+					row.time
+				], (err, result) => {
+					if (err)
+						msg += err.message + '; ';
+				})
+				if (++num == rows.length) resolve(msg);
 			})
-		})
-		resolve(msg);
+		} else {
+			resolve();
+		}
 	})
 }
 
@@ -204,6 +219,11 @@ async function exportMacs(mac) {
 	})
 }
 
+router.post('/ping', function (req, res) {
+	console.log('-----------------------');
+	console.log('Request: ping');
+	res.end();
+})
 
 router.post('/importLogs', function (req, res) {
 	console.log('------------------------');
@@ -222,6 +242,7 @@ router.post('/importLogs', function (req, res) {
 		var mac = ('mac' in req.body) ? req.body.mac : null;
 		var rows = ('rows' in req.body) ? req.body.rows : null;
 		console.log('Data extracted');
+		console.log('Mac:', mac);
 		
 		return importLogs(mac, rows);
 	}, err => {
@@ -236,6 +257,7 @@ router.post('/importUsers', function (req, res) {
 	console.log('--- Request: Import users from logger');
 	var token = ('token' in req.body) ? req.body.token : null;
 	var mac = ('mac' in req.body) ? req.body.mac : null;
+	console.log('Mac:', mac);
 	console.log('Token:', token);
 	
 	authenticateToken(token)

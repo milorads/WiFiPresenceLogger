@@ -74,7 +74,7 @@ module.exports = {
 							resolve('Novi student upisan u bazu')
 					})
 				} else if (type == 'p') {
-					con.query('CALL insertProffessor(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
+					con.query('CALL insertProfessor(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
 						if (err)
 							reject('Greska prilikom upisa novog profesora u bazu [' + err.message + ']')
 						else

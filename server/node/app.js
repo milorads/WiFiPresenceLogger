@@ -14,8 +14,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express['static'](__dirname ));
 
-var https_key = fs.readFileSync('/home/username/node/private.key');
-var https_cert = fs.readFileSync('/home/username/node/primary.crt');
+var https_key = fs.readFileSync('/home/admin/WiFiPresenceLogger/server/node/private.key');
+var https_cert = fs.readFileSync('/home/admin/WiFiPresenceLogger/server/node/primary.crt');
 var https_credentials = {key: https_key, cert: https_cert};
 
 app.use(routes);

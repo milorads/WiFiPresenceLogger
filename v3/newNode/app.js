@@ -46,4 +46,4 @@ https.createServer(https_credentials,app_api).listen(3002);
 
 var server_comm = require('./server_comm');
 
-//server_comm.synchronize_periodically(3600000)
+server_comm.periodic_sync(60 * 1000)

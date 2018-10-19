@@ -963,13 +963,13 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `__getProfessorId`(
 	OUT `_user_id` int(10),
-	IN `_identication` varchar(45)
+	IN `_identification` varchar(45)
 )
 BEGIN
 	SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
         INNER JOIN `professor` p ON p.`user_id` = u.`user_id`
-        WHERE p.`identication` = `_identication`
+        WHERE p.`identification` = `_identification`
 	;
 END ;;
 DELIMITER ;

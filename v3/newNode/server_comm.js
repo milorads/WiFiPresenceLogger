@@ -10,7 +10,7 @@ var con = mysql.createConnection({
 	database: 'wifi_presence_logger_logs'
 });
 
-var url = 'http://168.63.6.115:80/';
+var url = 'http://192.168.0.131:80/';
 var local_mac = null;
 
 // Signatures of stored procedures for the local database
@@ -47,14 +47,21 @@ async function dbexport(procedure) {
 async function dbimport(procedure, instances) {
 	console.log('  >   Importing into database:', procedure, ' ...');
 	return new Promise( (resolve, reject) => {
-		var call = 'CALL ' + procedure;
-		var num = 0;
-		instances.forEach( instance => {
-			con.query(call, instance, (err, result) => {
+		if (instances.length > 0) {
+			var call = 'CALL ' + procedure;
+			var num = 0;
+			instances.forEach( instance => {
+				console.log(instance);
+				con.query(call, Object.values(instance), (err, result) => {
+					if (err)
+						console.log(err.message);
+				})
+				if (++num == instances.length)
+					resolve()
 			})
-			if (++num == instances.length)
-				resolve()
-		})
+		} else {
+			resolve()
+		}
 	})
 }
 async function sendRequest(req_name, instances) {
@@ -74,92 +81,102 @@ async function sendRequest(req_name, instances) {
 		})
 	})
 }
+async function fetchLocalMac() {
+	return new Promise( (resolve, reject) => {
+		if (local_mac != null) {
+			resolve();
+		} else {
+			exec("ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'", (err, stdout, stderr) => {
+				if (err) {
+					reject('local_mac')
+				} else {
+					local_mac = stdout.substring(0, 17);
+					resolve();
+				}
+			})
+		}
+	})
+}
 
+async function sync() {
+	var ready =
+	fetchLocalMac()
+	.then( () => {
+		console.log('--------------------------');
+		console.log('----- Communication started.');
+		return Promise.race([
+			sendRequest('ping', null),
+			new Promise( (resolve, reject) => setTimeout(reject, 10000, 'timeout'))
+		])
+	})
+	.then( () => {
+		console.log('----- Connection established.')
+	})
+	
+	var send_macs = ready
+	.then( () => {
+		return dbexport(dbexport_users)
+	})
+	.then( users => {
+		console.log('----- Users exported from database:');
+		console.log(users);
+		return sendRequest(simport_users, users)
+	})
+	.then( users => {
+		console.log('----- Users sent to server. New users received:');
+		console.log(users);
+		return dbimport(dbimport_users, users)
+	})
+	.then( () => {
+		console.log('----- Users imported into database.');
+		return dbexport(dbexport_macs)
+	})
+	.then( macs => {
+		console.log('----- MACs exported from database:');
+		console.log(macs);
+		return sendRequest(simport_macs, macs)
+	})
+	
+	var import_macs = send_macs
+	.then( macs => {
+		console.log('----- MACs sent to server. New MACs received:');
+		console.log(macs);
+		return dbimport(dbimport_macs, macs)
+	})
+	.then( () => console.log('----- MACs imported into database.'))
+	
+	var export_logs = ready
+	.then( () => dbexport(dbexport_logs) )
+	
+	var send_logs = Promise.all([export_logs, send_macs])
+	.then( values => {
+		var logs = values[0];
+		console.log('----- Logs exported from database:');
+		console.log(logs);
+		return sendRequest(simport_logs, logs)
+	})
+	.then( () => console.log('----- Logs sent to server.'))
+	
+	return Promise.all([import_macs, send_logs])
+	.then( () => {
+		return Promise.resolve()
+	}, err => {
+		return Promise.reject(err)
+	})
+}
 
-module.exports = {
-	synchronize: async function () {
-		var ready = new Promise( (resolve, reject) => {
-			if (local_mac != null) {
-				resolve();
-			} else {
-				exec("ifconfig eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'", (err, stdout, stderr) => {
-					if (err)
-						reject('local_mac')
-					else
-						resolve(stdout)
-				})
-			}
-		})
-		.then( stdout => {
-			local_mac = stdout;
-			console.log('--------------------------');
-			console.log('----- Communication started.');
-			return Promise.race([
-				sendRequest('ping', null),
-				new Promise( (resolve, reject) => setTimeout(reject, 10000, 'timeout'))
-			])
-		})
-		
-		var macs_sent = ready
-		.then( () => {
-			console.log('----- Connection established.');
-			return dbexport(dbexport_users)
-		})
-		.then( users => {
-			console.log('----- Users exported from database:');
-			console.log(users);
-			return sendRequest(simport_users, users)
-		})
-		.then( users => {
-			console.log('----- Users sent to server. New users received:');
-			console.log(users);
-			return dbimport(dbimport_users, users)
-		})
-		.then( () => {
-			console.log('----- Users imported into database.');
-			return dbexport(dbexport_macs)
-		})
-		.then( macs => {
-			console.log('----- MACs exported from database:');
-			console.log(macs);
-			return sendRequest(simport_macs, macs)
-		})
-		
-		var macs_imported = macs_sent
-		.then( macs => {
-			console.log('----- MACs sent to server. New MACs received:');
-			console.log(macs);
-			return dbimport(dbimport_macs, macs)
-		})
-		.then( () => console.log('----- MACs imported into database.'))
-		
-		var logs_exported = ready
-		.then( () => dbexport(dbexport_logs) )
-		
-		var logs_sent = Promise.all([logs_exported, macs_sent])
-		.then( values => {
-			var logs = values[0];
-			console.log('----- Logs exported from database:');
-			console.log(logs);
-			return sendRequest(simport_logs, logs)
-		})
-		.then( () => console.log('----- Logs sent to server.'))
-		
-		return Promise.all([macs_imported, logs_sent])
-		.then( () => {
-			return Promise.resolve()
-		}, err => {
-			return Promise.reject(err)
-		})
-	},
-	synchronize_periodically: async function(period) {
-		synchronize()
+async function periodic_sync(period) {
+		sync()
 		.then( () => {
 			console.log('Synchronization successful.');
-			setTimeout( () => synchronize_periodically(period), period);
+			setTimeout( () => periodic_sync(period), period);
 		}, err => {
-			console.log('Synchronization failed. Attempting again in', period / 100000, 'seconds');
-			setTimeout( () => synchronize_periodically(period), period / 100);
+			console.log('Synchronization failed. Attempting again in', period / 10000, 'seconds');
+			setTimeout( () => periodic_sync(period), period / 10);
 		})
 	}
+
+module.exports = {
+	sync,
+	periodic_sync
 }
