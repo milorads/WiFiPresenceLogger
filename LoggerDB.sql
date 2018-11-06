@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.12, for Win64 (x86_64)
 --
 -- Host: localhost    Database: wifi_presence_logger_logs
 -- ------------------------------------------------------
--- Server version	5.7.20-log
+-- Server version	8.0.12
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+ SET NAMES utf8 ;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,14 +21,14 @@
 
 DROP TABLE IF EXISTS `log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+ SET character_set_client = utf8mb4 ;
 CREATE TABLE `log` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac_id` int(10) unsigned DEFAULT NULL,
-  `mac` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `mac` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
-  `sync_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
+  `sync_level` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   `is_present` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`log_id`),
   UNIQUE KEY `log_id_UNIQUE` (`log_id`),
@@ -52,15 +52,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `mac`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+ SET character_set_client = utf8mb4 ;
 CREATE TABLE `mac` (
   `mac_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `mac_address` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `mac_address` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `sync_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
+  `sync_level` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   PRIMARY KEY (`mac_id`),
   KEY `mac_user_idx` (`user_id`),
   CONSTRAINT `mac_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -82,10 +82,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `professor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+ SET character_set_client = utf8mb4 ;
 CREATE TABLE `professor` (
   `user_id` int(10) unsigned NOT NULL,
-  `identification` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `identification` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `identification_UNIQUE` (`identification`),
@@ -108,10 +108,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+ SET character_set_client = utf8mb4 ;
 CREATE TABLE `student` (
   `user_id` int(10) unsigned NOT NULL,
-  `index` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `index` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `index_UNIQUE` (`index`),
@@ -134,12 +134,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+ SET character_set_client = utf8mb4 ;
 CREATE TABLE `user` (
   `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `surname` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `sync_level` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
+  `name` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `surname` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `sync_level` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'x',
   `server_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
@@ -163,9 +163,9 @@ UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -178,22 +178,21 @@ BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     DECLARE `_time` DATETIME DEFAULT NULL;
     
-    IF `_type` = 'p' THEN CALL __getProfessorId(`_user_id`, `_id`);
-	ELSE
-    IF `_type` = 's' THEN CALL __getStudentId(`_user_id`, `_id`);
-    END IF;
-    END IF;
+    CASE
+		WHEN `_type` = 'p' THEN
+			CALL __getProfessorId(`_user_id`, `_id`);
+		WHEN `_type` = 's' THEN
+			CALL __getStudentId(`_user_id`, `_id`);
+    END CASE;
     
     SET `_time` = NOW();
     
-    IF (
-			SELECT u.`sync_level`
-				FROM `user` u
-				WHERE u.`user_id` = `_user_id`
-		) NOT IN ('k')
-		THEN BEGIN
+    IF (SELECT u.`sync_level`
+			FROM `user` u
+			WHERE u.`user_id` = `_user_id`)
+		
+        NOT IN ('k') THEN
 			CALL __insertMac(`_user_id`, `_mac`, `_time`);
-		END;
 	END IF;
 END ;;
 DELIMITER ;
@@ -224,9 +223,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -235,8 +234,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLogs_byDate`(
 )
 BEGIN
 	DELETE FROM `log`
-		WHERE CAST(l.`start_time` AS DATE) = `_date`
-	;
+		WHERE CAST(l.`start_time` AS DATE) = `_date`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -247,9 +245,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -260,8 +258,7 @@ BEGIN
 	UPDATE `log`
 		SET `log`.`end_time` = `_end_time`,
 			`log`.`is_present` = 0
-        WHERE `log`.`end_time` IS NULL
-	;
+        WHERE `log`.`end_time` IS NULL;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -272,9 +269,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -283,8 +280,7 @@ BEGIN
 	CALL exportLogs;
     
     DELETE FROM `log`
-		WHERE `log`.`sync_level` = 's'
-	;
+		WHERE `log`.`sync_level` = 's';
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -295,9 +291,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -312,14 +308,12 @@ BEGIN
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
         WHERE l.`sync_level` IN ('x')
-        AND l.`end_time` IS NOT NULL
-	;
+        AND l.`end_time` IS NOT NULL;
     
     UPDATE `log`
 		SET `log`.`sync_level` = 's'
         WHERE `log`.`sync_level` IN ('x')
-		AND `log`.`end_time` IS NOT NULL
-	;
+		AND `log`.`end_time` IS NOT NULL;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -330,9 +324,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -346,8 +340,7 @@ BEGIN
         INNER JOIN `user` u ON u.`user_id` = m.`user_id`
         WHERE u.`sync_level` IN ('s', 'n')
         AND m.`sync_level` IN ('x')
-        ORDER BY m.`start_time` ASC
-	;
+        ORDER BY m.`start_time` ASC;
     
     UPDATE `mac`
 		SET `mac`.`sync_level` = 's'
@@ -356,8 +349,7 @@ BEGIN
 			SELECT u.`user_id`
 				FROM `user` u
                 WHERE u.`sync_level` IN ('s', 'n')
-		)
-	;
+		);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -368,9 +360,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -396,18 +388,15 @@ BEGIN
         FROM `user` u
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
-        WHERE u.`sync_level` IN ('n', 'x')
-	;
+        WHERE u.`sync_level` IN ('n', 'x');
     
     UPDATE `user`
 		SET `user`.`sync_level` = 's'
-        WHERE `user`.`sync_level` IN ('n')
-	;
+        WHERE `user`.`sync_level` IN ('n');
     
     UPDATE `user`
 		SET `user`.`sync_level` = 'k'
-        WHERE `user`.`sync_level` IN ('x')
-	;
+        WHERE `user`.`sync_level` IN ('x');
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -418,9 +407,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -431,8 +420,7 @@ BEGIN
 	UPDATE `log`
 		SET `log`.`end_time` = `_time`
         WHERE `log`.`is_present` = 0
-        AND `log`.`end_time` IS NULL
-	;
+        AND `log`.`end_time` IS NULL;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -443,9 +431,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -474,8 +462,7 @@ BEGIN
         LEFT JOIN `mac` m ON m.`mac_id` = l.`mac_id`
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
-        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
-	;
+        LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -486,9 +473,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -520,8 +507,7 @@ BEGIN
         LEFT JOIN `user` u ON u.`user_id` = m.`user_id`
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
-		WHERE CAST(l.`start_time` AS DATE) = `_date`
-	;
+		WHERE CAST(l.`start_time` AS DATE) = `_date`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -532,9 +518,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -561,8 +547,7 @@ BEGIN
         LEFT JOIN `student` s ON s.`user_id` = u.`user_id`
         LEFT JOIN `professor` p ON p.`user_id` = u.`user_id`
 		INNER JOIN `mac` m ON m.`user_id` = u.`user_id`
-        WHERE m.`mac_address` = `_mac`
-	;
+        WHERE m.`mac_address` = `_mac`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -573,9 +558,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -588,8 +573,7 @@ BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
-        WHERE u.`server_id` = `_server_id`
-	;
+        WHERE u.`server_id` = `_server_id`;
     
     CALL __insertMac(`_user_id`, `_mac`, `_time`);
 END ;;
@@ -602,9 +586,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -617,17 +601,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `importUser`(
     IN `_server_id` int(10)
 )
 BEGIN
-	IF `_sync_level` = 'x' THEN CALL __insertImportedUser(
-		`_server_id`, `_type`, `_name`, `_surname`, `_id`);
-	ELSE
-    IF `_sync_level` = 'n' THEN CALL __updateImportedUser(
-		`_server_id`, `_name`, `_surname`, `_id`);
-	ELSE
-    IF `_sync_level` = 'k' THEN CALL __setUserServerId(
-		`_type`, `_id`, `_server_id`);
-	END IF;
-    END IF;
-    END IF;
+    CASE
+		WHEN `_sync_level` = 'x' THEN
+			CALL __insertImportedUser
+				(`_server_id`, `_type`, `_name`, `_surname`, `_id`);
+                
+		WHEN `_sync_level` = 'n' THEN
+			CALL __updateImportedUser
+				(`_server_id`, `_name`, `_surname`, `_id`);
+                
+		WHEN `_sync_level` = 'k' THEN
+			CALL __setUserServerId
+				(`_type`, `_id`, `_server_id`);
+                
+	END CASE;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -638,9 +625,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -652,23 +639,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProfessor`(
 )
 BEGIN
 	DECLARE `_time` DATETIME DEFAULT NULL;
+    DECLARE `_user_id` INT(10) DEFAULT NULL;
+    
     SET `_time` = NOW();
+    CALL __getProfessorId(`_user_id`, `_identification`);
     
-	INSERT INTO `user` (
-			`name`, `surname`
-		) VALUES (
-			`_name`, `_surname`
-		)
-	;
+    IF (`_user_id` IS NULL) THEN BEGIN
+    
+		INSERT INTO `user`
+			(`name`, `surname`)
+			VALUES
+			(`_name`, `_surname`);
+		
+		INSERT INTO `professor`
+			(`user_id`, `identification`)
+			VALUES
+			(LAST_INSERT_ID(), `_identification`);
+    
+		CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
 	
-    INSERT INTO `professor` (
-			`user_id`, `identification`
-		) VALUES (
-			LAST_INSERT_ID(), `_identification`
-		)
-	;
-    
-    CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
+    END; END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -679,9 +669,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -693,23 +683,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStudent`(
 )
 BEGIN
 	DECLARE `_time` DATETIME DEFAULT NULL;
+    DECLARE `_user_id` INT(10) DEFAULT NULL;
+    
     SET `_time` = NOW();
+    CALL __getStudentId(`_user_id`, `_index`);
     
-	INSERT INTO `user` (
-			`name`, `surname`
-		) VALUES (
-			`_name`, `_surname`
-		)
-	;
-	
-    INSERT INTO `student` (
-			`user_id`, `index`
-		) VALUES (
-			LAST_INSERT_ID(), `_index`
-		)
-	;
+    IF (`_user_id` IS NULL) THEN BEGIN
     
-    CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
+		INSERT INTO `user`
+			(`name`, `surname`)
+            VALUES
+            (`_name`, `_surname`);
+		
+		INSERT INTO `student`
+			(`user_id`, `index`)
+            VALUES
+            (LAST_INSERT_ID(), `_index`);
+		
+		CALL __insertMac(LAST_INSERT_ID(), `_mac`, `_time`);
+        
+	END; END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -720,9 +713,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -735,30 +728,23 @@ BEGIN
     SELECT l.`log_id` INTO `_log_id`
 		FROM `log` l
         WHERE l.`mac` = `_mac`
-        AND l.`end_time` IS NULL
-	;
+        AND l.`end_time` IS NULL;
     
     IF `_log_id` IS NULL
 		THEN
-			INSERT INTO `log` (
-                    `mac_id`,
-                    `mac`,
-                    `start_time`
-				) VALUES ( (
-						SELECT m.`mac_id`
-							FROM `mac` m
-							WHERE m.`mac_address` = `_mac`
-                            AND m.`is_active` = 1
-					),
-					`_mac`,
-					`_time`
-				)
-			;
+			INSERT INTO `log`
+				(`mac_id`, `mac`, `start_time`)
+                VALUES
+                ((SELECT m.`mac_id`
+					FROM `mac` m
+					WHERE m.`mac_address` = `_mac`
+					AND m.`is_active` = 1),
+				`_mac`, `_time`);
+		
 		ELSE
 			UPDATE `log`
 				SET `log`.`is_present` = 1
-                WHERE `log`.`log_id` = `_log_id`
-		;
+                WHERE `log`.`log_id` = `_log_id`;
 	END IF;
 END ;;
 DELIMITER ;
@@ -795,18 +781,17 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `startLogging`()
 BEGIN
 	UPDATE `log`
 		SET `log`.`is_present` = 0
-        WHERE `log`.`end_time` IS NULL
-	;
+        WHERE `log`.`end_time` IS NULL;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -817,9 +802,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -833,41 +818,34 @@ BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     CALL __getMacsUserId(`_user_id`, `_mac`);
     
-    IF (
-			SELECT u.`sync_level`
-				FROM `user` u
-                WHERE u.`user_id` = `_user_id`
-		) NOT IN ('k')
-        THEN BEGIN
+    IF (SELECT u.`sync_level`
+			FROM `user` u
+			WHERE u.`user_id` = `_user_id`)
+		NOT IN ('k') THEN BEGIN
 			
             UPDATE `user`
 				SET `user`.`name` = COALESCE(`_name`,
 					`user`.`name`),
 					`user`.`surname` = COALESCE(`_surname`,
                     `user`.`surname`),
-					`user`.`sync_level` = (
-						CASE WHEN `user`.`sync_level` IN ('x')
+					`user`.`sync_level` = (CASE
+						WHEN `user`.`sync_level` IN ('x')
 							THEN 'x'
 							ELSE 'n'
-						END
-					)
-				WHERE `user`.`user_id` = `_user_id`
-			;
+						END)
+				WHERE `user`.`user_id` = `_user_id`;
             
             UPDATE `professor`
 				SET `professor`.`identification` = COALESCE(`_id`,
 					`professor`.`identification`)
-                WHERE `professor`.`user_id` = `_user_id`
-			;
+                WHERE `professor`.`user_id` = `_user_id`;
             
             UPDATE `student`
 				SET `student`.`index` = COALESCE(`_id`,
 					`student`.`index`)
-				WHERE `student`.`user_id` = `_user_id`
-			;
+				WHERE `student`.`user_id` = `_user_id`;
 		
-		END;
-	END IF;
+	END; END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -878,9 +856,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -889,11 +867,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__getActiveMacId`(
 	IN `_user_id` int(10)
 )
 BEGIN
+
 	SELECT m.`mac_id` INTO `_mac_id`
 		FROM `mac` m
         WHERE m.`user_id` = `_user_id`
-        AND m.`is_active` = 1
-	;
+        AND m.`is_active` = 1;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -904,9 +883,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -915,10 +894,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__getLoggerId`(
 	IN `_logger_mac` varchar(45)
 )
 BEGIN
+
 	SELECT l.`logger_id` INTO `_logger_id`
 		FROM `logger` l
-		WHERE l.`mac` = `_logger_mac`
-	;
+		WHERE l.`mac` = `_logger_mac`;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -929,9 +909,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -940,11 +920,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__getMacsUserId`(
 	IN `_mac` varchar(45)
 )
 BEGIN
+
 	SELECT m.`user_id` INTO `_user_id`
 		FROM `mac` m
         WHERE m.`mac_address` = `_mac`
-        AND m.`is_active` = 1
-	;
+        AND m.`is_active` = 1;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -955,9 +936,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -966,11 +947,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__getProfessorId`(
 	IN `_identification` varchar(45)
 )
 BEGIN
+
 	SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
         INNER JOIN `professor` p ON p.`user_id` = u.`user_id`
-        WHERE p.`identification` = `_identification`
-	;
+        WHERE p.`identification` = `_identification`;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -981,9 +963,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -992,11 +974,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__getStudentId`(
 	IN `_index` varchar(45)
 )
 BEGIN
+
 	SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
         INNER JOIN `student` s ON s.`user_id` = u.`user_id`
-        WHERE s.`index` = `_index`
-	;
+        WHERE s.`index` = `_index`;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1007,9 +990,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -1021,30 +1004,40 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__insertImportedUser`(
     IN `_id` varchar(45)
 )
 BEGIN
-	INSERT INTO `user` (
-			`name`, `surname`, `sync_level`, `server_id`
-		) VALUES (
-			`_name`, `_surname`, 's', `_server_id`
-		)
-	;
-	
-    IF `_type` = 'p' THEN
-		INSERT INTO `professor` (
-				`user_id`, `identification`
-			) VALUES (
-				LAST_INSERT_ID(), `_id`
-			)
-		;
-	ELSE
-    IF `_type` = 's' THEN
-		INSERT INTO `student` (
-				`user_id`, `index`
-			) VALUES (
-				LAST_INSERT_ID(), `_id`
-			)
-		;
+	DECLARE `_user_id` INT(10) DEFAULT NULL;
+    
+    CASE
+		WHEN `_type` = 'p' THEN
+			CALL __getProfessorId(`_user_id`, `_id`);
+		
+		WHEN `_type` = 's' THEN
+			CALL __getStudentId(`_user_id`, `_id`);
+	END CASE;
+    
+    IF `_user_id` IS NOT NULL THEN
+		DELETE FROM `user`
+			WHERE `user`.`user_id` = `_user_id`;
 	END IF;
-    END IF;
+
+	INSERT INTO `user`
+		(`name`, `surname`, `sync_level`, `server_id`)
+        VALUES
+        (`_name`, `_surname`, 's', `_server_id`);
+	
+    CASE
+		WHEN `_type` = 'p' THEN
+			INSERT INTO `professor`
+				(`user_id`, `identification`)
+				VALUES
+				(LAST_INSERT_ID(), `_id`);
+		
+		WHEN `_type` = 's' THEN
+			INSERT INTO `student`
+				(`user_id`, `index`)
+				VALUES
+				(LAST_INSERT_ID(), `_id`);
+    END CASE;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1055,9 +1048,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -1071,21 +1064,17 @@ BEGIN
 		SET `mac`.`is_active` = 0,
 			`mac`.`end_time` = `_time`
 		WHERE `mac`.`user_id` = `_user_id`
-        AND `mac`.`is_active` = 1
-	;
+        AND `mac`.`is_active` = 1;
     
-	INSERT INTO `mac` (
-			`mac_address`, `user_id`, `start_time`
-		) VALUES (
-			`_mac`, `_user_id`, `_time`
-		)
-	;
+	INSERT INTO `mac`
+		(`mac_address`, `user_id`, `start_time`)
+        VALUES
+        (`_mac`, `_user_id`, `_time`);
     
     UPDATE `log`
 		SET `log`.`mac_id` = LAST_INSERT_ID()
         WHERE `log`.`mac` = `_mac`
-        AND `log`.`mac_id` IS NULL
-	;
+        AND `log`.`mac_id` IS NULL;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1096,9 +1085,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -1110,18 +1099,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `__setUserServerId`(
 BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     
-	IF `_type` = 's'
-		THEN CALL __getStudentId(`_user_id`, `_id`);
-	ELSE IF `_type` = 'p'
-		THEN CALL __getProfessorId(`_user_id`, `_id`);
-	END IF;
-    END IF;
+    CASE
+		WHEN `_type` = 's' THEN
+			CALL __getStudentId(`_user_id`, `_id`);
+		WHEN `_type` = 'p' THEN
+			CALL __getProfessorId(`_user_id`, `_id`);
+	END CASE;
     
     UPDATE `user`
 		SET `user`.`server_id` = `_server_id`,
 			`user`.`sync_level` = 's'
-		WHERE `user`.`user_id` = `_user_id`
-	;
+		WHERE `user`.`user_id` = `_user_id`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1132,9 +1120,9 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
@@ -1148,28 +1136,24 @@ BEGIN
 	DECLARE `_user_id` INT(10) DEFAULT NULL;
     SELECT u.`user_id` INTO `_user_id`
 		FROM `user` u
-        WHERE u.`server_id` = `_server_id`
-	;
+        WHERE u.`server_id` = `_server_id`;
     
     UPDATE `user`
 		SET `user`.`name` = COALESCE(`_name`, `user`.`name`),
 			`user`.`surname` = COALESCE(`_surname`,
             `user`.`surname`),
 			`user`.`sync_level` = 's'
-		WHERE `user`.`user_id` = `_user_id`
-	;
+		WHERE `user`.`user_id` = `_user_id`;
     
 	UPDATE `professor`
 		SET `professor`.`identification` = COALESCE(`_id`,
 			`professor`.`identification`)
-		WHERE `professor`.`user_id` = `_user_id`
-	;
+		WHERE `professor`.`user_id` = `_user_id`;
     
     UPDATE `student`
 		SET `student`.`index` = COALESCE(`_index`,
 			`student`.`index`)
-		WHERE `student`.`user_id` = `_user_id`
-	;
+		WHERE `student`.`user_id` = `_user_id`;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1186,4 +1170,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-21 14:28:01
+-- Dump completed on 2018-11-06 13:44:44
