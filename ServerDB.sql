@@ -788,7 +788,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `importMac`(
-	IN `_logger_mac` int(10),
+	IN `_logger_mac` varchar(45),
 	IN `_user_id` int(10),
     IN `_mac` varchar(45),
     IN `_time` datetime
@@ -800,21 +800,26 @@ BEGIN
     DECLARE `_mac_sync_level` CHAR DEFAULT NULL;
     
     CALL __getLoggerId(`_logger_id`, `_logger_mac`);
-    CALL __getActiveMacId(`_mac_id`, `_user_id`);
     
     CALL __getUserSyncLevel(`_user_sync_level`,
 		`_logger_id`, `_user_id`);
-	CALL __getMacSyncLevel(`_mac_sync_level`,
-		`_logger_id`, `_mac_id`);
     
-    
-    IF `_user_sync_level` IN ('s', 'n')
-        AND `_mac_sync_level` IN ('s')
-		
-        THEN CALL insertMac(`_logger_id`, `_user_id`,
-			`_mac`, `_time`);
-		
-	END IF;
+    IF `_user_sync_level` IN ('s', 'n') THEN BEGIN
+		CALL __getActiveMacId(`_mac_id`, `_user_id`);
+        
+        IF `_mac_id` IS NULL
+			THEN CALL insertMac(`_logger_id`, `_user_id`, `_mac`, `_time`);
+            ELSE BEGIN
+				CALL __getMacSyncLevel(`_mac_sync_level`,
+					`_logger_id`, `_mac_id`);
+                    
+				IF `_mac_sync_level` IN ('s')
+					THEN CALL insertMac(`_logger_id`,
+						`_user_id`, `_mac`, `_time`);
+				END IF;
+			END;
+		END IF;
+	END; END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
