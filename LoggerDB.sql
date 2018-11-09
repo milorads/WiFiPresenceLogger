@@ -576,6 +576,10 @@ BEGIN
         WHERE u.`server_id` = `_server_id`;
     
     CALL __insertMac(`_user_id`, `_mac`, `_time`);
+	
+	UPDATE `mac`
+		SET `mac`.`sync_level` = 's'
+        WHERE `mac`.`mac_id` = LAST_INSERT_ID();
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
