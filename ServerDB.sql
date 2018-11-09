@@ -35,7 +35,7 @@ CREATE TABLE `log` (
   KEY `log_mac_idx` (`mac_id`),
   CONSTRAINT `log_mac` FOREIGN KEY (`mac_id`) REFERENCES `mac` (`mac_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `log_sector` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`sector_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students'' presence';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A log received by a logger device. Contains information about students';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -883,8 +883,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`(
 	IN `_logger_mac` varchar(45),
 	IN `_mac` varchar(45),
-	IN `_start_time` varchar(45),
-    IN `_end_time` varchar(45)
+	IN `_start_time` datetime,
+    IN `_end_time` datetime
 )
 BEGIN
 	INSERT INTO `log`

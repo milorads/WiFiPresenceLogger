@@ -128,8 +128,8 @@ async function importLogs(mac, rows) {
 				con.query('CALL insertLog(?, ?, ?, ?)', [
 					mac,
 					row.mac,
-					row.stime,
-					row.etime
+					row.s_time,
+					row.e_time
 				], (err, result) => {
 					if (err)
 						msg += err.message + '; ';
