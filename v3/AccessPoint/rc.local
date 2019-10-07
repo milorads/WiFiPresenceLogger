@@ -13,7 +13,7 @@
 
 iptables-restore < /etc/iptables.ipv4.nat
 rfkill unblock all
-bash /home/admin/WiFiPresenceLogger/v3/rtc_sync.bash
-sudo python home/admin/WiFiPresenceLogger/v3/run.py & sudo node home/admin/WiFiPresenceLogger/v3/Node/webpage/orange_pi_server.js &
+bash /home/admin/WiFiPresenceLogger/v3/Bash/rtc_sync.bash
+sudo python home/admin/WiFiPresenceLogger/v3/Py/run.py & sudo python home/admin/WiFiPresenceLogger/v3/Node/app.js & 
 
 exit 0
