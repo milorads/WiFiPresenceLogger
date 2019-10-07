@@ -2,83 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e043654a-5c76-4021-a4f6-e664bb915bd4" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AccessPoint/rc.local" beforeDir="false" afterPath="$PROJECT_DIR$/AccessPoint/rc.local" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/HowTo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/node_latest_armhf.deb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/testApp.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/api_methods.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/client.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/formStyles.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/getTableNameByDate.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/index_v2.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/main.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/orange_pi_server-manual_encryption.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/orange_pi_server.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/orange_pi_server_v2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/orange_pi_server_v3-https.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/orange_pi_server_v3.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/primary.crt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/private.key" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/registrationService.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Node/webpage/registrationWebpage.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegEx.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/check_connection.bash" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/curr/baseWriteArpTest.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/01_00_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/01_00_87.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/04_12_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/07_12_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/08_12_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/11_00_87.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/11_02_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/11_12_17.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/DELETE.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/LOGING.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/REG.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/REG2.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/esp_sample_files/REG_4_12.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/led.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/led.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/led.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ledoff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ledoff.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ledon" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ledon.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/api_routes/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/app.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/dbFunctions.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/primary.crt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/private.key" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/public/css/main.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/public/img/gLogo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/routes/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/server_comm.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/server_communication/sync_routes/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/about.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/includes/head.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/index.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/layout.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/loginForm.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/logo.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/message.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/signInForm.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newNode/views/studentForm.pug" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orange_pi_backup/client.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orange_pi_backup/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orange_pi_backup/multithreading.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orange_pi_backup/node_js_server.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orange_pi_backup/server1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rtc_dump.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rtc_set.bash" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rtc_sync.bash" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rtc_time.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shutdown_time.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/station_check_instance.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sys_time.bash" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/v3_info.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../~$stall upustvo.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../~WRL0005.tmp" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -88,20 +13,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testPyCharm.py">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Py/station_check_instance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
+            <state relative-caret-position="-558">
+              <folding>
+                <element signature="e#0#17#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Py/run.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="30" column="127" selection-start-line="30" selection-start-column="127" selection-end-line="30" selection-end-column="127" />
+            <state relative-caret-position="629">
+              <caret line="37" column="133" selection-start-line="37" selection-start-column="133" selection-end-line="37" selection-end-column="133" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -126,6 +53,7 @@
       <find>check_conn</find>
       <find>shutdown_time</find>
       <find>sys_time</find>
+      <find>wait_for</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -213,12 +141,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1570436939737</updated>
-      <workItem from="1570436944517" duration="3115000" />
+      <workItem from="1570436944517" duration="4355000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3115000" />
+    <option name="totallyTimeSpent" value="4355000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="260" y="60" width="1400" height="1000" extended-state="0" />
@@ -339,13 +267,6 @@
     <entry file="file://$PROJECT_DIR$/check_connection.bash">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/testPyCharm.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Node/api_routes/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="211">
@@ -353,12 +274,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/testPyCharm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="969">
+          <caret line="57" column="31" selection-start-line="57" selection-start-column="28" selection-end-line="57" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Py/run.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="30" column="127" selection-start-line="30" selection-start-column="127" selection-end-line="30" selection-end-column="127" />
+        <state relative-caret-position="629">
+          <caret line="37" column="133" selection-start-line="37" selection-start-column="133" selection-end-line="37" selection-end-column="133" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Py/station_check_instance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-558">
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>
