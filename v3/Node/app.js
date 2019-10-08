@@ -35,8 +35,8 @@ app_api.use(bodyParser.urlencoded({ extended: true }));
 app_api.use(bodyParser.json());
 app_api.use(express['static'](__dirname ));
 
-var https_key = fs.readFileSync('/home/admin/WiFiPresenceLogger/v3/Node/private.key');//TODO change to relative path
-var https_cert = fs.readFileSync('/home/admin/WiFiPresenceLogger/v3/Node/primary.crt');//TODO change to relative path
+var https_key = fs.readFileSync(path.join(__dirname, 'private.key'));
+var https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'));
 var https_credentials = {key: https_key, cert: https_cert};
 
 app_api.use(api_routes);
