@@ -11,6 +11,7 @@ var con = mysql.createConnection({
 });
 
 var url = 'http://192.168.0.131:80/';
+var broadcastUrl = 'http://255.255.255.255/';
 var local_mac = null;
 
 // Signatures of stored procedures for the local database
@@ -25,6 +26,25 @@ const dbimport_macs = 'importMac(?, ?, ?)';
 const simport_users = 'importUsers';
 const simport_macs = 'importMacs';
 const simport_logs = 'importLogs';
+
+async function requestServerIp() {
+	console.log('  >   Request server IP...');
+	return new Promise( (resolve, reject) => {
+		request.post(broadcastUrl + 'serverIp', {
+			json: { }
+		}, function (err, response, body) {
+			if (err)
+				reject(err)
+			else
+				resolve(body)
+		})
+	}).then( ip => {
+		url = 'http://' + ip + ':80/'
+		console.log('----- Server URL: ' + url)
+	}, (_) => {
+		console.log('----- Error: failed to get server IP')
+	})
+}
 
 /*
 	--- Function for exporting data from the local database.
@@ -178,5 +198,6 @@ async function periodic_sync(period) {
 
 module.exports = {
 	sync,
-	periodic_sync
+	periodic_sync,
+	requestServerIp
 }

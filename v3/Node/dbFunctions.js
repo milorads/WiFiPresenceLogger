@@ -8,7 +8,6 @@ var con = mysql.createConnection({
 	database: "wifi_presence_logger_logs"
 });
 
-
 module.exports = {
 	clientRegistrationCheck: async function (ipv6) {
 		var ip;
@@ -20,7 +19,7 @@ module.exports = {
 			return new Promise( (resolve, reject) => {
 				exec('arp -a | grep "wlan0"', (err, stdout, stderr) => {
 					if (err) {
-						reject('Greska prilikom dohvatanja ARP tabele [' + err.message + ']')
+						reject('ERROR while fetching ARP table [' + err.message + ']')
 					} else {
 						resolve(stdout)
 					}
@@ -41,22 +40,22 @@ module.exports = {
 					if (arp_ip == ip) {
 						resolve(parsed_row[3])
 					} else if (++other_macs == parsed_stdout) {
-						reject('Uredjaj sa zadatom ip adresom ne postoji u arp listi')
+						reject('ARP table does not contain a device with the given IP address')
 					}
 				})
 			})
 		})
 		.then( mac => {
-			console.log('Odgovarajuci MAC:', mac);
+			console.log('Device MAC:', mac);
 			return new Promise( (resolve, reject) => {
 				con.query('CALL getUser_byMac(?)', [mac], (err, result) => {
 					if (err)
-						reject('Greska prilikom pristupa bazi [', err.message + ']')
+						reject('ERROR while accessing DB [', err.message + ']')
 					else if (result[0].length == 0) {
-						console.log('no');
+						console.log('Not registered');
 						resolve([mac, null])
 					} else {
-						console.log('si');
+						console.log('Registered');
 						resolve([mac, result[0][0]])
 					}
 				})
@@ -69,24 +68,24 @@ module.exports = {
 				if (type == 's') {
 					con.query('CALL insertStudent(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
 						if (err)
-							reject('Greska prilikom upisa novog studenta u bazu [' + err.message + ']')
+							reject('ERROR while inserting new student into DB [' + err.message + ']')
 						else
-							resolve('Novi student upisan u bazu')
+							resolve('New student inserted into DB')
 					})
 				} else if (type == 'p') {
 					con.query('CALL insertProfessor(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
 						if (err)
-							reject('Greska prilikom upisa novog profesora u bazu [' + err.message + ']')
+							reject('ERROR while inserting new professor into DB [' + err.message + ']')
 						else
-							resolve('Novi profesor upisan u bazu')
+							resolve('New professor inserted into DB')
 					})
 				}
 			} else if (service == 'edit') {
 				con.query('CALL updateUser(?, ?, ?, ?)', [mac, name, surname, id], (err, result) => {
 					if (err)
-						reject('Greska prilikom azuriranja korisnika [' + err.message + ']')
+						reject('ERROR while updating user in DB [' + err.message + ']')
 					else
-						resolve('Korisnik azuriran')
+						resolve('User updated in DB')
 				})
 			}
 		})
@@ -95,11 +94,10 @@ module.exports = {
 		return new Promise( (resolve, reject) => {
 			con.query('CALL getUser_byMac(?)', [mac], (err, result) => {
 				if (err)
-					reject('Greska prilikom pristupa bazi [' + err.message + ']')
+					reject('ERROR while accessing DB [' + err.message + ']')
 				else
 					resolve(result[0]);
 			})
 		})
-		//treba dodati join za tim korisnika
 	}
 }

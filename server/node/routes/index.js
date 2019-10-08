@@ -39,11 +39,11 @@ Promise.prototype.respond = function(res) {
 	})
 }
 
-/* U trenutnoj verziji, desktop aplikacija kao password salje
- * MAC adresu uredjaja, i uredjaj samo to proverava.
+/*
+	Current version: desktop app sends the MAC address as a password.
  */
 async function checkLogger(mac, key, callback) {
-	// TODO
+	// TODO implement proper authentication
 }
 
 /*
@@ -64,6 +64,13 @@ async function getToken(mac) {
 		return Promise.reject('generation');
 	}
 }
+
+router.post('/requestServerIp', function (req, res) {
+	require('dns').lookup(require('os').hostname(), (err, address, fam) => {
+		return address
+	})
+	.respond(res)
+})
 
 router.post('/getToken', function (req, res) {
 	console.log('------------------------');
@@ -95,7 +102,7 @@ router.post('/getToken', function (req, res) {
 });
 
 async function authenticateToken(token) {
-	return Promise.resolve('ok');
+	return Promise.resolve('ok'); // TODO implement proper authentication
 	try {
 		var comps = token.split('.');
 		const payload = comps[0];

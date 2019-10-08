@@ -9,7 +9,9 @@ var bodyParser = require('body-parser');
 const app = express();
 app.set('view engine', 'pug');
 
-//podesavnje default putanja do direktorijuma za pug i css
+/*
+	Default routes for pug and css
+*/
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(__dirname + '/public'));
 
@@ -46,4 +48,7 @@ https.createServer(https_credentials,app_api).listen(3002);
 
 var server_comm = require('./server_comm');
 
-server_comm.periodic_sync(60 * 1000)
+server_comm.requestServerIp()
+.then( () => {
+	server_comm.periodic_sync(60 * 1000)
+})
