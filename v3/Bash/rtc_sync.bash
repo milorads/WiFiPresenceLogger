@@ -1,5 +1,7 @@
 #!/bin/bash
 
+dir=$(dirname $(dirname $(readlink -f "$0")))
+
 msgNoConnection="No connection to NTP time-server"
 msgConnection="Connection to NTP time-server"
 
@@ -18,8 +20,8 @@ if [ "$(ping -c 1 google.com)" ];then
 else
 	#nema konekcije
 	echo $msgNoConnection
-	i2cdump -r 0-6 -y 1 0x68 b | grep -A10 : > /home/admin/WiFiPresenceLogger/v3/Temp/rtc_dump.txt
-	awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < /home/admin/WiFiPresenceLogger/v3/Temp/rtc_dump.txt > /home/admin/WiFiPresenceLogger/v3/Temp/rtc_time.txt
-	date -s $(date +'%Y-%m-%dT%H:%M:%S' -f /home/admin/WiFiPresenceLogger/v3/Temp/rtc_time.txt)
+	i2cdump -r 0-6 -y 1 0x68 b | grep -A10 : > ${dir}/Temp/rtc_dump.txt
+	awk '{printf("20%s-%s-%s %s:%s:%s",$8,$7,$6,$4,$3,$2);}' < ${dir}/Temp/rtc_dump.txt > ${dir}/Temp/rtc_time.txt
+	date -s $(date +'%Y-%m-%dT%H:%M:%S' -f ${dir}/Temp/rtc_time.txt)
 fi
 
