@@ -13,10 +13,10 @@ router.get('/', function (req, res) {
 		var record = data[1];
 		
 		if (record != null) {
-			console.log("sada ne puca ;)");
-			console.log("postoji");
-			//funkcija koja u session stavlja podatke o korisniku
-			//ako nema podataka u session, dodajemo ih iz baze
+			console.log('User exists');
+
+			/* if session is empty, put data from DB */
+
 			console.log("<<" + record.name + "|" + record.surname + ">>");
 			req.session.name = record.name;
 			req.session.surname = record.surname;
@@ -28,7 +28,7 @@ router.get('/', function (req, res) {
 				link1 : 'edit'
 			})
 		} else {
-			console.log("ne postoji");
+			console.log('User does not exist');
 			res.render('index', {
 				title: 'Tip korisnika',
 				option1: 'Student',
@@ -38,7 +38,7 @@ router.get('/', function (req, res) {
 			})
 		}
 	}, err => {
-		console.log('Zahtev neuspesan.');
+		console.log('Request failed');
 		console.log(err);
 	})
 });
@@ -70,7 +70,7 @@ router.get('/edit', function (req,res) {
 	if (req.session.type == 's')
 		plcIndexStr = "Index";
 	else
-		plcIndexStr = "Identifikacioni broj";
+		plcIndexStr = 'Identifikacioni broj';
 	
 	req.session.service = 'edit';
 	res.render('studentForm', {

@@ -36,10 +36,7 @@ Promise.prototype.respond = function(res) {
 	})
 }
 
-/*
-	U trenutnoj verziji, desktop aplikacija kao password salje
-	MAC adresu uredjaja, i uredjaj samo to proverava.
-*/
+/* The system does not currently use this function */
 function checkUser(username, password, callback) {
 	if (password != deviceCode) {
 		callback('pass');
@@ -48,9 +45,7 @@ function checkUser(username, password, callback) {
 	}
 }
 
-/*
-	Generates token 'payload.signature', where signature is encrypted 'header.payload'.
-*/
+/* The system does not currently use this function */
 async function getToken(username) {
 	try {
 		var exp = new Date().getTime() + 180 * 1000;

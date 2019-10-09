@@ -42,8 +42,7 @@ Promise.prototype.respond = function(res) {
 }
 
 /*
-	U trenutnoj verziji, desktop aplikacija kao password salje
-	MAC adresu uredjaja, i uredjaj samo to proverava.
+	Current version - device's main password is its MAC address
 */
 function checkUser(username, password) {
 	if (password != deviceCode) {
@@ -53,7 +52,7 @@ function checkUser(username, password) {
 }
 
 /*
-	Generates token 'payload.signature', where signature is encrypted 'header.payload'.
+	Generates token 'payload.signature', where signature is encrypted 'header.payload'
 */
 async function getToken(username) {
 	return Promise.resolve()
@@ -109,7 +108,7 @@ async function authenticateToken(token) {
 		if (info.exp < new Date().getTime()) {
 			return Promise.reject('expired');
 		}
-		// after every action, user gets a new token to extend the duration
+		/* after every action, user gets a new token to extend the duration */
 		return getToken(info.usr);
 	})
 	.catch ( err => {

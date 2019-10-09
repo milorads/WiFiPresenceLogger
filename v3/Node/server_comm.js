@@ -14,7 +14,7 @@ var url = 'http://192.168.0.131:80/';
 var broadcastUrl = 'http://255.255.255.255/';
 var local_mac = null;
 
-// Signatures of stored procedures for the local database
+/* Signatures of stored procedures for the local database */
 const dbexport_users = 'exportUsers';
 const dbexport_macs = 'exportMacs';
 const dbexport_logs = 'exportLogs';
@@ -22,7 +22,7 @@ const dbexport_logs = 'exportLogs';
 const dbimport_users = 'importUser(?, ?, ?, ?, ?, ?)';
 const dbimport_macs = 'importMac(?, ?, ?)';
 
-// Names of functions on the server (https requests)
+/* Names of functions on the server (https requests) */
 const simport_users = 'importUsers';
 const simport_macs = 'importMacs';
 const simport_logs = 'importLogs';
@@ -47,8 +47,8 @@ async function requestServerIp() {
 }
 
 /*
-	--- Function for exporting data from the local database.
-	- return value: Promise for the exported instances
+	Export data from the local database.
+	return value: Promise for the exported instances
 */
 async function dbexport(procedure) {
 	console.log('  >   Exporting from database:', procedure, ' ...');
@@ -61,8 +61,9 @@ async function dbexport(procedure) {
 		})
 	})
 }
+
 /*
-	--- Function for importing data importing data into the local database.
+	Import data into the local database.
 */
 async function dbimport(procedure, instances) {
 	console.log('  >   Importing into database:', procedure, ' ...');
@@ -84,6 +85,7 @@ async function dbimport(procedure, instances) {
 		}
 	})
 }
+
 async function sendRequest(req_name, instances) {
 	console.log('  >   Requesting from server:', req_name, ' ...');
 	return new Promise( (resolve, reject) => {
@@ -101,6 +103,7 @@ async function sendRequest(req_name, instances) {
 		})
 	})
 }
+
 async function fetchLocalMac() {
 	return new Promise( (resolve, reject) => {
 		if (local_mac != null) {
