@@ -284,7 +284,8 @@ router.post('/importUsers', function (req, res) {
 		return Promise.reject(err);
 	})
 	.then( data => {
-		console.log('--- Users imported. Sending users...');
+		console.log('--- Users imported. DB message: ' + data)
+		console.log('--- Sending users...');
 		return exportUsers(mac);
 	})
 	.respond(res)

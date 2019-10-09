@@ -4,13 +4,12 @@ import subprocess
 import mysql.connector
 
 py_dir = os.path.dirname(os.path.realpath(__file__)) + '/'
-bash_dir = cur_dir + '../Bash/'
-c_dir = cur_dir + '../C/'
-temp_dir = cur_dir + '/../Temp'
+bash_dir = py_dir + '../Bash/'
+c_dir = py_dir + '../C/'
+temp_dir = py_dir + '../Temp/'
 
-#TODO: add temp dir and redirect temps to that dir
 subprocess.call(['sudo', c_dir + 'ledon', '0', 'y'])
-subprocess.call(['sudo', 'bash', bash_dir + 'wait_for_mysql.bash'])#TODO: this will break since sys_time is in bash/wait_for_mysql
+subprocess.call(['sudo', 'bash', bash_dir + 'wait_for_mysql.bash'])
 
 db = mysql.connector.connect(
 	host = 'localhost',
