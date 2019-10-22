@@ -1,30 +1,28 @@
-const express = require('express');
-const routes = require ('./routes');
-var https = require('https');
-var http = require('http');
-var path = require('path');
-var fs = require('fs');
-var bodyParser = require('body-parser');
+const express = require('express')
+const routes = require ('./routes')
 
-/* ========================= controller ========================= */
-var app = express();
+const https = require('https')
+const http = require('http')
+const path = require('path')
+const fs = require('fs')
+const bodyParser = require('body-parser')
+
+// ========================= controller =========================
+const app = express()
 
 app.use(express.static('public'))
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(express['static'](__dirname ));
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.json())
+app.use(express['static'](__dirname))
 
-var https_key = fs.readFileSync(path.join(__dirname, 'private.key'));
-var https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'));
-var https_credentials = {key: https_key, cert: https_cert};
+const https_key = fs.readFileSync(path.join(__dirname, 'private.key'))
+const https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'))
+const https_credentials = {key: https_key, cert: https_cert}
 
-app.use(routes);
+app.use(routes)
 
 //https.createServer(https_credentials,app).listen(3002);
 
-var server;
-new Promise( (resolve, reject) => {
-	server = app.listen(80, '0.0.0.0', () => resolve())
-})
-.then( () => console.log(server.address())
+const server = app.listen(80, '0.0.0.0',
+	() => console.log(server.address())
 )

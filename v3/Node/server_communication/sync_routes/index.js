@@ -1,267 +1,139 @@
-const express = require('express');
-const sync_router = express.Router();
+const express = require('express')
+const sync_router = express.Router()
 
-var rsa = require('node-rsa');
-var fs = require('fs');
+const utilLib = require('../../util')
+const get = utilLib.get
 
-const token_rsa = new rsa({b: 512});
-const token_header = new Buffer(JSON.stringify({ alg: 'rs256' })).toString('base64');
+const database = require('../../database').database
 
-var mysql = require('mysql');
-var con = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: 'root',
-	database: 'wifi_presence_logger_logs'
-});
+const LogManager = require('../../info-log').LogManager
+const logs = new LogManager(__filename)
 
-var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
+const TokenManager = require('../../token-manager').TokenManager
+const tokenManager = new TokenManager()
 
-Promise.prototype.respond = function(res) {
+const deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58'
+
+Promise.prototype.respond = res => {
+	const name = 'Promise.respond'
+
 	this
 	.then( data => {
-		console.log('Request completed.')
+		logs.info(name, 'Request completed')
 		res.setHeader('error', 'ok')
 		res.end(data)
 	}, err => {
-		console.log('Request failed.')
-		console.error('> Error:', err)
+		logs.error(name, 'Request failed')
 		res.setHeader('error', err)
 		res.end()
 	})
-	.then( () => {
-		console.log('Response sent.')
-	}, err => {
-		console.log('Response sending failed.')
-	})
+	.then(
+		() => logs.info(name, 'Response sent'),
+		err => logs.error(name, 'Response sending failed', err.message)
+	)
 }
 
 /* The system does not currently use this function */
-function checkUser(username, password, callback) {
-	if (password != deviceCode) {
-		callback('pass');
+const checkUser = async (username, password) => {
+	const name = this.checkUser.name
+
+	if (password == deviceCode) {
+		logs.info(name, 'User authenticated')
+		return
 	} else {
-		callback(null);
+		logs.error(name, 'User authentication failed')
+		throw 'authentication'
 	}
 }
 
-/* The system does not currently use this function */
-async function getToken(username) {
-	try {
-		var exp = new Date().getTime() + 180 * 1000;
-		
-		const payload = new Buffer(JSON.stringify({ usr: username, exp: exp }))
-			.toString('base64');
-		const plaintext = token_header + payload;
-		const signature = token_rsa.sign(plaintext, 'base64', 'base64');
-		const token = payload + '.' + signature;
-		
-		return Promise.resolve(token);
-	} catch (err) {
-		return Promise.reject('generation');
-	}
-}
-
-api_router.post('/getToken', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: get token');
-	var username = ('usr' in req.body) ? req.body.usr : null;
-	var password = ('pass' in req.body) ? req.body.pass : null;
+api_router.post('/getToken', (req, res) => {
 	
-	new Promise( (resolve, reject) => {
-		checkUser(username, password, (err) => {
-			if (err)
-				reject(err);
-			else
-				resolve();
-		})
-	})
-	.then( () => {
-		console.log('User authenticated.');
-		return getToken(username);
-	}, err => {
-		console.log('User authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( token => {
-		console.log('New token generated. Token value is:', token);
-		return token;
-	})
+	const name = '/getToken'
+	logs.trace(name, 'Request: get token')
+
+	Promise.resolve()
+	.then( () =>
+		checkUser(get(req, 'usr'), get(req, 'pass'))
+	)
+	.then( () =>
+		tokenManager.generate(get(req, 'usr'))
+	)
 	.respond(res)
 });
 
-async function authenticateToken(token) {
-	return Promise.resolve(null);
-	try {
-		var comps = token.split('.');
-		const payload = comps[0];
-		const signature = comps[1];
-		const plaintext = token_header + payload;
-		
-		if (!token_rsa.verify(plaintext, signature, 'base64', 'base64')) {
-			return Promise.reject('signature');
-		}
-		const info = JSON.parse(new Buffer(payload, 'base64').toString('ascii'));
-		if (info.exp < new Date().getTime()) {
-			return Promise.reject('expired');
-		}
-		// after every action, user gets a new token to extend the duration
-		return getToken(info.usr);
-	} catch (err) {
-		return Promise.reject('format');
-	}
-}
-
-api_router.post('/exportUsers', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: export users');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+api_router.post('/exportUsers', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		return new Promise( (resolve, reject) => {
-			con.query('CALL exportUsers', (err, result) => {
-				if (err)
-					reject(err);
-				else
-					resolve(result);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = 'exportUsersUrl'
+	logs.trace(name, 'Request: export users')
+	
+	tokenManager.authenticateRequestDummy(req, res)
+	.then( () => database.query('CALL exportUsers', []) )
 	.respond(res)
 })
 
-async function importUsers(users, callback) {
-	var answer = '';
+const importUsers = async users => {
 	
+	/* Regular 'for' loop ensures ordered insertion */
 	for (user in users) {
-		con.query('CALL importUser(?, ?, ?, ?, ?, ?)', [user.type, user.name, user.surname,
-				user.id, user.sync_level, user.server_id],
-				(err, result) => { if (err) answer += err.message + ';' }
+		database.query('CALL importUser(?, ?, ?, ?, ?, ?)',
+			[user.type, user.name, user.surname, user.id, user.sync_level, user.server_id],
 		)
 	}
-	callback(null, answer);
+	return null
 }
 
 api_router.post('/importUsers', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: import users');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var users = ('users' in req.body) ? req.body.users : null;
-		
-		return new Promise( (resolve, reject) => {
-			importUsers(users, (err, data) => {
-				if (err)
-					reject(err);
-				else
-					resolve(data);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/importUsers'
+	logs.trace(name, 'Request: import users')
+	
+	tokenManager.authenticateRequestDummy(req, res)
+	.then( () =>
+		importUsers(get(req, 'users'))
+	)
 	.respond(res)
 })
 
 api_router.post('/exportMacs', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: export macs');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return new Promise( (resolve, reject) => {
-			con.query('CALL exportMacs', (err, result) => {
-				if (err)
-					reject(err);
-				else
-					resolve(result);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/exportMacs'
+	logs.trace(name, 'Request: export MACs')
+	
+	tokenManager.authenticateRequestDummy(req, res)
+	.then( () => database.query('CALL exportMacs', []) )
 	.respond(res)
 })
 
-async function importMacs(macs, callback) {
-	var answer = '';
+const importMacs = async macs => {
 	
+	/* Regular 'for' loop ensures ordered insertion */
 	for (mac in macs) {
-		con.query('CALL importMac(?, ?, ?)', [mac.mac, mac.time, mac.server_id],
-				(err, result) => { if (err) answer += err.message + ';' })
+		database.query('CALL importMac(?, ?, ?)', [mac.mac, mac.time, mac.server_id])
 	}
-	callback(null, answer);
+	return null
 }
 
-api_router.get('/importMacs', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: import macs');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+api_router.get('/importMacs', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var macs = ('macs' in req.body) ? req.body.macs : null;
-		
-		return new Promise( (resolve, reject) => {
-			importMacs(macs, (err, data) => {
-				if (err)
-					reject(err);
-				else
-					resolve(data);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/importMacs'
+	logs.trace(name, 'Request: import MACs')
+	
+	tokenManager.authenticateRequestDummy(req, res)
+	.then( () =>
+		importMacs(get(req, 'macs'))
+	)
 	.respond(res)
 });
 
 api_router.post('/exportLogs', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: export logs');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return new Promise( (resolve, reject) => {
-			con.query('CALL exportLogs', (err, result) => {
-				if (err)
-					reject(err);
-				else
-					resolve(result);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/exportLogs'
+	logs.trace(name, 'Request: export logs')
+	
+	tokenManager.authenticateRequestDummy(req, res)
+	.then( () => database.query('CALL exportLogs', []) )
 	.respond(res)
 })
 
-module.exports = sync_router;
+
+module.exports = sync_router

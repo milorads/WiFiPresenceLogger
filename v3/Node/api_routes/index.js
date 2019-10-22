@@ -1,471 +1,304 @@
-const express = require('express');
-const api_router = express.Router();
+const utilLib = require('../util')
+const get = utilLib.get
+const forEachResolve = utilLib.forEachResolve
+const performScript = utilLib.performScript
 
-var rsa = require('node-rsa');
-var fs = require('fs');
+const express = require('express')
+const api_router = express.Router()
 
-const token_rsa = new rsa({b: 512});
-const token_header = new Buffer(JSON.stringify({ alg: 'rs256' })).toString('base64');
+const database = require('../database').database
 
-var mysql = require('mysql');
-var con = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: 'root',
-	database: 'wifi_presence_logger_logs'
-});
+const LogManager = require('../info-log').LogManager
+const logs = new LogManager(__filename)
 
+const TokenManager = require('../token-manager').TokenManager
+const tokens = new TokenManager()
 
-var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
+// TODO should be replaced with a better form of authentication
+const deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58'
 
-Promise.prototype.respond = function(res) {
+Promise.prototype.respond = res => {
+	const name = 'prototype response'
+
 	this
 	.then( data => {
-		console.log('Request completed.');
-		console.log('Data to be sent:');
-		console.log('------------------------');
-		console.log(data);
-		console.log('------------------------');
-		res.setHeader('error', 'ok');
-		res.end(data);
+		logs.info(name, 'Request completed')
+		res.setHeader('error', 'ok')
+		res.end(data)
 	}, err => {
-		console.log('Request failed.');
-		console.error('> Error:', err);
-		res.setHeader('error', err);
-		res.end();
+		logs.error(name, 'Request failed')
+		res.setHeader('error', err)
+		res.end()
 	})
-	.then( () => {
-		console.log('Response sent.');
-	}, err => {
-		console.log('Response sending failed.');
-	})
+	.then(
+		() => logs.info(name, 'Response sent'),
+		err => logs.error(name, 'Response sending failed', err.message)
+	)
 }
 
-/*
-	Current version - device's main password is its MAC address
-*/
-function checkUser(username, password) {
-	if (password != deviceCode) {
-		return Promise.reject('pass')
-	}
-	return Promise.resolve()
-}
-
-/*
-	Generates token 'payload.signature', where signature is encrypted 'header.payload'
-*/
-async function getToken(username) {
-	return Promise.resolve()
-	.then( () => {
-		var exp = new Date().getTime() + 180 * 1000;
-		
-		const payload = new Buffer(JSON.stringify({ usr: username, exp: exp }))
-			.toString('base64');
-		const plaintext = token_header + payload;
-		const signature = token_rsa.sign(plaintext, 'base64', 'base64');
-		const token = payload + '.' + signature;
-		
-		return Promise.resolve(token);
-	})
-	.catch ( err => {
-		return Promise.reject('generation');
-	})
-}
-
-api_router.post('/getToken', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: get token');
-	var username = ('usr' in req.body) ? req.body.usr : null;
-	var password = ('pass' in req.body) ? req.body.pass : null;
+// Current version - device's main password is its MAC address
+//
+const checkUser = async (username, password) => {
 	
-	checkUser(username, password)
-	.then( () => {
-		console.log('User authenticated.');
-		return getToken(username);
-	}, err => {
-		console.log('User authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( token => {
-		console.log('New token generated. Token value is:', token);
-		return token;
-	})
+	const name = this.checkUser.name
+	logs.trace(`Checking user: ${username}`)
+
+	if (password == deviceCode) {
+		logs.info(name, 'User authenticated')
+		return
+	} else {
+		logs.error(name, 'User authentication failed')
+		throw 'pass'
+	}
+}
+
+api_router.post('/getToken', (req, res) => {
+	
+	const name = '/getToken'
+	logs.trace(name, 'Request: get token')
+	
+	Promise.resolve()
+	.then( () =>
+		checkUser(get(req, 'usr'), get(req, 'pass'))
+	)
+	.then( () =>
+		tokens.generate(get(req, 'usr'))
+	)
 	.respond(res)
 });
 
-async function authenticateToken(token) {
-	return Promise.resolve()
-	.then( () => {
-		var comps = token.split('.');
-		const payload = comps[0];
-		const signature = comps[1];
-		const plaintext = token_header + payload;
-		
-		if (!token_rsa.verify(plaintext, signature, 'base64', 'base64')) {
-			return Promise.reject('signature');
-		}
-		const info = JSON.parse(new Buffer(payload, 'base64').toString('ascii'));
-		if (info.exp < new Date().getTime()) {
-			return Promise.reject('expired');
-		}
-		/* after every action, user gets a new token to extend the duration */
-		return getToken(info.usr);
-	})
-	.catch ( err => {
-		return Promise.reject(
-			(typeof err === 'string') ? err : 'format'
-		);
-	})
-}
+const apiTest = async () => '1'
 
-async function apiTest(callback) {
-	return Promise.resolve('1');
-}
-api_router.post('/apiTest', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: API test');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+api_router.post('/apiTest', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return apiTest()
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/apiTest'
+	logs.trace(name, 'Request: API test')
+	
+	tokens.authenticateRequest(req, res)
+	.then(apiTest)
 	.respond(res)
 })
 
-async function getData(datum) {
-	return Promise.resolve()
-	.then( () => {
-		console.log(datum);
-		return new Promise( (resolve, reject) => {
-			con.query('CALL getLogs_byDate(?)', [datum], (err, result) => {
-				if (err)
-					reject(err.message)
-				else
-					resolve(result[0])
-			})
-		})
-	})
-	.then( rows => {
-		var res = '';
-		var num = 0;
+const getData = async datum => {
+	
+	if (datum == null) throw 'parameters'
+
+	const name = this.getData.name
+	logs.trace(name, `Data: ${datum}`)
+	
+	return database.query('CALL getLogs_byDate(?)', [datum])
+	.then( async rows => {
+		let res = ''
+
+		await forEachResolve(rows, row => res +=
+			`${row.type}|${row.name}|${row.surname}|${row.id}|${row.mac}|${row.stime}|${row.etime};`
+		)
 		
-		rows.forEach( row => {
-			console.log(row);
-			res += row.type + '|' + row.name + '|' + row.surname
-					+ '|' + row.id + '|' + row.mac
-					+ '|' + row.stime + '|' + row.etime + ';';
-			if (++num == rows.length) {
-				console.log(res);
-				resolve(res.substring(0, res.length - 1))
-			}
-		})
+		logs.info(name, `Final result: ${res}`)
+		return res.substring(0, res.length - 1)
 	})
 }
 
-api_router.post('/getData', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: get data');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+api_router.post('/getData', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var datum = ('file' in req.body) ? req.body.file : null;
-		if (datum == null) return Promise.reject('parameters');
-		
-		return getData(datum)
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/getData'
+	logs.trace(name, 'Request: get data')
+	
+	tokens.authenticateRequest(req, res)
+	.then( () =>
+		getData(get(req, 'file'))
+	)
 	.respond(res)
 })
 
-async function getData1(datum, callback) {
-	return Promise.resolve()
-	.then( () => {
-		return new Promise( (resolve, reject) => {
-			con.query('CALL getLogs_byDate(?)', [datum], (err, result) => {
-				if (err)
-					reject(err.message);
-				else
-					resolve(result[0]);
-			})
-		})
-	})
-	.then( rows => {
-		var res = '';
-		var num = 0;
+const getData1 = async datum => {
+
+	if (datum == null) throw 'parameters'
+	
+	const name = this.getData1.name
+	logs.trace(name, `Data: ${datum}`)
+	
+	return database.query('CALL getLogs_byDate(?)')
+	.then( async rows => {
+		let res = ''
+
+		await forEachResolve(rows, row => res +=
+			`${row.type}|${row.name}|${row.surname}|${row.id}|${row.mac}|${row.stime}|${row.etime};`
+		)
 		
-		return new Promise( (resolve, reject) => {
-			rows.forEach( row => {
-				res += row.type + '|' + row.name + '|' + row.surname
-						+ '|' + row.id + '|' + row.mac
-						+ '|' + row.stime + '|' + row.etime + ';';
-				if (++num == rows.length)
-					resolve(res.substring(0, res.length - 1))
-			})
-		})
+		logs.info(name, `Final result: ${res}`)
+		return res.substring(0, res.length - 1)
 	})
 }
 
 api_router.post('/getData1', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: get data 1');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var datum = ('file' in req.body) ? req.body.file : null;
-		if (datum == null) return Promise.reject('parameters');
-		
-		return getData1(datum);
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/getData1'
+	logs.trace(name, 'Request: Get data 1')
+	
+	tokens.authenticateRequest(req, res)
+	.then( () =>
+		getData1(get(req, 'file'))
+	)
 	.respond(res)
 })
 
-async function deleteData(dates) {
-	return Promise.resolve()
-	.then( () => {
-		var dates_list = dates.split(',');
-		console.log('datumi:', datesList);
-		console.log('----');
-		dates_list.forEach((date, index) => {
-			con.query('CALL deleteLogs_byDate(?)', [date], function (err, result) {
-				if (err) {
-					console.error(err.message);
-				}
-			})
-		})
-		return Promise.resolve()
-	})
-	.catch ( err => {
-		return Promise.reject(err.message)
-	})
+const deleteData = async dates => {
+
+	if (dates == null) throw 'parameters'
+	
+	const name = this.deleteData.name
+	logs.trace(name, 'Deleting data...')
+
+	const datesList = dates.split(',')
+	logs.info(`Dates: ${datesList}`)
+
+	datesList.forEach( date =>
+		database.query('CALL deleteLogs_byDate(?)', [date])
+	)
 }
 
 api_router.post('/deleteData', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: delete data');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var dates = ('file' in req.body) ? req.body.file : null;
-		if (dates == null) return Promise.reject('parameters');
-		return deleteData(dates)
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/deleteData'
+	logs.trace(name, 'Request: delete data')
+	
+	tokens.authenticateRequest(req, res)
+	.then( () =>
+		deleteData(get(req, 'file'))
+	)
 	.respond(res)
 })
 
-async function listData(callback) {
-	var tabele = `SELECT * FROM sqlite_master WHERE type='table'`;
+const listData = async () => {
 	
-	LogBase.all(tabele, (err, row) => {
-		if (err) {
-			console.error(err.message);
-			callback(err.message);
-		} else {
-			console.log(row);
-			var res = "";
-			for (var i = 0; i < row.length; i++) {
-				res += row[i].name+';';
+	const name = this.listData.name
+	const tabels = `SELECT * FROM sqlite_master WHERE type='table'`
+	
+	return new Promise( (resolve, reject) =>
+		LogBase.all(tabels, (err, row) => {
+			if (err) {
+				logs.error(name, 'LogBase error', err.message)
+				reject('LogBase error')
+			} else {
+				logs.info(name, `LogBase result: ${row}`)
+
+				let res = ''
+				await forEachResolve(row, instance => res += `${instance.name};` )
+				resolve(res.substring(0, res.length - 1))
 			}
-			res = res.substring(0, res.length - 1);
-			callback(null, res);
-		}
-	});
+		})
+	)
 }
 
 api_router.post('/listData', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: list data');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return new Promise( (resolve, reject) => {
-			listData( (err, data) => {
-				if (err)
-					reject(err);
-				else
-					resolve(data);
-			})
-		})
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/listData'
+	logs.trace(name, 'Request: list data')
+	
+	tokens.authenticateRequest(req, res)
+	.then(listData)
 	.respond(res)
 })
 
-api_router.get('/getTimestamp', function(req, res) {
-	console.log('------------------------');
-	console.log('Request: get timestamp');
+api_router.get('/getTimestamp', (req, res) => {
+	
+	const name = '/getTimestamp'
+	logs.trace(name, 'Request: get timestamp')
+
 	try {
-		tStamp = new Date().toISOString().replace(/\..+/,'');
-		res.end(tStamp);
-		console.log('Response sent');
+		tStamp = new Date().toISOString().replace(/\..+/,'')
+		res.end(tStamp)
+		logs.trace(name, 'Response sent')
 	} catch (err) {
-		console.log('Response sending failed');
+		logs.error(name, 'Response sending failed', err.message)
 	}
 });
 
-async function getTimeShift() {
-	return Promise.resolve()
-	.then( () => {
-		const exec = require('child_process').exec;
-		//var tStamp = new Date(timestamp.replace(/T/, ' '));
-		
-		exec("date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:", (error, stdout, stderr) => {
-			console.log(`${stdout}`);
-			console.log(`${stderr}`);
-			if (error !== null) {
-				return Promise.reject(`exec error: ${error}`)
-			} else {
-				var strArr = stdout.split('\n');
-				var sysTime = new Date(strArr[0]);
-				console.log("SYS time:" + sysTime);
-				rtcStrArr = strArr[1].split(' ');
-				var rtcTime = new Date("20"+rtcStrArr[7] + "-"+rtcStrArr[6]+"-"+rtcStrArr[5]+"T"+rtcStrArr[3]+":"+rtcStrArr[2]+":"+rtcStrArr[1]);
-				console.log("RTC time" + rtcTime);
-				console.log("shift: " + (sysTime-rtcTime)/1000);
-				return Promise.resolve(String((sysTime-rtcTime)/1000));
-			}
-		})
-	})
-	.catch( err => {
-		return Promise.reject(
-			(typeof err === 'string') ? err : err.message
-		);
-	})
+const getTimeShift = async () => {
+	
+	const name = this.getTimeShift.name
+
+	try {
+		const output = (await performScript(
+			"date +'%Y-%m-%dT%H:%M:%S' && i2cdump -r 0-6 -y 1 0x68 b | grep 00:"
+		)).split('\n')
+
+		const systemTime = new Date(output[0])
+		logs.info(name, `System time: ${systemTime}`)
+
+		const rtc = output[1].split(' ')
+		const rtcTime = new Date(`20${rtc[7]}-${rtc[6]}-${rtc[5]}T${rtc[3]}:${rtc[2]}:${rtc[1]}`)
+		logs.info(name, `RTC time: ${rtcTime}`)
+
+		const timeShift = (systemTime - rtcTime) / 1000
+		logs.info(name, `Time shift: ${timeShift}`)
+
+		return String(timeShift)
+	
+	} catch (err) {
+		throw (typeof err === 'string') ? err : err.message
+	}
 }
 
 api_router.post('/getTimeShift', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: get time shift');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return getTimeShift()
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/getTimeShift'
+	logs.trace(name, 'Request: get time shift')
+	
+	tokens.authenticateRequest(req, res)
+	.then(getTimeShift)
 	.respond(res)
 })
 
-async function setSystemTime(actionCode, adminTimestamp) {
-	return Promise.resolve()
-	.then( () => {
-		const exec = require('child_process').exec;
-		
-		exec("sudo bash /home/admin/WiFiPresenceLogger/v3/Bash/sys_time.bash " + actionCode + " " + adminTimestamp, (error, stdout, stderr) => {
-			console.log(`${stdout}`);
-			console.log(`${stderr}`);
-			if (error)
-				return Promise.reject(`exec error: ${error}`)
-			else
-				return Promise.resolve(stdout)
-		})
-	})
-}
+const setSystemTime = async (actionCode, adminTimestamp) => performScript(
+
+	`sudo bash ${__dirname}/../../Bash/sys_time.bash ${actionCode} ${adminTimestamp}`
+)
 
 api_router.post('/setSystemTime', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: set system time');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		var actionCode = ('actionCode' in req.body) ? req.body.actionCode : null;
-		var adminTimestamp = ('adminTimestamp' in req.body) ? req.body.adminTimestamp : null;
-		if (actionCode == null || adminTimestamp == null)
-			return Promise.reject('parameters');
-		return setSystemTime(actionCode, adminTimestamp)
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
+	const name = '/setSystemTime'
+	logs.trace(name, 'Request: set system time')
+	
+	tokens.authenticateRequest(req, res)
+	.then( () => {
+		const actionCode = get(req, 'actionCode')
+		const adminTimestamp = get(req, 'adminTimestamp')
+
+		return (actionCode == null || adminTimestamp == null) ?
+			Promise.reject('parameters') :
+			setSystemTime(actionCode, adminTimestamp)
 	})
 	.respond(res)
 })
 
-async function getRegList() {
-	Promise.resolve()
-	.then( () => {
-		return new Promise( (resolve, reject) => {
-			con.query('CALL getLogs', (err, result) => {
-				if (err)
-					reject(err.message)
-				else
-					resolve(result[0])
-			})
-		})
-	})
-	.then( rows => {
-		var res = '';
-		var num = 0;
-		return new Promise( (resolve, reject) => {
-			rows.forEach((row, index) => {
-				console.log(row);
-				res += row.type + '|' + row.name + '|' + row.surname
-						+ '|' + row.id + '|' + row.mac
-						+ '|' + row.stime + '|' + row.etime + ';';
-				if (++num == result[0].length)
-					resolve(res.substring(0, res.length - 1))
-			})
-		})
+const getRegList = async () => {
+	
+	const name = this.getRegList.name
+	
+	return database.query('CALL getLogs')
+	.then( async rows => {
+		let res = ''
+
+		await forEachResolve(rows, row => res +=
+			`${row.type}|${row.name}|${row.surname}|${row.id}|${row.mac}|${row.stime}|${row.etime};`
+		)
+		
+		logs.info(name, `Final result: ${res}`)
+		return res.substring(0, res.length - 1)
 	})
 }
 
 api_router.post('/getRegList', (req, res) => {
-	console.log('------------------------');
-	console.log('Request: get reg list');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		return getRegList()
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err)
-	})
+	const name = '/getRegList'
+	logs.trace(name, 'Request: get reg list')
+	
+	tokens.authenticateRequest(req, res)
+	.then(getRegList)
 	.respond(res)
 });
 
 
-module.exports = api_router;
+module.exports = api_router

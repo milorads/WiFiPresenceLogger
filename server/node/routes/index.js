@@ -1,369 +1,210 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-var mysql = require('mysql');
-var con = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: 'root',
-	database: 'wifi_presence_logger'
-});
+const utilLib = require('../util')
+const get = utilLib.get
+const forEachResolve = utilLib.forEachResolve
 
-var rsa = require('node-rsa');
-var fs = require('fs');
+const database = require('../database').database
 
-const token_rsa = new rsa({b: 512});
-const token_header = new Buffer(JSON.stringify({ alg: "rs256" })).toString('base64');
+const LogManager = require('../info-log').LogManager
+const logs = new LogManager(__filename)
 
-var deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58';
+const TokenManager = require('../token-manager').TokenManager
+const tokens = new TokenManager()
 
-Promise.prototype.respond = function(res) {
+Promise.prototype.respond = res => {
+	const name = 'Promise.respond'
+
 	this
 	.then( data => {
-		console.log('Request completed.')
+		logs.info(name, 'Request completed')
 		res.setHeader('error', 'ok')
-		console.log('Data:', data)
 		res.send(data)
 		res.end()
 	}, err => {
-		console.log('Request failed.')
-		console.error('> Error:', err)
+		logs.error(name, 'Request failed', err)
 		res.setHeader('error', err)
 		res.end()
 	})
-	.then( () => {
-		console.log('Response sent.')
-	}, err => {
-		console.log('Response sending failed.')
-		console.error('>Error:', err)
-	})
+	.then(
+		() => logs.info(name, 'Response sent'),
+		err => logs.error(name, 'Response sending failed', err.message)
+	)
 }
 
-/*
-	Current version: desktop app sends the MAC address as a password.
- */
-async function checkLogger(mac, key, callback) {
-	// TODO implement proper authentication
-}
+const checkLogger = async (mac, key) => {
+	
+	const name = this.checkLogger.name
 
-/*
-	Generates token 'payload.signature', where signature is encrypted 'header.payload'.
-*/
-async function getToken(mac) {
-	try {
-		var exp = new Date().getTime() + 180 * 1000;
-		
-		const payload = new Buffer(JSON.stringify({mac: mac, exp: exp}))
-			.toString('base64');
-		const plaintext = token_header + payload;
-		const signature = token_rsa.sign(plaintext, 'base64', 'base64');
-		const token = payload + '.' + signature;
-		
-		return Promise.resolve(token);
-	} catch (err) {
-		return Promise.reject('generation');
+	if (true) { // TODO implement proper authentication
+		logs.trace(name, 'Logger authenticated')
+		return
+	} else {
+		logs.error(name, 'Logger authentication failed')
+		throw 'authentication'
 	}
 }
 
-router.post('/requestServerIp', function (req, res) {
-	require('dns').lookup(require('os').hostname(), (err, address, fam) => {
-		return address
-	})
+const importLogs = async (mac, rows) => {
+
+	const name = this.importLogs.name
+
+	if (rows.length > 0) {
+
+		logs.trace(name, 'Importing logs...')
+
+		await forEachResolve(rows, row => {
+			logs.info(name, `Row: ${row}`)
+
+			database.query('CALL insertLog(?, ?, ?, ?)',
+				[mac, row.mac, row.s_time, row.e_time]
+			)
+		})
+	}
+}
+
+const importUsers = async (mac, rows) => {
+
+	const name = this.importUsers.name
+
+	if (rows.length > 0) {
+
+		logs.trace(name, 'Importing users...')
+
+		await forEachResolve(rows, row => {
+			logs.info(name, `Row: ${row}`)
+
+			database.query('CALL importUser(?, ?, ?, ?, ?, ?, ?)',
+				[mac, row.type, row.name, row.surname, row.id, row.sync_level, row.server_id]
+			)
+		})
+	}
+}
+
+const importMacs = async (mac, rows) => {
+
+	const name = this.importMacs.name
+
+	if (rows.length > 0) {
+
+		logs.trace(name, 'Importing MACs...')
+
+		await forEachResolve(rows, row => {
+			logs.info(name, `Row: ${row}`)
+
+			database.query('CALL importMac(?, ?, ?, ?)',
+				[mac, row.server_id, row.mac, row.time]
+			)
+		})
+	}
+}
+
+const exportUsers = async users => {
+	logs.trace(this.exportUsers.name, 'Exporting users...')
+	return database.query('CALL exportUsers(?)', [users])
+}
+
+const exportMacs = async mac => {
+	logs.trace(this.exportMacs.name, 'Exporting MACs...')
+	return database.query('CALL exportMacs(?)', [mac])
+}
+
+router.post('/requestServerIp', (req, res) => {
+
+	require('dns').lookup(require('os').hostname(),
+		(err, address, fam) => address
+	)
 	.respond(res)
 })
 
-router.post('/getToken', function (req, res) {
-	console.log('------------------------');
-	console.log('Request: get token');
-	var mac = ('mac' in req.body) ? req.body.mac : null;
-	var key = ('key' in req.body) ? req.body.key : null;
+router.post('/getToken', (req, res) => {
 	
-	// Convert callback into promise
-	new Promise( (resolve, reject) => {
-		checkLogger(mac, key, (err) => {
-			if (err)
-				reject(err);
-			else
-				resolve();
-		})
-	})
-	.then( () => {
-		console.log('Logger authenticated.');
-		return getToken(mac);
-	}, err => {
-		console.log('Logger authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( token => {
-		console.log('New token generated. Token value is:', token);
-		return token;
-	})
+	const name = '/getToken'
+	logs.trace(name, 'Request: get token')
+	
+	Promise.resolve()
+	.then( () =>
+		checkLogger(get(req, 'mac'), get(req, 'key'))
+	)
+	.then( () =>
+		tokens.generate(get(req, 'mac'))
+	)
 	.respond(res)
 });
 
-async function authenticateToken(token) {
-	return Promise.resolve('ok'); // TODO implement proper authentication
-	try {
-		var comps = token.split('.');
-		const payload = comps[0];
-		const signature = comps[1];
-		const plaintext = token_header + payload;
-		
-		if (!token_rsa.verify(plaintext, signature, 'base64', 'base64')) {
-			return Promise.reject('signature');
-		}
-		const info = JSON.parse(new Buffer(payload, 'base64').toString('ascii'));
-		if (info.exp < new Date().getTime()) {
-			return Promise.reject('expired');
-		}
-		// after every action, user gets a new token to extend the duration
-		return getToken(info.usr);
-	} catch (err) {
-		return Promise.reject('format');
-	}
-}
-
-async function importLogs(mac, rows) {
-	return new Promise( (resolve, reject) => {
-		if (rows.length > 0) {
-			var num = 0;
-			var msg = '';
-			rows.forEach( row => {
-				console.log('Row:');
-				console.log(row);
-				
-				con.query('CALL insertLog(?, ?, ?, ?)', [
-					mac,
-					row.mac,
-					row.s_time,
-					row.e_time
-				], (err, result) => {
-					if (err)
-						msg += err.message + '; ';
-				})
-				if (++num == rows.length) resolve(msg);
-			})
-		} else {
-			resolve();
-		}
-	})
-}
-
-async function importUsers(mac, rows) {
-	return new Promise( (resolve, reject) => {
-		if (rows.length > 0) {
-			var num = 0;
-			var msg = '';
-			rows.forEach( row => {
-				console.log('Row:');
-				console.log(row);
-				
-				con.query('CALL importUser(?, ?, ?, ?, ?, ?, ?)', [
-					mac,
-					row.type,
-					row.name,
-					row.surname,
-					row.id,
-					row.sync_level,
-					row.server_id
-				], (err, result) => {
-					if (err)
-						msg += err.message + '; ';
-				})
-				if (++num == rows.length) resolve(msg);
-			})
-		} else {
-			resolve();
-		}
-	})
-}
-
-async function importMacs(mac, rows) {
-	return new Promise( (resolve, reject) => {
-		if (rows.length > 0) {
-			var num = 0;
-			var msg = '';
-			rows.forEach( row => {
-				console.log('Row:');
-				console.log(row);
-				
-				con.query('CALL importMac(?, ?, ?, ?)', [
-					mac,
-					row.server_id,
-					row.mac,
-					row.time
-				], (err, result) => {
-					if (err)
-						msg += err.message + '; ';
-				})
-				if (++num == rows.length) resolve(msg);
-			})
-		} else {
-			resolve();
-		}
-	})
-}
-
-async function exportUsers(mac) {
-	return new Promise( (resolve, reject) => {
-		con.query('CALL exportUsers(?)', [mac], (err, result) => {
-			if (err)
-				reject(err);
-			else
-				resolve(result[0]);
-		})
-	})
-}
-
-async function exportMacs(mac) {
-	return new Promise( (resolve, reject) => {
-		con.query('CALL exportMacs(?)', [mac], (err, result) => {
-			if (err)
-				reject(err);
-			else
-				resolve(result[0]);
-		})
-	})
-}
-
-router.post('/ping', function (req, res) {
-	console.log('-----------------------');
-	console.log('Request: ping');
-	res.end();
+router.post('/ping', (req, res) => {
+	
+	const name = '/ping'
+	logs.trace(name, 'Request: ping')
+	res.end()
 })
 
-router.post('/importLogs', function (req, res) {
-	console.log('------------------------');
-	console.log('Request: Import logs from logger');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
-	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		/*var comps = token.split('.');
-		var mac = JSON.parse(Buffer.from(comps[0], 'base64'));
-		*/
-		var mac = ('mac' in req.body) ? req.body.mac : null;
-		var rows = ('rows' in req.body) ? req.body.rows : null;
-		console.log('Data extracted');
-		console.log('Mac:', mac);
-		
-		return importLogs(mac, rows);
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+router.post('/importLogs', (req, res) => {
+
+	const name = '/importLogs'
+	logs.trace(name, 'Request: Import logs from logger')
+
+	tokens.authenticateRequestDummy(req, res)
+	.then( () =>
+		importLogs(get(req, 'mac', true), get(req, 'rows'))
+	)
 	.respond(res)
 })
 
-router.post('/importUsers', function (req, res) {
-	console.log('------------------------');
-	console.log('--- Request: Import users from logger');
-	var token = ('token' in req.body) ? req.body.token : null;
-	var mac = ('mac' in req.body) ? req.body.mac : null;
-	console.log('Mac:', mac);
-	console.log('Token:', token);
+router.post('/importUsers', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('--- Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		/*var comps = token.split('.');
-		var mac = JSON.parse(Buffer.from(comps[0], 'base64'));
-		*/
-		var rows = ('rows' in req.body) ? req.body.rows : null;
-		console.log('--- Data extracted');
-		
-		return importUsers(mac, rows);
-	}, err => {
-		console.log('--- Token authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( data => {
-		console.log('--- Users imported. DB message: ' + data)
-		console.log('--- Sending users...');
-		return exportUsers(mac);
-	})
+	const name = '/importUsers'
+	logs.trace(name, 'Request: Import users from logger')
+	
+	tokens.authenticateRequestDummy(req, res)
+	.then( () =>
+		importUsers(get(req, 'mac', true), get(req, 'rows'))
+	)
+	.then( () =>
+		exportUsers(get(req, 'mac'))
+	)
 	.respond(res)
 })
 
-router.post('/importMacs', function (req, res) {
-	console.log('------------------------');
-	console.log('--- Request: Import MACs from logger');
-	var token = ('token' in req.body) ? req.body.token : null;
-	var mac = ('mac' in req.body) ? req.body.mac : null;
-	console.log('Token:', token);
+router.post('/importMacs', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('--- Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		/*var comps = token.split('.');
-		var mac = JSON.parse(Buffer.from(comps[0], 'base64'));
-		*/
-		var rows = ('rows' in req.body) ? req.body.rows : null;
-		console.log('--- Data extracted');
-		
-		return importMacs(mac, rows);
-	}, err => {
-		console.log('--- Token authentication failed.');
-		return Promise.reject(err);
-	})
-	.then( data => {
-		console.log('--- MACs imported. Sending MACs...');
-		return exportMacs(mac);
-	})
+	const name = '/importMacs'
+	logs.trace(name, 'Request: Import MACs from logger')
+	
+	tokens.authenticateRequestDummy(req, res)
+	.then( () =>
+		importMacs(get(req, 'mac', true), get(req, 'rows'))
+	)
+	.then( () =>
+		exportMacs(get(req, 'mac'))
+	)
 	.respond(res)
 })
 
-router.post('/exportUsers', function (req, res) {
-	console.log('------------------------');
-	console.log('--- Request: Export users to logger');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+router.post('/exportUsers', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('--- Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		var mac = ('mac' in req.body) ? req.body.mac : null;
-		console.log('--- Data extracted');
-		
-		return exportUsers(mac);
-	}, err => {
-		console.log('--- Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/exportUsers'
+	logs.trace(name, 'Request: Export users to logger')
+	
+	tokens.authenticateRequestDummy(req, res)
+	.then( () =>
+		exportUsers(get(req, 'mac', true))
+	)
 	.respond(res)
 })
 
-router.post('/exportMacs', function (req, res) {
-	console.log('------------------------');
-	console.log('Request: Export MACs to logger');
-	var token = ('token' in req.body) ? req.body.token : null;
-	console.log('Token:', token);
+router.post('/exportMacs', (req, res) => {
 	
-	authenticateToken(token)
-	.then( newToken => {
-		console.log('Token authenticated.');
-		res.setHeader('token', newToken);
-		
-		var mac = ('mac' in req.body) ? req.body.mac : null;
-		console.log('Data extracted');
-		
-		return exportMacs(mac);
-	}, err => {
-		console.log('Token authentication failed.');
-		return Promise.reject(err);
-	})
+	const name = '/exportMacs'
+	logs.trace(name, 'Request: Export MACs to logger')
+	
+	tokens.authenticateRequestDummy(req, res)
+	.then( () =>
+		exportMacs(get(req, 'mac', true))
+	)
 	.respond(res)
 })
 
 
-module.exports = router;
+module.exports = router

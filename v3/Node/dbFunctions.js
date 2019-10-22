@@ -1,103 +1,69 @@
-var exec = require('child_process').exec;
-var mysql = require('mysql');
+const utilLib = require('./util')
+const findTarget = utilLib.findTarget
+const performScript = utilLib.performScript
 
-var con = mysql.createConnection({
-	host: "localhost",
-	user: "root",
-	password: "root",
-	database: "wifi_presence_logger_logs"
-});
+const database = require('./database').database
+
+const LogManager = require('./info-log').LogManager
+const logs = new LogManager(__filename)
+
+const clientRegistrationCheck = async ipv6 => {
+	
+	const name = this.clientRegistrationCheck.name
+	const ip = ipv6.replace(/^.*:/, '')
+	logs.info(name, `IP: ${ip}`)
+
+	logs.trace(name, 'Fetching ARP table...')
+	const arp = (await performScript('arp -a | grep "wlan0"'))
+		.split('\n')
+	
+	logs.trace(name, 'Searching for MAC in ARP table...')
+	const mac = await findTarget(arp, ip, unparsedRow => {
+		const row = unparsedRow.split(' ')
+		const ipFromArp = row[1].replace('(','').replace(')','')
+		const mac = row[3]
+
+		logs.info(name, `\tIP: ${ipFromArp}, MAC: ${mac}`)
+		return ipFromArp
+	})
+
+	const users = await database.query('CALL getUser_byMac(?)', [mac])
+	
+	logs.trace(name, (users.length > 0) ? 'Registered' : 'Not registered')
+	return [mac, (users.length > 0) ? users[0] : null]
+}
+
+const insUpdRecord = async (name, surname, id, mac, type, service) => {
+	
+	const name = this.insUpdRecord.name
+	logs.trace(name, 'Performing record update')
+
+	const sql =
+		service == 'new' ? (
+			type == 's' ? 'CALL insertStudent(?, ?, ?, ?)' :
+			type == 'p' ? 'CALL insertProfessor(?, ?, ?, ?)' :
+			''
+		) :
+		service == 'edit' ? 'CALL updateUser(?, ?, ?, ?)' :
+		''
+	
+	const vars =
+		service == 'new' ? [name, surname, id, mac] :
+		service == 'edit' ? [mac, name, surname, id] :
+		[]
+	
+	return database.query(sql, vars)
+}
+
+const getRecord = async mac => {
+	
+	const name = this.getRecord.name
+	logs.trace(name, 'Getting user')
+	return database.query('CALL getUser_byMac(?)', [mac])
+}
 
 module.exports = {
-	clientRegistrationCheck: async function (ipv6) {
-		var ip;
-		return Promise.resolve()
-		.then( () => {
-			ip = ipv6.replace(/^.*:/, '');
-			console.log(ip);
-			
-			return new Promise( (resolve, reject) => {
-				exec('arp -a | grep "wlan0"', (err, stdout, stderr) => {
-					if (err) {
-						reject('ERROR while fetching ARP table [' + err.message + ']')
-					} else {
-						resolve(stdout)
-					}
-				})
-			})
-		})
-		.then( stdout => {
-			var parsed_stdout = stdout.split('\n');
-			var arp_ip;
-			var other_macs = 0;
-			
-			return new Promise( (resolve, reject) => {
-				parsed_stdout.forEach( row => {
-					var parsed_row = row.split(' ');
-					arp_ip = parsed_row[1].replace('(','').replace(')','');
-					console.log('arp_ip:', arp_ip, 'mac:', parsed_row[3]);
-					
-					if (arp_ip == ip) {
-						resolve(parsed_row[3])
-					} else if (++other_macs == parsed_stdout) {
-						reject('ARP table does not contain a device with the given IP address')
-					}
-				})
-			})
-		})
-		.then( mac => {
-			console.log('Device MAC:', mac);
-			return new Promise( (resolve, reject) => {
-				con.query('CALL getUser_byMac(?)', [mac], (err, result) => {
-					if (err)
-						reject('ERROR while accessing DB [', err.message + ']')
-					else if (result[0].length == 0) {
-						console.log('Not registered');
-						resolve([mac, null])
-					} else {
-						console.log('Registered');
-						resolve([mac, result[0][0]])
-					}
-				})
-			})
-		})
-	},
-	insUpdRecord: async function (name, surname, id, mac, type, service) {
-		return new Promise( (resolve, reject) => {
-			if (service == 'new') {
-				if (type == 's') {
-					con.query('CALL insertStudent(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
-						if (err)
-							reject('ERROR while inserting new student into DB [' + err.message + ']')
-						else
-							resolve('New student inserted into DB')
-					})
-				} else if (type == 'p') {
-					con.query('CALL insertProfessor(?, ?, ?, ?)', [name, surname, id, mac], (err, result) => {
-						if (err)
-							reject('ERROR while inserting new professor into DB [' + err.message + ']')
-						else
-							resolve('New professor inserted into DB')
-					})
-				}
-			} else if (service == 'edit') {
-				con.query('CALL updateUser(?, ?, ?, ?)', [mac, name, surname, id], (err, result) => {
-					if (err)
-						reject('ERROR while updating user in DB [' + err.message + ']')
-					else
-						resolve('User updated in DB')
-				})
-			}
-		})
-	},
-	getRecord: async function (mac) {
-		return new Promise( (resolve, reject) => {
-			con.query('CALL getUser_byMac(?)', [mac], (err, result) => {
-				if (err)
-					reject('ERROR while accessing DB [' + err.message + ']')
-				else
-					resolve(result[0]);
-			})
-		})
-	}
+	clientRegistrationCheck,
+	insUpdRecord,
+	getRecord
 }

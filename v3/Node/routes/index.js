@@ -1,34 +1,43 @@
-const express = require('express');
-const router = express.Router();
-var dbFun = require('../dbFunctions')
-var session = require('express-session');
-var timeoutTime = 120000;
-router.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
+const express = require('express')
+const router = express.Router()
 
-router.get('/', function (req, res) {
+const session = require('express-session')
+
+const dbFun = require('../dbFunctions')
+
+const LogManager = require('../info-log').LogManager
+const logs = new LogManager(__filename)
+
+router.use(session( { secret: 'keyboard cat', cookie: { maxAge: 60000 } }))
+
+router.get('/', (req, res) => {
+	
+	const name = '/default'
+
 	dbFun.clientRegistrationCheck(req.connection.remoteAddress)
 	.then( data => {
-		console.log(data);
-		req.session.mac = data[0];
-		var record = data[1];
+		logs.trace(name, data)
+		req.session.mac = data[0]
+		let record = data[1]
 		
 		if (record != null) {
-			console.log('User exists');
-
 			/* if session is empty, put data from DB */
 
-			console.log("<<" + record.name + "|" + record.surname + ">>");
-			req.session.name = record.name;
-			req.session.surname = record.surname;
-			req.session.index = record.id;
-			req.session.type = record.type;
+			logs.info(name, `User: ${record.name} | ${record.surname}`)
+
+			req.session.name = record.name
+			req.session.surname = record.surname
+			req.session.index = record.id
+			req.session.type = record.type
+
 			res.render('message', {
 				text1: record.name + ' ' + record.surname + ', ' + record.type + ', ' + record.id,
 				option1: 'edit',
 				link1 : 'edit'
 			})
 		} else {
-			console.log('User does not exist');
+			logs.info(name, 'User does not exist')
+
 			res.render('index', {
 				title: 'Tip korisnika',
 				option1: 'Student',
@@ -37,12 +46,10 @@ router.get('/', function (req, res) {
 				link2: '/profesor-registration'
 			})
 		}
-	}, err => {
-		console.log('Request failed');
-		console.log(err);
 	})
 });
-router.get('/student-registration', function (req, res) {
+
+router.get('/student-registration', (req, res) => {
 	req.session.type = 's';
 	req.session.service = 'new';
 	res.render('studentForm', {
@@ -50,7 +57,8 @@ router.get('/student-registration', function (req, res) {
 		indexplc1: 'Index'
 	});
 });
-router.get('/profesor-registration', function (req, res) {
+
+router.get('/profesor-registration', (req, res) => {
 	req.session.type = 'p';
 	req.session.service = 'new';
 	res.render('studentForm', {
@@ -58,7 +66,8 @@ router.get('/profesor-registration', function (req, res) {
 		indexplc1: 'Indetifikacioni broj'
 	});
 });
-router.get('/edit', function (req,res) {
+
+router.get('/edit', (req, res) => {
 	if (typeof req.session.name == 'undefined') {
 		res.render('message', {
 			text1: 'istekla je vasa sesija, vratite se na pocetnu stranu',
@@ -66,11 +75,10 @@ router.get('/edit', function (req,res) {
 			link1: '/'
 		});
 	}
-	var plcIndexStr = "";
-	if (req.session.type == 's')
-		plcIndexStr = "Index";
-	else
-		plcIndexStr = 'Identifikacioni broj';
+
+	let idText = req.session.type == 's' ?
+		'Index' :
+		'Identifikacioni broj'
 	
 	req.session.service = 'edit';
 	res.render('studentForm', {
@@ -79,10 +87,13 @@ router.get('/edit', function (req,res) {
 		indexp: req.session.index.toString(),
 		option1: 'submit',
 		link1: 'submit',
-		indexplc1: plcIndexStr
-	});
-});
-router.post('/submit', function (req, res) {
+		indexplc1: idText
+	})
+})
+
+router.post('/submit', (req, res) => {
+	const name = '/submit'
+
 	if ((typeof req.session.name == 'undefined') && (typeof req.session.service == 'undefined')) {
 		res.render('message', {
 			text1: 'istekla je vasa sesija, vratite se na pocetnu stranu',
@@ -103,20 +114,23 @@ router.post('/submit', function (req, res) {
 		} else {
 			req.body.index = null;
 		}
-		
-		dbFun.insUpdRecord(req.session.name, req.session.surname, req.session.index, req.session.mac, req.session.type, req.session.service)
-		.then( msg => {
-			var str = 'Ulogovani ste kao: ' + req.session.name + ' ' + req.session.surname + ', ' + req.session.type + ': ' + req.session.index;
-			console.log(msg);
-			console.log(str);
+
+		let session = req.session
+		dbFun.insUpdRecord(session.name, session.surname, session.index,
+			session.mac, session.type, session.service
+		)
+		.then( () => {
+			var message =
+				`Ulogovani ste kao: ${session.name} ${session.surname}, ` +
+				`${session.type}: ${session.index}`
+			logs.info(name, message)
 			
 			res.render('message', {
-				text1: str,
+				text1: message,
 				option1: 'povratak na pocetnu stranicu',
 				link1: '/'
 			});
-		}, err => {
-			console.log(err);
+		}, () => {
 			res.render('message', {
 				text1: err,
 				option1: 'pocetak',
@@ -125,5 +139,6 @@ router.post('/submit', function (req, res) {
 		})
 	}
 });
+
 
 module.exports = router;

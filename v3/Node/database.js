@@ -1,0 +1,53 @@
+import { createConnection } from 'mysql'
+import { LogManager } from './info-log'
+
+const logs = new LogManager(__filename)
+
+class Database {
+    
+    constructor () {
+        this.connection = createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'root',
+            database: 'wifi_presence_logger_logs'
+        })
+    }
+
+    query = async (sql, args) => {
+
+        const name = 'Database.query'
+        logs.trace(name, `Performing query: ${sql}`)
+
+        return new Promise( (resolve, reject) =>
+            this.connection.query(sql, args, (err, result) => {
+                if (err) {
+                    logs.error(name, 'Query', err.message)
+                    reject('Query')
+                } else {
+                    logs.trace(name, 'Query successful', result[0])
+                    resolve(result[0])
+                }
+            })
+        )
+    }
+
+    close = async () => new Promise( (resolve, reject) =>
+        this.connection.end( err => {
+            if (err) {
+                logs.error(name, 'DB closing', err.message)
+                reject()
+            } else {
+                logs.info(name, 'DB closure successful')
+                resolve()
+            }
+        })
+    )
+}
+
+const database = new Database()
+
+export {
+    Database,
+    database
+}
