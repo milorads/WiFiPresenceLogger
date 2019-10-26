@@ -1,3 +1,8 @@
+/**
+ * Contains the logic for communicating with the server. Exports a function which periodically
+ * synchronizes the local and server DB by sending and receiving requests from the server.
+ */
+
 const utilsLib = require('./util')
 const forEachResolve = utilsLib.forEachResolve
 const performScript = utilsLib.performScript

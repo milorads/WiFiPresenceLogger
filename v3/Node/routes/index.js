@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 		let record = data[1]
 		
 		if (record != null) {
-			/* if session is empty, put data from DB */
+			// if session is empty, put data from DB
 
 			logs.info(name, `User: ${record.name} | ${record.surname}`)
 

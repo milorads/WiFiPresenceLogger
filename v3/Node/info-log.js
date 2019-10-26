@@ -41,7 +41,7 @@ class LogInfo {
             this.severity == error ? 'ERROR' :
             ''
 
-        console.log(`${severity}  >  ${this.message}`)
+        console.log(`${this.fileName} | ${this.sectionName} | ${severity}  >  ${this.message}`)
 
         logFile.write(
             `----- ${currentTime()} | ${this.fileName} | ${this.sectionName} | ` +

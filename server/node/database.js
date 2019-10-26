@@ -34,7 +34,7 @@ class Database {
 
     close = async () => {
 
-        const name = this.close.name
+        const name = 'Database.close'
         
         return new Promise( (resolve, reject) =>
             this.connection.end( err => {

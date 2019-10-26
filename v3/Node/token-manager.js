@@ -1,10 +1,14 @@
 import rsa from 'node-rsa'
+import { get } from './util'
 
 const tokenHeader = new Buffer(JSON.stringify( { alg: 'rs256' })).toString('base64')
 
+/**
+ * A class responsible for signing JWTs and verifying JWTs that it has signed
+ */
 export class TokenManager {
 
-    constructor() {
+    constructor () {
         this.tokenRsa = new rsa( { b: 512 })
     }
 
@@ -18,7 +22,7 @@ export class TokenManager {
                 .toString('base64')
             
             const plaintext = tokenHeader + payload
-            const signature = tokenRsa.sign(plaintext, 'base64', 'base64')
+            const signature = this.tokenRsa.sign(plaintext, 'base64', 'base64')
             const token = `${payload}.${signature}`
             
             logs.info(name, `New token generated / Token value is: ${token}`)
@@ -31,8 +35,8 @@ export class TokenManager {
     }
 
     authenticate = async token => {
-        const name = 'TokenManager.authenticate'
 
+        const name = 'TokenManager.authenticate'
         logs.trace(name, 'Authenticating token...')
         logs.info(name, `Token: ${token}`)
 
@@ -42,7 +46,7 @@ export class TokenManager {
             const signature = comps[1]
             const plaintext = tokenHeader + payload
             
-            if (!tokenRsa.verify(plaintext, signature, 'base64', 'base64')) {
+            if (!this.tokenRsa.verify(plaintext, signature, 'base64', 'base64')) {
                 logs.error(name, 'Authentication failed', 'Token invalid')
                 throw 'signature'
             }
@@ -62,10 +66,17 @@ export class TokenManager {
         }
     }
 
-    authenticateRequest = async (req, res) => {
-        const info = await this.authenticate(('token' in req.body) ? req.body.token : null)
-        return res.setHeader('token', this.generate(info.usr))
+    /**
+     * Verify the token in the request, and put it to the header of the response.
+     */
+    authenticateRequest = async (request, response) => {
+        const info = await this.authenticate(get(request, 'token'))
+        return response.setHeader('token', this.generate(info.usr))
     }
 
+    /**
+     * Development placeholder for 'authenticateRequest'. Use before implementing proper
+     * authentication.
+     */
     authenticateRequestDummy = async (req, res) => null
 }

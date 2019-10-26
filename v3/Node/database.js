@@ -32,17 +32,22 @@ class Database {
         )
     }
 
-    close = async () => new Promise( (resolve, reject) =>
-        this.connection.end( err => {
-            if (err) {
-                logs.error(name, 'DB closing', err.message)
-                reject()
-            } else {
-                logs.info(name, 'DB closure successful')
-                resolve()
-            }
-        })
-    )
+    close = async () => {
+
+        const name = 'Database.close'
+        
+        return new Promise( (resolve, reject) =>
+            this.connection.end( err => {
+                if (err) {
+                    logs.error(name, 'DB closing', err.message)
+                    reject()
+                } else {
+                    logs.trace(name, 'DB closure successful')
+                    resolve()
+                }
+            })
+        )
+    }
 }
 
 const database = new Database()

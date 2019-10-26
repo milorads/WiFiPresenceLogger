@@ -15,12 +15,12 @@ export var mac = null
  * @param {string} key - the key of the value in the body.
  * @param {boolean} log - log the value.
  */
-export const get = async (holder, key, doLog) => {
+export const get = async (holder, key, log) => {
 
     const name = this.get.name
 
     if (key in holder.body) {
-        if (doLog != null) logs.info(name, `${key}: ${holder.body[key]}`)
+        if (log != null) logs.info(name, `${key}: ${holder.body[key]}`)
         return holder.body[key]
     } else {
         logs.error(name, `Key ${key} not found in holder`)
@@ -53,10 +53,9 @@ export const forEachResolve = async (list, handle) => {
 export const findTarget = async (list, target, handle) => {
     
     const name = this.findTarget.name
-    let count = 0
-
     logs.trace(name, `Target: ${target}`)
 
+    let count = 0
     return new Promise( (resolve, reject) => 
         list.forEach( instance => {
             if (handle(instance) == target) {
@@ -98,7 +97,6 @@ export const performScript = async text => {
  * Init MAC address
  */
 (async () => {
-    const name = this.getMac.name
 
     if (mac != null) return mac
 
@@ -106,7 +104,7 @@ export const performScript = async text => {
         "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
     )).substring(0, 17)
     
-    logs.info(name, `Local MAC: ${mac}`)
+    logs.info('Util', `Local MAC: ${mac}`)
     return mac
 })()
 

@@ -34,8 +34,8 @@ export const get = async (holder, key, log) => {
  * @returns {Promise} a Promise which resolves after going through the whole list.
  */
 export const forEachResolve = async (list, handle) => {
-    let count = 0
 
+    let count = 0
     return new Promise( (resolve, reject) =>
         list.forEach( instance => {
             handle(instance)
@@ -46,7 +46,6 @@ export const forEachResolve = async (list, handle) => {
 
 /**
  * Searches for a target object in the given list.
- * 
  * @param {} handle - Defines how to derive the comparing object from a member of the list.
  * @returns {Promise} a Promise which resolves after finding the target, or rejects if the target is not
  * in the list.
@@ -95,18 +94,17 @@ export const performScript = async text => {
 }
 
 /**
- * Get MAC address
+ * Init MAC address
  */
 (async () => {
 
-    const name = this.getMac.name
     if (mac != null) return mac
 
     mac = (await performScript(
         "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
     )).substring(0, 17)
 
-    logs.info(name, `Local MAC: ${mac}`)
+    logs.info('Util', `Local MAC: ${mac}`)
     return mac
 })()
 

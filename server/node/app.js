@@ -7,7 +7,7 @@ const path = require('path')
 const fs = require('fs')
 const bodyParser = require('body-parser')
 
-// ========================= controller =========================
+/* Server API */
 const app = express()
 
 app.use(express.static('public'))
@@ -20,6 +20,8 @@ const https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'))
 const https_credentials = {key: https_key, cert: https_cert}
 
 app.use(routes)
+
+// TODO implement https
 
 //https.createServer(https_credentials,app).listen(3002);
 
