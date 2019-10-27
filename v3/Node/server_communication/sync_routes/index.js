@@ -1,15 +1,21 @@
-const express = require('express')
-const sync_router = express.Router()
+/**
+ * This is an unused router. In the current version, the function periodicSync from server_comm
+ * module communicates with the server by sending requests and fetching responses, so the server
+ * sends the data by responding, not by sending requests to the device's routes. This module should
+ * be used if this implementation changes.
+ */
 
-const utilLib = require('../../util')
-const get = utilLib.get
+import { Router } from 'express'
+const router = Router()
 
-const database = require('../../database').database
+import { get } from '../../util'
 
-const LogManager = require('../../info-log').LogManager
+import { database } from '../../database'
+
+import { LogManager } from '../../info-log'
 const logs = new LogManager(__filename)
 
-const TokenManager = require('../../token-manager').TokenManager
+import { TokenManager } from '../../token-manager'
 const tokenManager = new TokenManager()
 
 const deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58'
@@ -46,7 +52,7 @@ const checkUser = async (username, password) => {
 	}
 }
 
-api_router.post('/getToken', (req, res) => {
+router.post('/getToken', (req, res) => {
 	
 	const name = '/getToken'
 	logs.trace(name, 'Request: get token')
@@ -61,7 +67,7 @@ api_router.post('/getToken', (req, res) => {
 	.respond(res)
 });
 
-api_router.post('/exportUsers', (req, res) => {
+router.post('/exportUsers', (req, res) => {
 	
 	const name = 'exportUsersUrl'
 	logs.trace(name, 'Request: export users')
@@ -82,7 +88,7 @@ const importUsers = async users => {
 	return null
 }
 
-api_router.post('/importUsers', (req, res) => {
+router.post('/importUsers', (req, res) => {
 	
 	const name = '/importUsers'
 	logs.trace(name, 'Request: import users')
@@ -94,7 +100,7 @@ api_router.post('/importUsers', (req, res) => {
 	.respond(res)
 })
 
-api_router.post('/exportMacs', (req, res) => {
+router.post('/exportMacs', (req, res) => {
 	
 	const name = '/exportMacs'
 	logs.trace(name, 'Request: export MACs')
@@ -113,7 +119,7 @@ const importMacs = async macs => {
 	return null
 }
 
-api_router.get('/importMacs', (req, res) => {
+router.get('/importMacs', (req, res) => {
 	
 	const name = '/importMacs'
 	logs.trace(name, 'Request: import MACs')
@@ -125,7 +131,7 @@ api_router.get('/importMacs', (req, res) => {
 	.respond(res)
 });
 
-api_router.post('/exportLogs', (req, res) => {
+router.post('/exportLogs', (req, res) => {
 	
 	const name = '/exportLogs'
 	logs.trace(name, 'Request: export logs')
@@ -136,4 +142,4 @@ api_router.post('/exportLogs', (req, res) => {
 })
 
 
-module.exports = sync_router
+export default router

@@ -1,16 +1,14 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const utilLib = require('../util')
-const get = utilLib.get
-const forEachResolve = utilLib.forEachResolve
+import { get, forEachResolve } from '../util'
 
-const database = require('../database').database
+import { database } from '../database'
 
-const LogManager = require('../info-log').LogManager
+import { LogManager } from '../info-log'
 const logs = new LogManager(__filename)
 
-const TokenManager = require('../token-manager').TokenManager
+import { TokenManager } from '../token-manager'
 const tokens = new TokenManager()
 
 Promise.prototype.respond = res => {
@@ -207,4 +205,4 @@ router.post('/exportMacs', (req, res) => {
 })
 
 
-module.exports = router
+export default router

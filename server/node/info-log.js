@@ -1,7 +1,7 @@
-import fs from 'fs'
+import { createWriteStream } from 'fs'
 
 const logDirectory = '/home/pi'
-const logFile = fs.createWriteStream(path.join(logDirectory, 'node.log'), { flags: 'a' })
+const logFile = createWriteStream(path.join(logDirectory, 'node.log'), { flags: 'a' })
 
 const currentTime = () => {
     const date = new Date()

@@ -1,22 +1,22 @@
-const express = require('express')
-const routes = require ('./routes')
+import express, { static } from 'express'
+import routes from './routes'
 
-const https = require('https')
-const http = require('http')
-const path = require('path')
-const fs = require('fs')
-const bodyParser = require('body-parser')
+import https from 'https'
+import http from 'http'
+import { join } from 'path'
+import { readFileSync } from 'fs'
+import { urlencoded, json } from 'body-parser'
 
 /* Server API */
 const app = express()
 
-app.use(express.static('public'))
-app.use(bodyParser.urlencoded({extended: true}))
-app.use(bodyParser.json())
+app.use(static('public'))
+app.use(urlencoded({extended: true}))
+app.use(json())
 app.use(express['static'](__dirname))
 
-const https_key = fs.readFileSync(path.join(__dirname, 'private.key'))
-const https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'))
+const https_key = readFileSync(join(__dirname, 'private.key'))
+const https_cert = readFileSync(join(__dirname, 'primary.crt'))
 const https_credentials = {key: https_key, cert: https_cert}
 
 app.use(routes)

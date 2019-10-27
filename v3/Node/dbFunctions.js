@@ -1,10 +1,8 @@
-const utilLib = require('./util')
-const findTarget = utilLib.findTarget
-const performScript = utilLib.performScript
+import { findTarget, performScript } from './util'
 
-const database = require('./database').database
+import { database } from './database'
 
-const LogManager = require('./info-log').LogManager
+import { LogManager } from './info-log'
 const logs = new LogManager(__filename)
 
 const clientRegistrationCheck = async ipv6 => {
@@ -62,7 +60,7 @@ const getRecord = async mac => {
 	return database.query('CALL getUser_byMac(?)', [mac])
 }
 
-module.exports = {
+export {
 	clientRegistrationCheck,
 	insUpdRecord,
 	getRecord

@@ -1,17 +1,14 @@
-const utilLib = require('../util')
-const get = utilLib.get
-const forEachResolve = utilLib.forEachResolve
-const performScript = utilLib.performScript
+import { get, forEachResolve, performScript } from '../util'
 
-const express = require('express')
-const api_router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const database = require('../database').database
+import { database } from '../database'
 
-const LogManager = require('../info-log').LogManager
+import { LogManager } from '../info-log'
 const logs = new LogManager(__filename)
 
-const TokenManager = require('../token-manager').TokenManager
+import { TokenManager } from '../token-manager'
 const tokens = new TokenManager()
 
 // TODO should be replaced with a better form of authentication
@@ -52,7 +49,7 @@ const checkUser = async (username, password) => {
 	}
 }
 
-api_router.post('/getToken', (req, res) => {
+router.post('/getToken', (req, res) => {
 	
 	const name = '/getToken'
 	logs.trace(name, 'Request: get token')
@@ -69,7 +66,7 @@ api_router.post('/getToken', (req, res) => {
 
 const apiTest = async () => '1'
 
-api_router.post('/apiTest', (req, res) => {
+router.post('/apiTest', (req, res) => {
 	
 	const name = '/apiTest'
 	logs.trace(name, 'Request: API test')
@@ -99,7 +96,7 @@ const getData = async datum => {
 	})
 }
 
-api_router.post('/getData', (req, res) => {
+router.post('/getData', (req, res) => {
 	
 	const name = '/getData'
 	logs.trace(name, 'Request: get data')
@@ -131,7 +128,7 @@ const getData1 = async datum => {
 	})
 }
 
-api_router.post('/getData1', (req, res) => {
+router.post('/getData1', (req, res) => {
 	
 	const name = '/getData1'
 	logs.trace(name, 'Request: Get data 1')
@@ -158,7 +155,7 @@ const deleteData = async dates => {
 	)
 }
 
-api_router.post('/deleteData', (req, res) => {
+router.post('/deleteData', (req, res) => {
 	
 	const name = '/deleteData'
 	logs.trace(name, 'Request: delete data')
@@ -191,7 +188,7 @@ const listData = async () => {
 	)
 }
 
-api_router.post('/listData', (req, res) => {
+router.post('/listData', (req, res) => {
 	
 	const name = '/listData'
 	logs.trace(name, 'Request: list data')
@@ -201,7 +198,7 @@ api_router.post('/listData', (req, res) => {
 	.respond(res)
 })
 
-api_router.get('/getTimestamp', (req, res) => {
+router.get('/getTimestamp', (req, res) => {
 	
 	const name = '/getTimestamp'
 	logs.trace(name, 'Request: get timestamp')
@@ -241,7 +238,7 @@ const getTimeShift = async () => {
 	}
 }
 
-api_router.post('/getTimeShift', (req, res) => {
+router.post('/getTimeShift', (req, res) => {
 	
 	const name = '/getTimeShift'
 	logs.trace(name, 'Request: get time shift')
@@ -256,7 +253,7 @@ const setSystemTime = async (actionCode, adminTimestamp) => performScript(
 	`sudo bash ${__dirname}/../../Bash/sys_time.bash ${actionCode} ${adminTimestamp}`
 )
 
-api_router.post('/setSystemTime', (req, res) => {
+router.post('/setSystemTime', (req, res) => {
 	
 	const name = '/setSystemTime'
 	logs.trace(name, 'Request: set system time')
@@ -290,7 +287,7 @@ const getRegList = async () => {
 	})
 }
 
-api_router.post('/getRegList', (req, res) => {
+router.post('/getRegList', (req, res) => {
 	
 	const name = '/getRegList'
 	logs.trace(name, 'Request: get reg list')
@@ -301,4 +298,4 @@ api_router.post('/getRegList', (req, res) => {
 });
 
 
-module.exports = api_router
+export default router

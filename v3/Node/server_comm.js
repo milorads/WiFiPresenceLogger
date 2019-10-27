@@ -3,14 +3,11 @@
  * synchronizes the local and server DB by sending and receiving requests from the server.
  */
 
-const utilsLib = require('./util')
-const forEachResolve = utilsLib.forEachResolve
-const performScript = utilsLib.performScript
-const requestPost = utilsLib.requestPost
+import { forEachResolve, performScript, requestPost } from './util'
 
-const database = require('./database').database
+import { database } from './database'
 
-const LogManager = require('./info-log').LogManager
+import { LogManager } from './info-log'
 const logs = new LogManager(__filename)
 
 var url = 'http://192.168.0.131:80/'
@@ -135,19 +132,19 @@ const sync = async () => {
 	return Promise.all([macsImported, logsSent])
 }
 
-const periodic_sync = async period => {
+const periodicSync = async period => {
 	sync()
 		.then( () => {
 			logs.trace(name, 'Sync successful')
-			setTimeout( () => periodic_sync(period), period)
+			setTimeout( () => periodicSync(period), period)
 		}, () => {
 			logs.trace(name, `Sync failed / Attempting again in ${period / 10000} seconds`)
-			setTimeout( () => periodic_sync(period), period / 10)
+			setTimeout( () => periodicSync(period), period / 10)
 		})
 }
 
-module.exports = {
+export {
 	sync,
-	periodic_sync,
+	periodicSync,
 	requestServerIp
 }

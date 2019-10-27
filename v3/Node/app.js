@@ -1,25 +1,25 @@
-const express = require('express')
-const routes = require ('./routes')
+import express, { static } from 'express'
+import webRouter from './routes'
 
-const https = require('https')
-const path = require('path')
-const fs = require('fs')
-const bodyParser = require('body-parser')
+import { createServer } from 'https'
+import { join } from 'path'
+import { readFileSync } from 'fs'
+import { urlencoded, json } from 'body-parser'
 
 /* Registration webpage */
 
 const webApp = express()
 
 webApp.set('view engine', 'pug')
-webApp.set('views', path.join(__dirname, 'views'))
-webApp.use(express.static(path.join(__dirname, 'public')))
+webApp.set('views', join(__dirname, 'views'))
+webApp.use(static(join(__dirname, 'public')))
 
-webApp.use(express.static('public'))
-webApp.use(bodyParser.urlencoded( { extended: true }))
-webApp.use(bodyParser.json())
+webApp.use(static('public'))
+webApp.use(urlencoded( { extended: true }))
+webApp.use(json())
 webApp.use(express['static'](__dirname))
 
-webApp.use(routes)
+webApp.use(webRouter)
 
 webApp.listen(80, () => console.log('App listening on port 80!') )
 
@@ -27,27 +27,27 @@ webApp.listen(80, () => console.log('App listening on port 80!') )
 /* API controller */
 
 const api = express()
-const api_routes = require('./api_routes')
+import apiRouter from './api_routes'
 api.set('view engine', 'pug')
 
-api.use(express.static('public'))
-api.use(bodyParser.urlencoded( { extended: true }))
-api.use(bodyParser.json())
+api.use(static('public'))
+api.use(urlencoded( { extended: true }))
+api.use(json())
 api.use(express['static'](__dirname))
 
-const https_key = fs.readFileSync(path.join(__dirname, 'private.key'))
-const https_cert = fs.readFileSync(path.join(__dirname, 'primary.crt'))
+const https_key = readFileSync(join(__dirname, 'private.key'))
+const https_cert = readFileSync(join(__dirname, 'primary.crt'))
 const https_credentials = { key: https_key, cert: https_cert }
 
-api.use(api_routes)
+api.use(apiRouter)
 
-https.createServer(https_credentials,api)
+createServer(https_credentials,api)
 	.listen(3002)
 
 
 /* Server sync */
 
-const serverComm = require('./server_comm')
+import { requestServerIp, periodicSync } from './server_comm'
 
-serverComm.requestServerIp()
-	.then( () => serverComm.periodic_sync(60 * 1000) )
+requestServerIp()
+	.then( () => periodicSync(60 * 1000) )

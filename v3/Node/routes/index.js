@@ -1,11 +1,11 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const session = require('express-session')
+import session from 'express-session'
 
-const dbFun = require('../dbFunctions')
+import { clientRegistrationCheck, insUpdRecord } from '../dbFunctions'
 
-const LogManager = require('../info-log').LogManager
+import { LogManager } from '../info-log'
 const logs = new LogManager(__filename)
 
 router.use(session( { secret: 'keyboard cat', cookie: { maxAge: 60000 } }))
@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 	
 	const name = '/default'
 
-	dbFun.clientRegistrationCheck(req.connection.remoteAddress)
+	clientRegistrationCheck(req.connection.remoteAddress)
 	.then( data => {
 		logs.trace(name, data)
 		req.session.mac = data[0]
@@ -116,7 +116,7 @@ router.post('/submit', (req, res) => {
 		}
 
 		let session = req.session
-		dbFun.insUpdRecord(session.name, session.surname, session.index,
+		insUpdRecord(session.name, session.surname, session.index,
 			session.mac, session.type, session.service
 		)
 		.then( () => {
@@ -141,4 +141,4 @@ router.post('/submit', (req, res) => {
 });
 
 
-module.exports = router;
+export default router

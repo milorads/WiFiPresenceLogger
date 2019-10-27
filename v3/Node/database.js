@@ -6,7 +6,7 @@ const logs = new LogManager(__filename)
 class Database {
     
     constructor () {
-        this.connection = createConnection({
+        this.connection = createConnection( {
             host: 'localhost',
             user: 'root',
             password: 'root',
@@ -50,9 +50,5 @@ class Database {
     }
 }
 
-const database = new Database()
 
-export {
-    Database,
-    database
-}
+export const database = new Database()
