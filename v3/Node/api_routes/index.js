@@ -15,7 +15,7 @@ const tokens = new TokenManager()
 const deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58'
 
 Promise.prototype.respond = res => {
-	const name = 'prototype response'
+	const name = 'Prototype.respond'
 
 	this
 	.then( data => {
@@ -37,7 +37,7 @@ Promise.prototype.respond = res => {
 //
 const checkUser = async (username, password) => {
 	
-	const name = this.checkUser.name
+	const name = checkUser.name
 	logs.trace(`Checking user: ${username}`)
 
 	if (password == deviceCode) {
@@ -80,7 +80,7 @@ const getData = async datum => {
 	
 	if (datum == null) throw 'parameters'
 
-	const name = this.getData.name
+	const name = getData.name
 	logs.trace(name, `Data: ${datum}`)
 	
 	return database.query('CALL getLogs_byDate(?)', [datum])
@@ -112,7 +112,7 @@ const getData1 = async datum => {
 
 	if (datum == null) throw 'parameters'
 	
-	const name = this.getData1.name
+	const name = getData1.name
 	logs.trace(name, `Data: ${datum}`)
 	
 	return database.query('CALL getLogs_byDate(?)')
@@ -144,7 +144,7 @@ const deleteData = async dates => {
 
 	if (dates == null) throw 'parameters'
 	
-	const name = this.deleteData.name
+	const name = deleteData.name
 	logs.trace(name, 'Deleting data...')
 
 	const datesList = dates.split(',')
@@ -169,7 +169,7 @@ router.post('/deleteData', (req, res) => {
 
 const listData = async () => {
 	
-	const name = this.listData.name
+	const name = listData.name
 	const tabels = `SELECT * FROM sqlite_master WHERE type='table'`
 	
 	return new Promise( (resolve, reject) =>
@@ -214,7 +214,7 @@ router.get('/getTimestamp', (req, res) => {
 
 const getTimeShift = async () => {
 	
-	const name = this.getTimeShift.name
+	const name = getTimeShift.name
 
 	try {
 		const output = (await performScript(
@@ -272,7 +272,7 @@ router.post('/setSystemTime', (req, res) => {
 
 const getRegList = async () => {
 	
-	const name = this.getRegList.name
+	const name = getRegList.name
 	
 	return database.query('CALL getLogs')
 	.then( async rows => {

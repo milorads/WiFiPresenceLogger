@@ -7,7 +7,8 @@ const logs = new LogManager(__filename)
 
 const clientRegistrationCheck = async ipv6 => {
 	
-	const name = this.clientRegistrationCheck.name
+	const name = clientRegistrationCheck.name
+
 	const ip = ipv6.replace(/^.*:/, '')
 	logs.info(name, `IP: ${ip}`)
 
@@ -33,7 +34,7 @@ const clientRegistrationCheck = async ipv6 => {
 
 const insUpdRecord = async (name, surname, id, mac, type, service) => {
 	
-	const name = this.insUpdRecord.name
+	const name = insUpdRecord.name
 	logs.trace(name, 'Performing record update')
 
 	const sql =
@@ -55,7 +56,7 @@ const insUpdRecord = async (name, surname, id, mac, type, service) => {
 
 const getRecord = async mac => {
 	
-	const name = this.getRecord.name
+	const name = getRecord.name
 	logs.trace(name, 'Getting user')
 	return database.query('CALL getUser_byMac(?)', [mac])
 }

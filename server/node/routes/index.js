@@ -33,7 +33,7 @@ Promise.prototype.respond = res => {
 
 const checkLogger = async (mac, key) => {
 	
-	const name = this.checkLogger.name
+	const name = checkLogger.name
 
 	if (true) { // TODO implement proper authentication
 		logs.trace(name, 'Logger authenticated')
@@ -46,7 +46,7 @@ const checkLogger = async (mac, key) => {
 
 const importLogs = async (mac, rows) => {
 
-	const name = this.importLogs.name
+	const name = importLogs.name
 
 	if (rows.length > 0) {
 
@@ -64,7 +64,7 @@ const importLogs = async (mac, rows) => {
 
 const importUsers = async (mac, rows) => {
 
-	const name = this.importUsers.name
+	const name = importUsers.name
 
 	if (rows.length > 0) {
 
@@ -82,7 +82,7 @@ const importUsers = async (mac, rows) => {
 
 const importMacs = async (mac, rows) => {
 
-	const name = this.importMacs.name
+	const name = importMacs.name
 
 	if (rows.length > 0) {
 
@@ -99,12 +99,12 @@ const importMacs = async (mac, rows) => {
 }
 
 const exportUsers = async users => {
-	logs.trace(this.exportUsers.name, 'Exporting users...')
+	logs.trace(exportUsers.name, 'Exporting users...')
 	return database.query('CALL exportUsers(?)', [users])
 }
 
 const exportMacs = async mac => {
-	logs.trace(this.exportMacs.name, 'Exporting MACs...')
+	logs.trace(exportMacs.name, 'Exporting MACs...')
 	return database.query('CALL exportMacs(?)', [mac])
 }
 

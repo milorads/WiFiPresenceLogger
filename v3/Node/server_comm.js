@@ -32,7 +32,7 @@ const serverImportLogs = 'importLogs'
  */
 const requestServerIp = async () => {
 	
-	const name = this.requestServerIp.name
+	const name = requestServerIp.name
 	logs.trace(name, 'Requesting server IP...')
 	
 	const ip = await requestPost(`${broadcastUrl}serverIp`, { json: { } } )
@@ -42,7 +42,7 @@ const requestServerIp = async () => {
 
 const localExport = async procedure => {
 	
-	const name = this.localExport.name
+	const name = localExport.name
 	logs.trace(name, `Exporting from DB ${procedure} ...`)
 
 	const result = await database.query(`CALL ${procedure}`)
@@ -53,7 +53,7 @@ const localExport = async procedure => {
 
 const localImport = async (procedure, instances) => {
 	
-	const name = this.localImport.name
+	const name = localImport.name
 	logs.trace(name, `Importing into DB ${procedure} ...`)
 
 	if (instances.length > 0) {
@@ -69,7 +69,7 @@ const localImport = async (procedure, instances) => {
 
 const sendRequest = async (requestName, instances) => {
 	
-	const name = this.sendRequest.name
+	const name = sendRequest.name
 	logs.trace(name, `Requesting from server: ${requestName} ...`)
 
 	const response = await requestPost(`${url}${requestName}`,
@@ -87,7 +87,7 @@ const sendRequest = async (requestName, instances) => {
 // TODO should be replaced by 'mac' from the util.js file
 const fetchLocalMac = async () => {
 	
-	const name = this.fetchLocalMac.name
+	const name = fetchLocalMac.name
 
 	if (localMac == null) {
 
@@ -101,7 +101,7 @@ const fetchLocalMac = async () => {
 
 const sync = async () => {
 
-	const name = this.sync.name
+	const name = sync.name
 
 	const ready = fetchLocalMac()
 	.then( () => {
@@ -133,6 +133,9 @@ const sync = async () => {
 }
 
 const periodicSync = async period => {
+
+	const name = periodicSync.name
+	
 	sync()
 		.then( () => {
 			logs.trace(name, 'Sync successful')

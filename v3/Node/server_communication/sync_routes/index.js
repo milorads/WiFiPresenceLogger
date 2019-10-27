@@ -3,6 +3,8 @@
  * module communicates with the server by sending requests and fetching responses, so the server
  * sends the data by responding, not by sending requests to the device's routes. This module should
  * be used if this implementation changes.
+ * 
+ * The module should maybe be removed, to avoid confusion.
  */
 
 import { Router } from 'express'
@@ -21,6 +23,7 @@ const tokenManager = new TokenManager()
 const deviceCode = 'bfa86fdd-398c-462e-9b4e-9cb52ffafb58'
 
 Promise.prototype.respond = res => {
+
 	const name = 'Promise.respond'
 
 	this
@@ -41,7 +44,8 @@ Promise.prototype.respond = res => {
 
 /* The system does not currently use this function */
 const checkUser = async (username, password) => {
-	const name = this.checkUser.name
+	
+	const name = checkUser.name
 
 	if (password == deviceCode) {
 		logs.info(name, 'User authenticated')

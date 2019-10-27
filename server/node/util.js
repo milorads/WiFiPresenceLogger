@@ -17,7 +17,7 @@ export var mac = null
  */
 export const get = async (holder, key, log) => {
 
-    const name = this.get.name
+    const name = get.name
 
     if (key in holder.body) {
         if (log != null) logs.info(name, `${key}: ${holder.body[key]}`)
@@ -52,7 +52,7 @@ export const forEachResolve = async (list, handle) => {
  */
 export const findTarget = async (list, target, handle) => {
     
-    const name = this.findTarget.name
+    const name = findTarget.name
     logs.trace(name, `Target: ${target}`)
 
     let count = 0
@@ -78,7 +78,7 @@ export const findTarget = async (list, target, handle) => {
  */
 export const performScript = async text => {
 
-    const name = this.requestPost.name
+    const name = requestPost.name
 
     return new Promise( (resolve, reject) =>
         exec(text, (err, stdout, stderr) => {
@@ -117,7 +117,7 @@ export const performScript = async text => {
  */
 export const requestPost = async (url, json) => {
     
-    const name = this.requestPost.name
+    const name = requestPost.name
 
     return new Promise( (resolve, reject) =>
         post(url, json, (err, response, body) => {
