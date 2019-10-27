@@ -15,7 +15,7 @@ export var mac = null
  * @param {string} key - the key of the value in the body.
  * @param {boolean} log - log the value.
  */
-export const get = async (holder, key, log) => {
+export const get = (holder, key, log) => {
 
     const name = get.name
 
