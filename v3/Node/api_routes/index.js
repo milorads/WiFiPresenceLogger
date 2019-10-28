@@ -170,6 +170,7 @@ router.post('/deleteData', (req, res) => {
 const listData = async () => {
 	
 	const name = listData.name
+	/* Not made to work with MySQL */
 	const tabels = `SELECT * FROM sqlite_master WHERE type='table'`
 	
 	return new Promise( (resolve, reject) =>

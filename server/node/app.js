@@ -11,13 +11,13 @@ import { urlencoded, json } from 'body-parser'
 const app = express()
 
 app.use(static('public'))
-app.use(urlencoded({extended: true}))
+app.use(urlencoded( { extended: true }))
 app.use(json())
 app.use(express['static'](__dirname))
 
-const https_key = readFileSync(join(__dirname, 'private.key'))
-const https_cert = readFileSync(join(__dirname, 'primary.crt'))
-const https_credentials = {key: https_key, cert: https_cert}
+const httpsKey = readFileSync(join(__dirname, 'private.key'))
+const httpsCertificate = readFileSync(join(__dirname, 'primary.crt'))
+const httpsCredentials = { key: httpsKey, cert: httpsCertificate }
 
 app.use(routes)
 

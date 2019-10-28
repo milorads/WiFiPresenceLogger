@@ -7,7 +7,12 @@ const logs = new LogManager(__filename)
 /**
  * MAC address of this machine.
  */
-export var mac = null
+export const mac = (await performScript(
+    "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
+))
+    .substring(0, 17)
+
+logs.info('Util', `Local MAC: ${mac}`)
 
 /**
  * Extract the object with the given key from the body of the holder.
@@ -92,21 +97,6 @@ export const performScript = async text => {
         })
     )
 }
-
-/**
- * Init MAC address
- */
-(async () => {
-
-    if (mac != null) return mac
-
-    mac = (await performScript(
-        "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
-    )).substring(0, 17)
-
-    logs.info('Util', `Local MAC: ${mac}`)
-    return mac
-})()
 
 /**
  * Send a POST request.

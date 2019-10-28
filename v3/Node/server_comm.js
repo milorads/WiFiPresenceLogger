@@ -3,7 +3,7 @@
  * synchronizes the local and server DB by sending and receiving requests from the server.
  */
 
-import { forEachResolve, performScript, requestPost } from './util'
+import { mac, forEachResolve, requestPost } from './util'
 
 import { database } from './database'
 
@@ -12,7 +12,6 @@ const logs = new LogManager(__filename)
 
 var url = 'http://192.168.0.131:80/'
 const broadcastUrl = 'http://255.255.255.255/'
-var localMac = null
 
 /* Signatures of stored procedures for the local database */
 const localExportUsers = 'exportUsers'
@@ -75,7 +74,7 @@ const sendRequest = async (requestName, instances) => {
 	const response = await requestPost(`${url}${requestName}`,
 		{ json: {
 			token: 'ok',
-			mac: localMac,
+			mac: mac,
 			rows: instances
 		} }
 	)
@@ -84,33 +83,15 @@ const sendRequest = async (requestName, instances) => {
 	return response
 }
 
-// TODO should be replaced by 'mac' from the util.js file
-const fetchLocalMac = async () => {
-	
-	const name = fetchLocalMac.name
-
-	if (localMac == null) {
-
-		const output = await performScript(
-			"ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
-		)
-		localMac = output.substring(0, 17)
-		logs.info(name, `Local MAC: ${localMac}`)
-	}
-}
-
 const sync = async () => {
 
 	const name = sync.name
+	logs.trace(name, 'Attempting connection with server')
 
-	const ready = fetchLocalMac()
-	.then( () => {
-		logs.trace(name, 'Attempting connection with server')
-		return Promise.race([
-			sendRequest('ping', null),
-			new Promise( (resolve, reject) => setTimeout(reject, 10000, 'timeout'))
-		])
-	})
+	const ready = Promise.race([
+		sendRequest('ping', null),
+		new Promise( (resolve, reject) => setTimeout(reject, 10000, 'timeout'))
+	])
 	.then( () => logs.trace(name, 'Connection established') )
 	
 	const macsSent = ready

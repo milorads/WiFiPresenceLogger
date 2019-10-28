@@ -7,7 +7,12 @@ const logs = new LogManager(__filename)
 /**
  * MAC address of this machine.
  */
-export var mac = null
+export const mac = (await performScript(
+    "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
+))
+    .substring(0, 17)
+
+logs.info('Util', `Local MAC: ${mac}`)
 
 /**
  * Extract the object with the given key from the body of the holder.
@@ -17,7 +22,7 @@ export var mac = null
  */
 export const get = (holder, key, log) => {
 
-    const name = this.get.name
+    const name = get.name
 
     if (key in holder.body) {
         if (log != null) logs.info(name, `${key}: ${holder.body[key]}`)
@@ -52,7 +57,7 @@ export const forEachResolve = async (list, handle) => {
  */
 export const findTarget = async (list, target, handle) => {
     
-    const name = this.findTarget.name
+    const name = findTarget.name
     logs.trace(name, `Target: ${target}`)
 
     let count = 0
@@ -78,7 +83,7 @@ export const findTarget = async (list, target, handle) => {
  */
 export const performScript = async text => {
 
-    const name = this.requestPost.name
+    const name = performScript.name
 
     return new Promise( (resolve, reject) =>
         exec(text, (err, stdout, stderr) => {
@@ -94,21 +99,6 @@ export const performScript = async text => {
 }
 
 /**
- * Init MAC address
- */
-(async () => {
-
-    if (mac != null) return mac
-
-	mac = (await performScript(
-        "ifconfig wlan0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"
-    )).substring(0, 17)
-    
-    logs.info('Util', `Local MAC: ${mac}`)
-    return mac
-})()
-
-/**
  * Send a POST request.
  * @param {string} url - Target
  * @param {JSON} json - Parameters
@@ -117,7 +107,7 @@ export const performScript = async text => {
  */
 export const requestPost = async (url, json) => {
 
-    const name = this.requestPost.name
+    const name = requestPost.name
 
     return new Promise( (resolve, reject) =>
         post(url, json, (err, response, body) => {

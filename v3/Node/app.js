@@ -35,13 +35,13 @@ api.use(urlencoded( { extended: true }))
 api.use(json())
 api.use(express['static'](__dirname))
 
-const https_key = readFileSync(join(__dirname, 'private.key'))
-const https_cert = readFileSync(join(__dirname, 'primary.crt'))
-const https_credentials = { key: https_key, cert: https_cert }
+const httpsKey = readFileSync(join(__dirname, 'private.key'))
+const httpsCertificate = readFileSync(join(__dirname, 'primary.crt'))
+const httpsCredentials = { key: httpsKey, cert: httpsCertificate }
 
 api.use(apiRouter)
 
-createServer(https_credentials,api)
+createServer(httpsCredentials, api)
 	.listen(3002)
 
 
